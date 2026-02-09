@@ -1,13 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import Header from '@/components/Header';
+import CategoryTabs from '@/components/CategoryTabs';
+import MenuSection from '@/components/MenuSection';
+import CartDrawer from '@/components/CartDrawer';
+import { CartProvider } from '@/contexts/CartContext';
+import { CATEGORIES } from '@/data/menu';
 
 const Index = () => {
+  const [activeCategory, setActiveCategory] = useState('monte');
+  const activeCat = CATEGORIES.find(c => c.id === activeCategory);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <CartProvider>
+      <div className="min-h-screen bg-background pb-24">
+        <Header />
+        <CategoryTabs activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+
+        <main className="max-w-3xl mx-auto px-4 py-6">
+          <h2 className="text-xl font-extrabold mb-4 flex items-center gap-2">
+            <span>{activeCat?.icon}</span>
+            <span>{activeCat?.label}</span>
+          </h2>
+          <MenuSection category={activeCategory} />
+        </main>
+
+        <CartDrawer />
       </div>
-    </div>
+    </CartProvider>
   );
 };
 
