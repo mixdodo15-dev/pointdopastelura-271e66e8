@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MENU_ITEMS, type MenuItem } from '@/data/menu';
+import { MENU_ITEMS, SWEET_SPECIAL_FLAVORS, type MenuItem } from '@/data/menu';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Plus, Star } from 'lucide-react';
@@ -122,29 +122,24 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   // Doces
   if (category === 'doces') {
     return (
-      <div className="grid gap-3">
-        {items.map(item => (
-          <div
-            key={item.id}
-            className="bg-card rounded-xl p-4 shadow-sm border hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
-                {item.description && (
-                  <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
-                )}
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
-                <Button size="sm" className="rounded-full" onClick={() => handleAdd(item)}>
-                  <Plus className="h-4 w-4 mr-1" /> Adicionar
-                </Button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <>
+        <div className="grid gap-3">
+          {items.map(item => (
+            <DoceCard key={item.id} item={item} onAdd={handleAdd} addItem={addItem} />
+          ))}
+        </div>
+        {flavorModal && (
+          <FlavorModal
+            open={!!flavorModal}
+            onClose={() => setFlavorModal(null)}
+            maxFlavors={flavorModal.maxFlavors!}
+            itemName={flavorModal.name}
+            price={flavorModal.price}
+            onConfirm={handleFlavorConfirm}
+            customFlavors={flavorModal.id === 'doce-7' ? SWEET_SPECIAL_FLAVORS : undefined}
+          />
+        )}
+      </>
     );
   }
 
@@ -277,6 +272,36 @@ const EspecialCard = ({
         }}
       />
     </>
+  );
+};
+
+const DoceCard = ({
+  item,
+  onAdd,
+}: {
+  item: MenuItem;
+  onAdd: (item: MenuItem) => void;
+  addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
+}) => {
+  const isEspecial = item.id === 'doce-7';
+
+  return (
+    <div className="bg-card rounded-xl p-4 shadow-sm border hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
+          {item.description && (
+            <p className="text-xs text-primary font-semibold mt-1">{item.description}</p>
+          )}
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
+          <Button size="sm" className="rounded-full" onClick={() => onAdd(item)}>
+            <Plus className="h-4 w-4 mr-1" /> {isEspecial ? 'Escolher sabor' : 'Adicionar'}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 

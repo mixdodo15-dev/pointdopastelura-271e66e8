@@ -12,9 +12,10 @@ interface FlavorModalProps {
   itemName: string;
   price: number;
   onConfirm: (flavors: string[]) => void;
+  customFlavors?: string[];
 }
 
-const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm }: FlavorModalProps) => {
+const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm, customFlavors }: FlavorModalProps) => {
   const [selected, setSelected] = useState<string[]>([]);
 
   const toggle = (name: string) => {
@@ -39,6 +40,47 @@ const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm }: 
 
   const salgados = FLAVORS.filter(f => f.type === 'salgado');
   const doces = FLAVORS.filter(f => f.type === 'doce');
+
+  // If custom flavors provided, show simple list
+  if (customFlavors) {
+    return (
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold">
+              {itemName} — R$ {price.toFixed(2).replace('.', ',')}
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Selecione {maxFlavors === 1 ? '1 sabor' : `até ${maxFlavors} sabores`} ({selected.length}/{maxFlavors})
+            </p>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-2">
+            {customFlavors.map(name => (
+              <button
+                key={name}
+                onClick={() => toggle(name)}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-all text-left",
+                  selected.includes(name)
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border hover:border-primary/50"
+                )}
+              >
+                {selected.includes(name) && <Check className="h-3.5 w-3.5 shrink-0" />}
+                <span className="truncate">{name}</span>
+              </button>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleClose}>Cancelar</Button>
+            <Button onClick={handleConfirm} disabled={selected.length === 0}>
+              Adicionar ao carrinho
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>

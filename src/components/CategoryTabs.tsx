@@ -15,10 +15,10 @@ const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsProps) =
             key={cat.id}
             onClick={() => onCategoryChange(cat.id)}
             className={cn(
-              "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
+              "flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border-2",
               activeCategory === cat.id
-                ? "bg-primary text-primary-foreground shadow-md scale-105"
-                : "bg-secondary text-secondary-foreground hover:bg-primary/10"
+                ? "bg-primary text-primary-foreground shadow-lg scale-105 border-primary"
+                : "bg-white text-primary border-primary/30 hover:border-primary hover:bg-primary/5"
             )}
           >
             <span>{cat.icon}</span>
