@@ -13,6 +13,8 @@ interface MenuSectionProps {
   category: string;
 }
 
+const CARD_CLASS = "bg-card rounded-xl p-5 shadow-sm border-2 border-transparent hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer";
+
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
 
@@ -76,7 +78,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
           {items.map(item => (
             <div
               key={item.id}
-              className="flex items-center justify-between bg-card rounded-xl p-4 shadow-sm border hover:shadow-md transition-shadow"
+              className={CARD_CLASS + " flex items-center justify-between"}
             >
               <div className="flex-1">
                 <h3 className="font-bold text-foreground">{item.name}</h3>
@@ -149,7 +151,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
       {items.map(item => (
         <div
           key={item.id}
-          className="bg-card rounded-xl p-3 shadow-sm border text-center hover:shadow-md transition-shadow flex flex-col items-center gap-2"
+          className={CARD_CLASS + " text-center flex flex-col items-center gap-2"}
         >
           <span className="font-bold text-sm text-foreground">{item.name}</span>
           <span className="text-primary font-extrabold">{formatPrice(item.price)}</span>
@@ -163,7 +165,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
 };
 
 const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => void }) => (
-  <div className="flex items-center justify-between bg-card rounded-xl p-4 shadow-sm border hover:shadow-md transition-shadow">
+  <div className={CARD_CLASS + " flex items-center justify-between"}>
     <div className="flex-1">
       <h3 className="font-bold text-foreground">{item.name}</h3>
       {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
@@ -218,7 +220,7 @@ const EspecialCard = ({
 
   return (
     <>
-      <div className="bg-card rounded-xl p-4 shadow-sm border hover:shadow-md transition-shadow">
+      <div className={CARD_CLASS}>
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-2">
@@ -286,7 +288,7 @@ const DoceCard = ({
   const isEspecial = item.id === 'doce-7';
 
   return (
-    <div className="bg-card rounded-xl p-4 shadow-sm border hover:shadow-md transition-shadow">
+    <div className={CARD_CLASS}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
           <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
