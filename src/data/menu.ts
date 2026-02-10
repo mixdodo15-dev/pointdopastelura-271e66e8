@@ -52,13 +52,13 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: 'esp-7', name: 'Pastel de Vento', price: 8, category: 'especiais', description: 'Massa artesanal frita, sem recheio.' },
 
   // Pastéis Doces
-  { id: 'doce-1', name: 'Chocolate ao leite', price: 12, category: 'doces' },
-  { id: 'doce-2', name: 'Nutella com Ninho', price: 15, category: 'doces' },
-  { id: 'doce-3', name: 'Nutella com Morango', price: 20, category: 'doces' },
-  { id: 'doce-4', name: 'Nutella com Banana', price: 20, category: 'doces' },
-  { id: 'doce-5', name: 'Ninho com Morango', price: 20, category: 'doces' },
-  { id: 'doce-6', name: 'Ninho com Banana', price: 20, category: 'doces' },
-  { id: 'doce-7', name: 'Especial', price: 20, category: 'doces', description: 'Sabores: Laka, Oreo, Sonho de Valsa, Ouro Branco, Diamante Negro, Suflair, Galak, Kit Kat, Prestígio.' },
+  { id: 'doce-1', name: 'Chocolate ao leite', price: 12, category: 'doces', description: 'Pastel recheado com chocolate ao leite derretido.' },
+  { id: 'doce-2', name: 'Nutella com Ninho', price: 15, category: 'doces', description: 'Nutella cremosa com leite Ninho.' },
+  { id: 'doce-3', name: 'Nutella com Morango', price: 20, category: 'doces', description: 'Nutella cremosa com morangos frescos.' },
+  { id: 'doce-4', name: 'Nutella com Banana', price: 20, category: 'doces', description: 'Nutella cremosa com banana.' },
+  { id: 'doce-5', name: 'Ninho com Morango', price: 20, category: 'doces', description: 'Creme de leite Ninho com morangos frescos.' },
+  { id: 'doce-6', name: 'Ninho com Banana', price: 20, category: 'doces', description: 'Creme de leite Ninho com banana.' },
+  { id: 'doce-7', name: 'Especial', price: 20, category: 'doces', description: 'Escolha seu sabor favorito!', maxFlavors: 1 },
 
   // Bebidas
   { id: 'beb-1', name: 'Água', price: 3, category: 'bebidas', description: 'Com gás / Sem gás', subcategory: 'Água' },
@@ -89,10 +89,14 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: 'add-12', name: 'Palmito', price: 2.99, category: 'adicionais' },
 ];
 
+export const SWEET_SPECIAL_FLAVORS = [
+  'Laka', 'Oreo', 'Sonho de Valsa', 'Ouro Branco',
+  'Diamante Negro', 'Suflair', 'Galak', 'Kit Kat', 'Prestígio',
+];
+
 export const CATEGORIES = [
   { id: 'monte', label: 'Monte Seu Pastel', icon: '🥟' },
-  { id: 'especiais', label: 'Especiais', icon: '⭐' },
-  { id: 'doces', label: 'Doces', icon: '🍫' },
+  { id: 'especiais', label: 'Pastel Especial', icon: '⭐' },
+  { id: 'doces', label: 'Pastel Doce', icon: '🍫' },
   { id: 'bebidas', label: 'Bebidas', icon: '🥤' },
-  { id: 'adicionais', label: 'Adicionais', icon: '➕' },
 ];
