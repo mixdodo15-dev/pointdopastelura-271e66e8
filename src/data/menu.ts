@@ -58,7 +58,7 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: 'doce-4', name: 'Nutella com Banana', price: 20, category: 'doces', description: 'Nutella cremosa com banana.' },
   { id: 'doce-5', name: 'Ninho com Morango', price: 20, category: 'doces', description: 'Creme de leite Ninho com morangos frescos.' },
   { id: 'doce-6', name: 'Ninho com Banana', price: 20, category: 'doces', description: 'Creme de leite Ninho com banana.' },
-  { id: 'doce-7', name: 'Especial', price: 20, category: 'doces', description: 'Escolha seu sabor favorito!', maxFlavors: 1 },
+  { id: 'doce-7', name: 'Especial', price: 20, category: 'doces', description: 'Escolha seu chocolate favorito: Laka, Oreo, Sonho de Valsa, Ouro Branco, Diamante Negro, Suflair, Galak, Kit Kat, Prestígio, Chocolate ao leite.', maxFlavors: 1 },
 
   // Bebidas
   { id: 'beb-1', name: 'Água', price: 3, category: 'bebidas', description: 'Com gás / Sem gás', subcategory: 'Água' },
@@ -91,7 +91,7 @@ export const MENU_ITEMS: MenuItem[] = [
 
 export const SWEET_SPECIAL_FLAVORS = [
   'Laka', 'Oreo', 'Sonho de Valsa', 'Ouro Branco',
-  'Diamante Negro', 'Suflair', 'Galak', 'Kit Kat', 'Prestígio',
+  'Diamante Negro', 'Suflair', 'Galak', 'Kit Kat', 'Prestígio', 'Chocolate ao leite',
 ];
 
 export const CATEGORIES = [
