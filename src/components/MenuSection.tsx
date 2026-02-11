@@ -218,7 +218,7 @@ const EspecialCard = ({
 
   return (
     <>
-      <div className={CARD_CLASS}>
+      <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ const DoceCard = ({
   const isEspecial = item.id === 'doce-7';
 
   return (
-    <div className={CARD_CLASS}>
+    <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
           <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
@@ -294,13 +294,11 @@ const DoceCard = ({
             <p className="text-xs text-primary font-semibold mt-1">{item.description}</p>
           )}
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
-          <Button size="sm" className="rounded-full" onClick={() => onAdd(item)}>
-            <Plus className="h-4 w-4 mr-1" /> {isEspecial ? 'Escolher sabor' : 'Adicionar'}
-          </Button>
-        </div>
+        <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
       </div>
+      <Button size="sm" className="rounded-full w-full mt-3" onClick={() => onAdd(item)}>
+        <Plus className="h-4 w-4 mr-1" /> {isEspecial ? 'Escolher sabor' : 'Adicionar'}
+      </Button>
     </div>
   );
 };
