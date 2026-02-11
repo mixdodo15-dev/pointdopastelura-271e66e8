@@ -25,7 +25,7 @@ const Header = () => {
           </div>
           <Sheet open={cartOpen} onOpenChange={setCartOpen}>
             <SheetTrigger asChild>
-              <button className="relative p-2 hover:scale-105 transition-transform">
+              <button className="relative bg-primary text-primary-foreground rounded-full p-3 hover:scale-105 transition-transform shadow-lg">
                 <ShoppingCart className="h-7 w-7" />
                 {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-foreground text-background text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -34,7 +34,7 @@ const Header = () => {
                 )}
               </button>
             </SheetTrigger>
-            <SheetContent className="w-full sm:max-w-md flex flex-col">
+            <SheetContent className="w-80 sm:w-80 flex flex-col">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
                   <ShoppingCart className="h-5 w-5" /> Carrinho

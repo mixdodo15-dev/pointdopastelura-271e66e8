@@ -20,7 +20,9 @@ const Index = () => {
             <span>{activeCat?.icon}</span>
             <span>{activeCat?.label}</span>
           </h2>
-          <MenuSection category={activeCategory} />
+          <div key={activeCategory} className="animate-fade-in">
+            <MenuSection category={activeCategory} />
+          </div>
         </main>
       </div>
     </CartProvider>
