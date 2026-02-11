@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
-import CartDrawer from '@/components/CartDrawer';
 import { CartProvider } from '@/contexts/CartContext';
 import { CATEGORIES } from '@/data/menu';
 
@@ -23,8 +22,6 @@ const Index = () => {
           </h2>
           <MenuSection category={activeCategory} />
         </main>
-
-        <CartDrawer />
       </div>
     </CartProvider>
   );
