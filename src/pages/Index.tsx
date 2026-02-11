@@ -16,11 +16,11 @@ const Index = () => {
         <CategoryTabs activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
 
         <main className="max-w-3xl mx-auto px-4 py-6">
-          <h2 className="text-xl font-extrabold mb-4 flex items-center gap-2">
+          <h2 className="text-xl font-extrabold mb-4 flex items-center justify-center gap-2">
             <span>{activeCat?.icon}</span>
             <span>{activeCat?.label}</span>
           </h2>
-          <div key={activeCategory} className="animate-fade-in">
+          <div key={activeCategory} className="animate-fade-in-scale">
             <MenuSection category={activeCategory} />
           </div>
         </main>
