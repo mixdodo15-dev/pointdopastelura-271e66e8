@@ -78,18 +78,16 @@ const MenuSection = ({ category }: MenuSectionProps) => {
           {items.map(item => (
             <div
               key={item.id}
-              className={CARD_CLASS + " flex items-center justify-between"}
+              className="bg-card rounded-xl p-6 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer"
             >
-              <div className="flex-1">
-                <h3 className="font-bold text-foreground">{item.name}</h3>
-                <p className="text-xs text-muted-foreground">22cm • Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}</p>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
+                <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
-                <Button size="icon" className="rounded-full h-9 w-9" onClick={() => handleAdd(item)}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              <p className="text-sm font-semibold text-primary mb-3">Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}</p>
+              <Button className="rounded-full w-full" onClick={() => handleAdd(item)}>
+                <Plus className="h-4 w-4 mr-1" /> Selecionar Sabores
+              </Button>
             </div>
           ))}
         </div>
