@@ -34,7 +34,7 @@ const Header = () => {
                 )}
               </button>
             </SheetTrigger>
-            <SheetContent className="w-80 sm:w-80 flex flex-col">
+            <SheetContent className="w-80 sm:w-80 flex flex-col bg-black text-white border-l-0">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
                   <ShoppingCart className="h-5 w-5" /> Carrinho
@@ -48,10 +48,10 @@ const Header = () => {
                 <>
                   <div className="flex-1 overflow-y-auto space-y-3 py-4">
                     {items.map(item => (
-                      <div key={item.id} className="flex items-center gap-3 bg-secondary rounded-lg p-3">
+                      <div key={item.id} className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm truncate">{item.name}</p>
-                          <p className="text-sm text-primary font-bold">{formatPrice(item.price)}</p>
+                          <p className="font-semibold text-sm truncate text-white">{item.name}</p>
+                          <p className="text-sm text-red-400 font-bold">{formatPrice(item.price)}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button variant="outline" size="icon" className="h-7 w-7 rounded-full" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
@@ -68,12 +68,12 @@ const Header = () => {
                       </div>
                     ))}
                   </div>
-                  <div className="border-t pt-4 space-y-3">
+                  <div className="border-t border-white/20 pt-4 space-y-3">
                     <div className="flex justify-between items-center text-lg font-extrabold">
                       <span>Total</span>
-                      <span className="text-primary">{formatPrice(totalPrice)}</span>
+                      <span className="text-red-400">{formatPrice(totalPrice)}</span>
                     </div>
-                    <Button className="w-full rounded-full text-base font-bold py-6" onClick={() => { setCheckoutOpen(true); setCartOpen(false); }}>
+                    <Button className="w-full rounded-full text-base font-bold py-6 bg-primary hover:bg-primary/90 text-white" onClick={() => { setCheckoutOpen(true); setCartOpen(false); }}>
                       Finalizar Pedido
                     </Button>
                   </div>
