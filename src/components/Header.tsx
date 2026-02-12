@@ -42,7 +42,7 @@ const Header = () => {
               </SheetHeader>
               {items.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <p className="text-muted-foreground text-center">Seu carrinho está vazio.<br />Adicione itens do cardápio!</p>
+                  <p className="text-white/60 text-center">Seu carrinho está vazio.<br />Adicione itens do cardápio!</p>
                 </div>
               ) : (
                 <>
