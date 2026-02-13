@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { MENU_ITEMS, SWEET_SPECIAL_FLAVORS, type MenuItem } from '@/data/menu';
+import { type MenuItem, SWEET_SPECIAL_FLAVORS } from '@/data/menu';
+import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Plus, Star } from 'lucide-react';
@@ -19,7 +20,8 @@ const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
 
 const MenuSection = ({ category }: MenuSectionProps) => {
-  const items = MENU_ITEMS.filter(i => i.category === category);
+  const { products, loading } = useProducts();
+  const items = products.filter(i => i.category === category);
   const { addItem } = useCart();
   const [flavorModal, setFlavorModal] = useState<MenuItem | null>(null);
 
@@ -44,6 +46,10 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     toast.success(`${flavorModal.name} adicionado!`);
     setFlavorModal(null);
   };
+
+  if (loading) {
+    return <p className="text-center text-muted-foreground py-8">Carregando...</p>;
+  }
 
   // Group by subcategory for bebidas
   if (category === 'bebidas') {
@@ -106,16 +112,14 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     );
   }
 
-  // Especiais - premium cards with cheese & extras
+  // Especiais
   if (category === 'especiais') {
     return (
-      <>
-        <div className="grid gap-4">
-          {items.map(item => (
-            <EspecialCard key={item.id} item={item} onAdd={handleAdd} addItem={addItem} />
-          ))}
-        </div>
-      </>
+      <div className="grid gap-4">
+        {items.map(item => (
+          <EspecialCard key={item.id} item={item} onAdd={handleAdd} addItem={addItem} allProducts={products} />
+        ))}
+      </div>
     );
   }
 
@@ -136,7 +140,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
             itemName={flavorModal.name}
             price={flavorModal.price}
             onConfirm={handleFlavorConfirm}
-            customFlavors={flavorModal.id === 'doce-7' ? SWEET_SPECIAL_FLAVORS : undefined}
+            customFlavors={flavorModal.maxFlavors ? SWEET_SPECIAL_FLAVORS : undefined}
           />
         )}
       </>
@@ -177,23 +181,24 @@ const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => 
   </div>
 );
 
-// IDs that need cheese selection
-const CHEESE_IDS = ['esp-2', 'esp-3', 'esp-4', 'esp-5'];
-// IDs that allow extras (all except Pastel de Vento)
-const EXTRAS_IDS = ['esp-1', 'esp-2', 'esp-3', 'esp-4', 'esp-5', 'esp-6'];
+// Cheese selection for specific especiais - match by name pattern
+const CHEESE_NAMES = ['Frango Apimentado', 'Mexicano', 'Doritos', 'Costela Peperoni'];
+const NO_EXTRAS_NAMES = ['Pastel de Vento'];
 
 const EspecialCard = ({
   item,
   addItem,
+  allProducts,
 }: {
   item: MenuItem;
   onAdd: (item: MenuItem) => void;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
+  allProducts: MenuItem[];
 }) => {
   const [cheese, setCheese] = useState<string>('');
   const [adicionaisOpen, setAdicionaisOpen] = useState(false);
-  const needsCheese = CHEESE_IDS.includes(item.id);
-  const allowExtras = EXTRAS_IDS.includes(item.id);
+  const needsCheese = CHEESE_NAMES.some(n => item.name.toLowerCase().includes(n.toLowerCase()));
+  const allowExtras = !NO_EXTRAS_NAMES.some(n => item.name.toLowerCase().includes(n.toLowerCase()));
 
   const handleAddToCart = (extras: { name: string; price: number }[] = []) => {
     if (needsCheese && !cheese) {
@@ -215,6 +220,8 @@ const EspecialCard = ({
     toast.success(`${item.name} adicionado!`);
     setCheese('');
   };
+
+  const adicionais = allProducts.filter(p => p.category === 'adicionais');
 
   return (
     <>
@@ -266,6 +273,7 @@ const EspecialCard = ({
       <AdicionaisModal
         open={adicionaisOpen}
         onClose={() => setAdicionaisOpen(false)}
+        adicionais={adicionais}
         onConfirm={(extras) => {
           setAdicionaisOpen(false);
           handleAddToCart(extras);
@@ -283,7 +291,7 @@ const DoceCard = ({
   onAdd: (item: MenuItem) => void;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
 }) => {
-  const isEspecial = item.id === 'doce-7';
+  const hasMaxFlavors = !!item.maxFlavors;
 
   return (
     <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
@@ -297,7 +305,7 @@ const DoceCard = ({
         <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
       </div>
       <Button size="sm" className="rounded-full w-full mt-3" onClick={() => onAdd(item)}>
-        <Plus className="h-4 w-4 mr-1" /> {isEspecial ? 'Escolher sabor' : 'Adicionar'}
+        <Plus className="h-4 w-4 mr-1" /> {hasMaxFlavors ? 'Escolher sabor' : 'Adicionar'}
       </Button>
     </div>
   );
