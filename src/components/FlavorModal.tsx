@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { FLAVORS } from '@/data/menu';
+import { useFlavors } from '@/hooks/useFlavors';
 import { cn } from '@/lib/utils';
 import { Check, Beef, Cookie } from 'lucide-react';
 
@@ -17,6 +17,7 @@ interface FlavorModalProps {
 
 const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm, customFlavors }: FlavorModalProps) => {
   const [selected, setSelected] = useState<string[]>([]);
+  const { flavors } = useFlavors();
 
   const toggle = (name: string) => {
     setSelected(prev => {
@@ -38,8 +39,8 @@ const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm, cu
     onClose();
   };
 
-  const salgados = FLAVORS.filter(f => f.type === 'salgado');
-  const doces = FLAVORS.filter(f => f.type === 'doce');
+  const salgados = flavors.filter(f => f.type === 'salgado');
+  const doces = flavors.filter(f => f.type === 'doce');
 
   // If custom flavors provided, show simple list
   if (customFlavors) {

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MENU_ITEMS } from '@/data/menu';
 import { Plus } from 'lucide-react';
+import type { MenuItem } from '@/data/menu';
 
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
@@ -12,11 +12,11 @@ interface AdicionaisModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (adicionais: { name: string; price: number }[]) => void;
+  adicionais: MenuItem[];
 }
 
-const AdicionaisModal = ({ open, onClose, onConfirm }: AdicionaisModalProps) => {
+const AdicionaisModal = ({ open, onClose, onConfirm, adicionais }: AdicionaisModalProps) => {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const adicionais = MENU_ITEMS.filter(i => i.category === 'adicionais');
 
   const toggle = (id: string) => {
     setSelected(prev => ({ ...prev, [id]: !prev[id] }));
