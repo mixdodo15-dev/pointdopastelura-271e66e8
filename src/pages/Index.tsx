@@ -1,9 +1,35 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Header from '@/components/Header';
 import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
 import { CartProvider } from '@/contexts/CartContext';
 import { CATEGORIES } from '@/data/menu';
+
+const SectionReveal = ({ children, id, sectionRef }: { children: React.ReactNode; id: string; sectionRef: (el: HTMLDivElement | null) => void }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={(el) => { (ref as React.MutableRefObject<HTMLDivElement | null>).current = el; sectionRef(el); }}
+      id={id}
+      className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+    >
+      {children}
+    </div>
+  );
+};
 
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState('monte');
@@ -49,17 +75,17 @@ const Index = () => {
 
         <main className="max-w-3xl mx-auto px-4 py-6 space-y-10">
           {CATEGORIES.map(cat => (
-            <div
+            <SectionReveal
               key={cat.id}
-              ref={el => { sectionRefs.current[cat.id] = el; }}
               id={`section-${cat.id}`}
+              sectionRef={el => { sectionRefs.current[cat.id] = el; }}
             >
               <h2 className="text-xl font-extrabold mb-4 flex items-center justify-center gap-2">
                 <span>{cat.icon}</span>
                 <span>{cat.label}</span>
               </h2>
               <MenuSection category={cat.id} />
-            </div>
+            </SectionReveal>
           ))}
         </main>
       </div>
