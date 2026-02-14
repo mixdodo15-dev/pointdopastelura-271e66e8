@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CheckoutModalProps {
@@ -17,6 +17,12 @@ const PHONE = '5534984050892';
 
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
+
+const paymentOptions = [
+  { label: 'Pix', icon: '📱' },
+  { label: 'Dinheiro', icon: '💵' },
+  { label: 'Cartão', icon: '💳' },
+];
 
 const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const { items, totalPrice, clearCart } = useCart();
@@ -63,79 +69,117 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Finalizar Pedido</DialogTitle>
-          <DialogDescription>Preencha seus dados para enviar o pedido via WhatsApp.</DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+        {/* Header */}
+        <div className="bg-primary px-6 pt-6 pb-5 rounded-t-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary-foreground text-xl font-extrabold flex items-center gap-2">
+              <ShoppingBag className="h-6 w-6" />
+              Finalizar Pedido
+            </DialogTitle>
+            <DialogDescription className="text-primary-foreground/80 text-sm mt-1">
+              Preencha seus dados para enviar via WhatsApp
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-4">
+          {/* Order summary mini */}
+          <div className="mt-4 bg-primary-foreground/15 rounded-xl px-4 py-3">
+            <div className="flex justify-between items-center">
+              <span className="text-primary-foreground/90 text-sm font-medium">
+                {items.length} {items.length === 1 ? 'item' : 'itens'} no pedido
+              </span>
+              <span className="text-primary-foreground font-extrabold text-lg">
+                {formatPrice(totalPrice)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="px-6 py-5 space-y-5">
+          {/* Nome */}
           <div className="space-y-2">
-            <Label htmlFor="name">Nome completo *</Label>
+            <Label htmlFor="name" className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <User className="h-4 w-4 text-primary" />
+              Nome completo
+            </Label>
             <Input
               id="name"
-              placeholder="Seu nome"
+              placeholder="Digite seu nome"
               value={name}
               onChange={e => setName(e.target.value)}
               maxLength={100}
+              className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
             />
           </div>
 
+          {/* Endereço */}
           <div className="space-y-2">
-            <Label htmlFor="address">Endereço completo *</Label>
+            <Label htmlFor="address" className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <MapPin className="h-4 w-4 text-primary" />
+              Endereço de entrega
+            </Label>
             <Input
               id="address"
               placeholder="Rua, número, bairro"
               value={address}
               onChange={e => setAddress(e.target.value)}
               maxLength={200}
+              className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
             />
           </div>
 
+          {/* Pagamento */}
           <div className="space-y-2">
-            <Label>Método de pagamento *</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {['Pix', 'Dinheiro', 'Cartão'].map(opt => (
+            <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <CreditCard className="h-4 w-4 text-primary" />
+              Forma de pagamento
+            </Label>
+            <div className="grid grid-cols-3 gap-3">
+              {paymentOptions.map(opt => (
                 <button
-                  key={opt}
-                  onClick={() => setPayment(opt)}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all ${
-                    payment === opt
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-border hover:border-primary/50'
+                  key={opt.label}
+                  onClick={() => setPayment(opt.label)}
+                  className={`flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    payment === opt.label
+                      ? 'bg-primary text-primary-foreground shadow-lg scale-[1.03]'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
                   }`}
                 >
-                  {opt}
+                  <span className="text-xl">{opt.icon}</span>
+                  <span>{opt.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
+          {/* Observações */}
           <div className="space-y-2">
-            <Label htmlFor="notes">Observações (opcional)</Label>
+            <Label htmlFor="notes" className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+              <StickyNote className="h-4 w-4" />
+              Observações (opcional)
+            </Label>
             <Textarea
               id="notes"
               placeholder="Alguma observação sobre o pedido?"
               value={notes}
               onChange={e => setNotes(e.target.value)}
               maxLength={500}
-              rows={3}
+              rows={2}
+              className="rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary resize-none"
             />
           </div>
+        </div>
 
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-4 text-lg font-extrabold">
-              <span>Total</span>
-              <span className="text-primary">{formatPrice(totalPrice)}</span>
-            </div>
-            <Button
-              className="w-full rounded-full text-base font-bold py-6 gap-2"
-              onClick={handleSend}
-            >
-              <MessageCircle className="h-5 w-5" />
-              Enviar Pedido via WhatsApp
-            </Button>
-          </div>
+        {/* Footer */}
+        <div className="px-6 pb-6">
+          <Button
+            className="w-full rounded-xl text-base font-bold py-6 gap-2 shadow-lg"
+            onClick={handleSend}
+          >
+            <MessageCircle className="h-5 w-5" />
+            Enviar Pedido via WhatsApp
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
