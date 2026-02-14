@@ -18,7 +18,7 @@ const CartDrawer = () => {
       {/* Floating cart button */}
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
         <SheetTrigger asChild>
-          <button className="fixed bottom-6 right-6 z-50 bg-primary text-primary-foreground rounded-full p-4 shadow-2xl hover:scale-105 transition-transform active:scale-95">
+          <button className="fixed bottom-6 right-6 z-50 bg-black text-white rounded-full p-4 shadow-2xl hover:scale-105 transition-transform active:scale-95">
             <ShoppingCart className="h-6 w-6" />
             {totalItems > 0 && (
               <span className="absolute -top-1 -right-1 bg-foreground text-background text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
