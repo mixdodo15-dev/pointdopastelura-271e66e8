@@ -1,13 +1,16 @@
 import { useRef, useEffect, useState } from 'react';
-import { CATEGORIES } from '@/data/menu';
 import { cn } from '@/lib/utils';
+import { useCategories, type Category } from '@/hooks/useCategories';
 
 interface CategoryTabsProps {
   activeCategory: string;
-  onCategoryChange: (id: string) => void;
+  onCategoryChange: (slug: string) => void;
+  categories?: Category[];
 }
 
-const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsProps) => {
+const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCategories }: CategoryTabsProps) => {
+  const { categories: dbCategories } = useCategories();
+  const categories = propCategories || dbCategories;
   const containerRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
@@ -22,10 +25,9 @@ const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsProps) =
         left: tabRect.left - containerRect.left + container.scrollLeft,
         width: tabRect.width,
       });
-      // Scroll active tab into view
       activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
-  }, [activeCategory]);
+  }, [activeCategory, categories]);
 
   return (
     <div className="sticky top-0 z-30 bg-background border-b shadow-sm">
@@ -33,19 +35,18 @@ const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsProps) =
         ref={containerRef}
         className="relative flex overflow-x-auto gap-1 p-2 max-w-3xl mx-auto scrollbar-hide"
       >
-        {/* Animated indicator */}
         <div
           className="absolute bottom-1 h-1 rounded-full bg-primary transition-all duration-300 ease-out"
           style={{ left: indicator.left, width: indicator.width }}
         />
-        {CATEGORIES.map(cat => (
+        {categories.map(cat => (
           <button
-            key={cat.id}
-            ref={el => { tabRefs.current[cat.id] = el; }}
-            onClick={() => onCategoryChange(cat.id)}
+            key={cat.slug}
+            ref={el => { tabRefs.current[cat.slug] = el; }}
+            onClick={() => onCategoryChange(cat.slug)}
             className={cn(
               "flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 border-2",
-              activeCategory === cat.id
+              activeCategory === cat.slug
                 ? "bg-primary text-primary-foreground shadow-lg scale-105 border-primary"
                 : "bg-white text-primary border-primary/30 hover:border-primary hover:bg-primary/5"
             )}

@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
 import { CartProvider } from '@/contexts/CartContext';
-import { CATEGORIES } from '@/data/menu';
+import { useCategories } from '@/hooks/useCategories';
 
 const SectionReveal = ({ children, id, sectionRef, isActive }: { children: React.ReactNode; id: string; sectionRef: (el: HTMLDivElement | null) => void; isActive: boolean }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -21,7 +21,6 @@ const SectionReveal = ({ children, id, sectionRef, isActive }: { children: React
     return () => observer.disconnect();
   }, []);
 
-  // Flash animation when section becomes active
   useEffect(() => {
     if (isActive && visible) {
       setFlash(true);
@@ -42,14 +41,22 @@ const SectionReveal = ({ children, id, sectionRef, isActive }: { children: React
 };
 
 const Index = () => {
-  const [activeCategory, setActiveCategory] = useState('monte');
+  const { categories, loading } = useCategories();
+  const [activeCategory, setActiveCategory] = useState('');
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrollingTo = useRef(false);
 
-  const handleCategoryChange = (id: string) => {
+  // Set initial active category when loaded
+  useEffect(() => {
+    if (categories.length > 0 && !activeCategory) {
+      setActiveCategory(categories[0].slug);
+    }
+  }, [categories, activeCategory]);
+
+  const handleCategoryChange = (slug: string) => {
     isScrollingTo.current = true;
-    setActiveCategory(id);
-    const el = sectionRefs.current[id];
+    setActiveCategory(slug);
+    const el = sectionRefs.current[slug];
     if (el) {
       const offset = 70;
       const top = el.getBoundingClientRect().top + window.scrollY - offset;
@@ -61,13 +68,13 @@ const Index = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (isScrollingTo.current) return;
-      let current = 'monte';
-      for (const cat of CATEGORIES) {
-        const el = sectionRefs.current[cat.id];
+      let current = categories[0]?.slug || '';
+      for (const cat of categories) {
+        const el = sectionRefs.current[cat.slug];
         if (el) {
           const rect = el.getBoundingClientRect();
           if (rect.top <= 150) {
-            current = cat.id;
+            current = cat.slug;
           }
         }
       }
@@ -75,21 +82,29 @@ const Index = () => {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [categories]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
 
   return (
     <CartProvider>
       <div className="min-h-screen bg-background pb-24">
         <Header />
-        <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} />
+        <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
 
         <main className="max-w-3xl mx-auto px-4 py-6 space-y-10">
-          {CATEGORIES.map(cat => (
+          {categories.map(cat => (
             <SectionReveal
-              key={cat.id}
-              id={`section-${cat.id}`}
-              sectionRef={el => { sectionRefs.current[cat.id] = el; }}
-              isActive={activeCategory === cat.id}
+              key={cat.slug}
+              id={`section-${cat.slug}`}
+              sectionRef={el => { sectionRefs.current[cat.slug] = el; }}
+              isActive={activeCategory === cat.slug}
             >
               <div className="flex flex-col items-center mb-5">
                 <span className="text-3xl mb-1">{cat.icon}</span>
@@ -98,7 +113,7 @@ const Index = () => {
                 </h2>
                 <div className="h-1 w-12 bg-primary rounded-full mt-2" />
               </div>
-              <MenuSection category={cat.id} />
+              <MenuSection category={cat.slug} />
             </SectionReveal>
           ))}
         </main>
