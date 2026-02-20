@@ -175,7 +175,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
 const ProductImage = ({ src, alt }: { src?: string; alt: string }) => {
   if (!src) return null;
   return (
-    <img src={src} alt={alt} className="h-16 w-16 rounded-lg object-cover shrink-0" />
+    <img src={src} alt={alt} className="h-24 w-24 rounded-lg object-cover shrink-0" />
   );
 };
 
