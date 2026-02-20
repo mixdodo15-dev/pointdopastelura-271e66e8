@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
@@ -8,6 +8,8 @@ import { useCategories } from '@/hooks/useCategories';
 const Index = () => {
   const { categories, loading } = useCategories();
   const [activeCategory, setActiveCategory] = useState('');
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const isScrollingTo = useRef(false);
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategory) {
@@ -16,11 +18,35 @@ const Index = () => {
   }, [categories, activeCategory]);
 
   const handleCategoryChange = (slug: string) => {
+    isScrollingTo.current = true;
     setActiveCategory(slug);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const el = sectionRefs.current[slug];
+    if (el) {
+      const offset = 70;
+      const top = el.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+      setTimeout(() => { isScrollingTo.current = false; }, 800);
+    }
   };
 
-  const activeCat = categories.find(c => c.slug === activeCategory);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isScrollingTo.current) return;
+      let current = categories[0]?.slug || '';
+      for (const cat of categories) {
+        const el = sectionRefs.current[cat.slug];
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 150) {
+            current = cat.slug;
+          }
+        }
+      }
+      setActiveCategory(current);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [categories]);
 
   if (loading) {
     return (
@@ -36,19 +62,24 @@ const Index = () => {
         <Header />
         <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
 
-        <main className="max-w-3xl mx-auto px-4 py-6">
-          {activeCat && (
-            <div key={activeCat.slug} className="animate-fade-in">
+        <main className="max-w-3xl mx-auto px-4 py-6 space-y-10">
+          {categories.map(cat => (
+            <div
+              key={cat.slug}
+              ref={el => { sectionRefs.current[cat.slug] = el; }}
+              id={`section-${cat.slug}`}
+              className="animate-fade-in"
+            >
               <div className="flex flex-col items-center mb-5">
-                <span className="text-3xl mb-1">{activeCat.icon}</span>
+                <span className="text-3xl mb-1">{cat.icon}</span>
                 <h2 className="text-2xl font-extrabold text-foreground tracking-tight">
-                  {activeCat.label}
+                  {cat.label}
                 </h2>
                 <div className="h-1 w-12 bg-primary rounded-full mt-2" />
               </div>
-              <MenuSection category={activeCat.slug} />
+              <MenuSection category={cat.slug} />
             </div>
-          )}
+          ))}
         </main>
       </div>
     </CartProvider>
