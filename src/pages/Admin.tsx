@@ -22,6 +22,7 @@ interface Product {
   image_url: string | null;
   active: boolean;
   sort_order: number;
+  is_top_week: boolean;
 }
 
 interface Flavor {
@@ -235,7 +236,10 @@ const Admin = () => {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm truncate">{product.name}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="font-bold text-sm truncate">{product.name}</p>
+                      {product.is_top_week && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold shrink-0">TOP</span>}
+                    </div>
                     {product.description && <p className="text-xs text-muted-foreground truncate">{product.description}</p>}
                     <p className="text-sm font-bold text-primary">{formatPrice(product.price)}</p>
                   </div>
@@ -372,7 +376,7 @@ const ProductModal = ({
   const [saving, setSaving] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
-
+  const [isTopWeek, setIsTopWeek] = useState(false);
   useEffect(() => {
     if (product) {
       setName(product.name);
@@ -383,10 +387,12 @@ const ProductModal = ({
       setMaxFlavors(product.max_flavors ? String(product.max_flavors) : '');
       setSortOrder(String(product.sort_order));
       setImageUrl(product.image_url || '');
+      setIsTopWeek(product.is_top_week || false);
     } else {
       setName(''); setDescription(''); setPrice('');
       setCategory(defaultCategory);
       setSubcategory(''); setMaxFlavors(''); setSortOrder('0'); setImageUrl('');
+      setIsTopWeek(false);
     }
   }, [product, defaultCategory, open]);
 
@@ -418,6 +424,7 @@ const ProductModal = ({
       max_flavors: maxFlavors ? parseInt(maxFlavors) : null,
       sort_order: parseInt(sortOrder) || 0,
       image_url: imageUrl || null,
+      is_top_week: isTopWeek,
     };
     if (product) {
       const { error } = await supabase.from('products').update(data).eq('id', product.id);
@@ -487,6 +494,13 @@ const ProductModal = ({
               <Label>Máx. Sabores</Label>
               <Input type="number" value={maxFlavors} onChange={e => setMaxFlavors(e.target.value)} placeholder="0" />
             </div>
+          </div>
+          <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+            <div>
+              <Label className="font-bold">🏆 TOP da Semana</Label>
+              <p className="text-xs text-muted-foreground">Destacar na seção TOP</p>
+            </div>
+            <Switch checked={isTopWeek} onCheckedChange={setIsTopWeek} />
           </div>
           <div className="space-y-1">
             <Label>Ordem</Label>

@@ -25,6 +25,7 @@ export const useProducts = () => {
             subcategory: p.subcategory || undefined,
             maxFlavors: p.max_flavors || undefined,
             imageUrl: p.image_url || undefined,
+            isTopWeek: p.is_top_week || false,
           }))
         );
       }

@@ -6,6 +6,7 @@ import { CartProvider } from '@/contexts/CartContext';
 import { useCategories } from '@/hooks/useCategories';
 import AnimatedCard from '@/components/AnimatedCard';
 import SectionTitle from '@/components/SectionTitle';
+import TopDaSemana from '@/components/TopDaSemana';
 
 const Index = () => {
   const { categories, loading } = useCategories();
@@ -63,6 +64,8 @@ const Index = () => {
       <div className="min-h-screen bg-background pb-24">
         <Header />
         <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
+
+        <TopDaSemana />
 
         <main className="max-w-3xl mx-auto px-4 py-6 space-y-10">
           {categories.map((cat, idx) => (

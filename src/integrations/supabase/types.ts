@@ -76,6 +76,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_top_week: boolean
           max_flavors: number | null
           name: string
           price: number
@@ -90,6 +91,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_top_week?: boolean
           max_flavors?: number | null
           name: string
           price: number
@@ -104,6 +106,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_top_week?: boolean
           max_flavors?: number | null
           name?: string
           price?: number
