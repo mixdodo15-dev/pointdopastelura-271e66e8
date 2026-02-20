@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Star } from 'lucide-react';
 import FlavorModal from './FlavorModal';
 import AdicionaisModal from './AdicionaisModal';
+import AnimatedCard from './AnimatedCard';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
@@ -66,8 +67,10 @@ const MenuSection = ({ category }: MenuSectionProps) => {
           <div key={sub}>
             <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3 px-1">{sub}</h3>
             <div className="grid gap-3">
-              {subItems.map(item => (
-                <ItemCard key={item.id} item={item} onAdd={handleAdd} />
+              {subItems.map((item, idx) => (
+                <AnimatedCard key={item.id} index={idx}>
+                  <ItemCard item={item} onAdd={handleAdd} />
+                </AnimatedCard>
               ))}
             </div>
           </div>
@@ -81,25 +84,26 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     return (
       <>
         <div className="grid gap-3">
-          {items.map(item => (
-            <div
-              key={item.id}
-              className="bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden"
-            >
-              {item.imageUrl && (
-                <img src={item.imageUrl} alt={item.name} className="w-full h-40 object-cover" />
-              )}
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
-                  <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+          {items.map((item, idx) => (
+            <AnimatedCard key={item.id} index={idx}>
+              <div
+                className="bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden"
+              >
+                {item.imageUrl && (
+                  <img src={item.imageUrl} alt={item.name} className="w-full h-40 object-cover" />
+                )}
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
+                    <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+                  </div>
+                  <p className="text-sm font-semibold text-primary mb-3">Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}</p>
+                  <Button className="rounded-full w-full" onClick={() => handleAdd(item)}>
+                    <Plus className="h-4 w-4 mr-1" /> Selecionar Sabores
+                  </Button>
                 </div>
-                <p className="text-sm font-semibold text-primary mb-3">Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}</p>
-                <Button className="rounded-full w-full" onClick={() => handleAdd(item)}>
-                  <Plus className="h-4 w-4 mr-1" /> Selecionar Sabores
-                </Button>
               </div>
-            </div>
+            </AnimatedCard>
           ))}
         </div>
 
@@ -121,8 +125,10 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   if (category === 'especiais') {
     return (
       <div className="grid gap-4">
-        {items.map(item => (
-          <EspecialCard key={item.id} item={item} onAdd={handleAdd} addItem={addItem} allProducts={products} />
+        {items.map((item, idx) => (
+          <AnimatedCard key={item.id} index={idx}>
+            <EspecialCard item={item} onAdd={handleAdd} addItem={addItem} allProducts={products} />
+          </AnimatedCard>
         ))}
       </div>
     );
@@ -133,8 +139,10 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     return (
       <>
         <div className="grid gap-3">
-          {items.map(item => (
-            <DoceCard key={item.id} item={item} onAdd={handleAdd} addItem={addItem} />
+          {items.map((item, idx) => (
+            <AnimatedCard key={item.id} index={idx}>
+              <DoceCard item={item} onAdd={handleAdd} addItem={addItem} />
+            </AnimatedCard>
           ))}
         </div>
         {flavorModal && (
@@ -155,20 +163,21 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   // Adicionais - grid
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-      {items.map(item => (
-        <div
-          key={item.id}
-          className={CARD_CLASS + " text-center flex flex-col items-center gap-2"}
-        >
-          {item.imageUrl && (
-            <img src={item.imageUrl} alt={item.name} className="h-14 w-14 rounded-lg object-cover" />
-          )}
-          <span className="font-bold text-sm text-foreground">{item.name}</span>
-          <span className="text-primary font-extrabold">{formatPrice(item.price)}</span>
-          <Button size="sm" className="rounded-full w-full" onClick={() => handleAdd(item)}>
-            <Plus className="h-4 w-4 mr-1" /> Adicionar
-          </Button>
-        </div>
+      {items.map((item, idx) => (
+        <AnimatedCard key={item.id} index={idx}>
+          <div
+            className={CARD_CLASS + " text-center flex flex-col items-center gap-2"}
+          >
+            {item.imageUrl && (
+              <img src={item.imageUrl} alt={item.name} className="h-14 w-14 rounded-lg object-cover" />
+            )}
+            <span className="font-bold text-sm text-foreground">{item.name}</span>
+            <span className="text-primary font-extrabold">{formatPrice(item.price)}</span>
+            <Button size="sm" className="rounded-full w-full" onClick={() => handleAdd(item)}>
+              <Plus className="h-4 w-4 mr-1" /> Adicionar
+            </Button>
+          </div>
+        </AnimatedCard>
       ))}
     </div>
   );
