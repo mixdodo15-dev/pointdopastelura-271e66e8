@@ -84,20 +84,20 @@ const MenuSection = ({ category }: MenuSectionProps) => {
           {items.map(item => (
             <div
               key={item.id}
-              className="bg-card rounded-xl p-6 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer"
+              className="bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden"
             >
-              <div className="flex items-start gap-4">
-                <ProductImage src={item.imageUrl} alt={item.name} />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
-                    <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
-                  </div>
-                  <p className="text-sm font-semibold text-primary mt-1">Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}</p>
-                  <Button className="rounded-full w-full mt-3" onClick={() => handleAdd(item)}>
-                    <Plus className="h-4 w-4 mr-1" /> Selecionar Sabores
-                  </Button>
+              {item.imageUrl && (
+                <img src={item.imageUrl} alt={item.name} className="w-full h-40 object-cover" />
+              )}
+              <div className="p-5">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
+                  <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
                 </div>
+                <p className="text-sm font-semibold text-primary mb-3">Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}</p>
+                <Button className="rounded-full w-full" onClick={() => handleAdd(item)}>
+                  <Plus className="h-4 w-4 mr-1" /> Selecionar Sabores
+                </Button>
               </div>
             </div>
           ))}
