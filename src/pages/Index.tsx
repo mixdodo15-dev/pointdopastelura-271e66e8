@@ -1,52 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
 import { CartProvider } from '@/contexts/CartContext';
 import { useCategories } from '@/hooks/useCategories';
 
-const SectionReveal = ({ children, id, sectionRef, isActive }: { children: React.ReactNode; id: string; sectionRef: (el: HTMLDivElement | null) => void; isActive: boolean }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  const [flash, setFlash] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (isActive && visible) {
-      setFlash(true);
-      const t = setTimeout(() => setFlash(false), 500);
-      return () => clearTimeout(t);
-    }
-  }, [isActive]);
-
-  return (
-    <div
-      ref={(el) => { (ref as React.MutableRefObject<HTMLDivElement | null>).current = el; sectionRef(el); }}
-      id={id}
-      className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'} ${flash ? 'animate-section-highlight' : ''}`}
-    >
-      {children}
-    </div>
-  );
-};
-
 const Index = () => {
   const { categories, loading } = useCategories();
   const [activeCategory, setActiveCategory] = useState('');
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const isScrollingTo = useRef(false);
 
-  // Set initial active category when loaded
   useEffect(() => {
     if (categories.length > 0 && !activeCategory) {
       setActiveCategory(categories[0].slug);
@@ -54,35 +16,11 @@ const Index = () => {
   }, [categories, activeCategory]);
 
   const handleCategoryChange = (slug: string) => {
-    isScrollingTo.current = true;
     setActiveCategory(slug);
-    const el = sectionRefs.current[slug];
-    if (el) {
-      const offset = 70;
-      const top = el.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: 'smooth' });
-      setTimeout(() => { isScrollingTo.current = false; }, 800);
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (isScrollingTo.current) return;
-      let current = categories[0]?.slug || '';
-      for (const cat of categories) {
-        const el = sectionRefs.current[cat.slug];
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 150) {
-            current = cat.slug;
-          }
-        }
-      }
-      setActiveCategory(current);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [categories]);
+  const activeCat = categories.find(c => c.slug === activeCategory);
 
   if (loading) {
     return (
@@ -98,24 +36,19 @@ const Index = () => {
         <Header />
         <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
 
-        <main className="max-w-3xl mx-auto px-4 py-6 space-y-10">
-          {categories.map(cat => (
-            <SectionReveal
-              key={cat.slug}
-              id={`section-${cat.slug}`}
-              sectionRef={el => { sectionRefs.current[cat.slug] = el; }}
-              isActive={activeCategory === cat.slug}
-            >
+        <main className="max-w-3xl mx-auto px-4 py-6">
+          {activeCat && (
+            <div key={activeCat.slug} className="animate-fade-in">
               <div className="flex flex-col items-center mb-5">
-                <span className="text-3xl mb-1">{cat.icon}</span>
+                <span className="text-3xl mb-1">{activeCat.icon}</span>
                 <h2 className="text-2xl font-extrabold text-foreground tracking-tight">
-                  {cat.label}
+                  {activeCat.label}
                 </h2>
                 <div className="h-1 w-12 bg-primary rounded-full mt-2" />
               </div>
-              <MenuSection category={cat.slug} />
-            </SectionReveal>
-          ))}
+              <MenuSection category={activeCat.slug} />
+            </div>
+          )}
         </main>
       </div>
     </CartProvider>
