@@ -99,5 +99,6 @@ export const CATEGORIES = [
   { id: 'monte', label: 'Monte Seu Pastel', icon: '🥟' },
   { id: 'especiais', label: 'Pastel Especial', icon: '⭐' },
   { id: 'doces', label: 'Pastel Doce', icon: '🍫' },
+  { id: 'batatas', label: 'Batatas', icon: '🍟' },
   { id: 'bebidas', label: 'Bebidas', icon: '🥤' },
 ];

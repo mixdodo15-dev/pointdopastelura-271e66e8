@@ -160,6 +160,19 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     );
   }
 
+  // Batatas
+  if (category === 'batatas') {
+    return (
+      <div className="grid gap-4">
+        {items.map((item, idx) => (
+          <AnimatedCard key={item.id} index={idx}>
+            <BatataCard item={item} addItem={addItem} />
+          </AnimatedCard>
+        ))}
+      </div>
+    );
+  }
+
   // Adicionais - grid
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -340,6 +353,69 @@ const DoceCard = ({
       <Button size="sm" className="rounded-full w-full mt-3" onClick={() => onAdd(item)}>
         <Plus className="h-4 w-4 mr-1" /> {hasMaxFlavors ? 'Escolher sabor' : 'Adicionar'}
       </Button>
+    </div>
+  );
+};
+
+const BATATA_CHEESE_NAMES = ['Batata c/ Bacon e Cheddar'];
+
+const BatataCard = ({
+  item,
+  addItem,
+}: {
+  item: MenuItem;
+  addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
+}) => {
+  const [cheese, setCheese] = useState<string>('');
+  const needsCheese = BATATA_CHEESE_NAMES.some(n => item.name.toLowerCase().includes(n.toLowerCase()));
+
+  const handleAdd = () => {
+    if (needsCheese && !cheese) {
+      toast.error('Escolha Cheddar ou Catupiry!');
+      return;
+    }
+    const suffix = cheese ? ` (${cheese})` : '';
+    addItem({
+      id: `${item.id}-${cheese}`,
+      name: `${item.name}${suffix}`,
+      price: item.price,
+    });
+    toast.success(`${item.name} adicionado!`);
+    setCheese('');
+  };
+
+  return (
+    <div className="bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden">
+      {item.imageUrl && (
+        <img src={item.imageUrl} alt={item.name} className="w-full h-40 object-cover" />
+      )}
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-bold text-lg text-foreground">🍟 {item.name}</h3>
+          <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+        </div>
+        {item.description && (
+          <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+        )}
+
+        {needsCheese && (
+          <div className="mt-3 p-3 bg-secondary rounded-lg">
+            <p className="text-xs font-bold text-muted-foreground mb-2">Escolha a cobertura:</p>
+            <RadioGroup value={cheese} onValueChange={setCheese} className="flex gap-3 flex-wrap">
+              {['Cheddar', 'Catupiry'].map(q => (
+                <div key={q} className="flex items-center gap-1.5">
+                  <RadioGroupItem value={q} id={`${item.id}-${q}`} />
+                  <Label htmlFor={`${item.id}-${q}`} className="text-sm cursor-pointer">{q}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        )}
+
+        <Button size="sm" className="rounded-full w-full mt-3" onClick={handleAdd}>
+          <Plus className="h-4 w-4 mr-1" /> Adicionar
+        </Button>
+      </div>
     </div>
   );
 };
