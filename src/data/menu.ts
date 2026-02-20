@@ -6,6 +6,7 @@ export interface MenuItem {
   category: string;
   subcategory?: string;
   maxFlavors?: number;
+  imageUrl?: string;
 }
 
 export interface FlavorOption {

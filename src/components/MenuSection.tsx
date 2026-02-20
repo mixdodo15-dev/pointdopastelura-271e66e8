@@ -86,9 +86,12 @@ const MenuSection = ({ category }: MenuSectionProps) => {
               key={item.id}
               className="bg-card rounded-xl p-6 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer"
             >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
-                <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+              <div className="flex items-center gap-4 mb-3">
+                <ProductImage src={item.imageUrl} alt={item.name} />
+                <div className="flex-1 flex items-center justify-between">
+                  <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
+                  <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+                </div>
               </div>
               <p className="text-sm font-semibold text-primary mb-3">Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}</p>
               <Button className="rounded-full w-full" onClick={() => handleAdd(item)}>
@@ -155,6 +158,9 @@ const MenuSection = ({ category }: MenuSectionProps) => {
           key={item.id}
           className={CARD_CLASS + " text-center flex flex-col items-center gap-2"}
         >
+          {item.imageUrl && (
+            <img src={item.imageUrl} alt={item.name} className="h-14 w-14 rounded-lg object-cover" />
+          )}
           <span className="font-bold text-sm text-foreground">{item.name}</span>
           <span className="text-primary font-extrabold">{formatPrice(item.price)}</span>
           <Button size="sm" className="rounded-full w-full" onClick={() => handleAdd(item)}>
@@ -166,13 +172,23 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   );
 };
 
+const ProductImage = ({ src, alt }: { src?: string; alt: string }) => {
+  if (!src) return null;
+  return (
+    <img src={src} alt={alt} className="h-16 w-16 rounded-lg object-cover shrink-0" />
+  );
+};
+
 const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => void }) => (
   <div className={CARD_CLASS + " flex items-center justify-between"}>
-    <div className="flex-1">
-      <h3 className="font-bold text-foreground">{item.name}</h3>
-      {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
+    <div className="flex items-center gap-3 flex-1 min-w-0">
+      <ProductImage src={item.imageUrl} alt={item.name} />
+      <div className="min-w-0">
+        <h3 className="font-bold text-foreground">{item.name}</h3>
+        {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
+      </div>
     </div>
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 shrink-0">
       <span className="text-lg font-extrabold text-primary">R$ {item.price.toFixed(2).replace('.', ',')}</span>
       <Button size="icon" className="rounded-full h-9 w-9" onClick={() => onAdd(item)}>
         <Plus className="h-4 w-4" />
@@ -226,17 +242,20 @@ const EspecialCard = ({
   return (
     <>
       <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <ProductImage src={item.imageUrl} alt={item.name} />
           <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-accent fill-accent" />
-              <h3 className="font-bold text-foreground">{item.name}</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-accent fill-accent" />
+                <h3 className="font-bold text-foreground">{item.name}</h3>
+              </div>
+              <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
             </div>
             {item.description && (
               <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
             )}
           </div>
-          <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
         </div>
 
         {needsCheese && (
@@ -295,14 +314,17 @@ const DoceCard = ({
 
   return (
     <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start gap-3">
+        <ProductImage src={item.imageUrl} alt={item.name} />
         <div className="flex-1">
-          <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
+            <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
+          </div>
           {item.description && (
             <p className="text-xs text-primary font-semibold mt-1">{item.description}</p>
           )}
         </div>
-        <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
       </div>
       <Button size="sm" className="rounded-full w-full mt-3" onClick={() => onAdd(item)}>
         <Plus className="h-4 w-4 mr-1" /> {hasMaxFlavors ? 'Escolher sabor' : 'Adicionar'}

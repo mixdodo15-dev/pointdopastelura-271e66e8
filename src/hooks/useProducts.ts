@@ -24,6 +24,7 @@ export const useProducts = () => {
             category: p.category,
             subcategory: p.subcategory || undefined,
             maxFlavors: p.max_flavors || undefined,
+            imageUrl: p.image_url || undefined,
           }))
         );
       }

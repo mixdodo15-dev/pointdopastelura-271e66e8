@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Product {
@@ -225,6 +225,13 @@ const Admin = () => {
                     !product.active && "opacity-50"
                   )}
                 >
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.name} className="h-12 w-12 rounded-lg object-cover shrink-0" />
+                  ) : (
+                    <div className="h-12 w-12 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                      <Image className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm truncate">{product.name}</p>
                     {product.description && (
@@ -334,6 +341,8 @@ const ProductModal = ({
   const [maxFlavors, setMaxFlavors] = useState('');
   const [sortOrder, setSortOrder] = useState('0');
   const [saving, setSaving] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -344,6 +353,7 @@ const ProductModal = ({
       setSubcategory(product.subcategory || '');
       setMaxFlavors(product.max_flavors ? String(product.max_flavors) : '');
       setSortOrder(String(product.sort_order));
+      setImageUrl(product.image_url || '');
     } else {
       setName('');
       setDescription('');
@@ -352,8 +362,40 @@ const ProductModal = ({
       setSubcategory('');
       setMaxFlavors('');
       setSortOrder('0');
+      setImageUrl('');
     }
   }, [product, defaultCategory, open]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error('Selecione uma imagem'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Imagem deve ter no máximo 5MB'); return; }
+
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      toast.error('Erro ao enviar imagem');
+      setUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(fileName);
+
+    setImageUrl(publicUrl);
+    setUploading(false);
+    toast.success('Imagem enviada!');
+  };
+
+  const removeImage = () => setImageUrl('');
 
   const handleSave = async () => {
     if (!name.trim() || !price) { toast.error('Preencha nome e preço'); return; }
@@ -367,6 +409,7 @@ const ProductModal = ({
       subcategory: subcategory.trim() || null,
       max_flavors: maxFlavors ? parseInt(maxFlavors) : null,
       sort_order: parseInt(sortOrder) || 0,
+      image_url: imageUrl || null,
     };
 
     if (product) {
@@ -390,6 +433,36 @@ const ProductModal = ({
           <DialogTitle>{product ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
+          {/* Image upload */}
+          <div className="space-y-1">
+            <Label>Imagem</Label>
+            {imageUrl ? (
+              <div className="relative w-full h-40 rounded-lg overflow-hidden bg-secondary">
+                <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                <button
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 hover:bg-black/80"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors bg-secondary/50">
+                <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                <span className="text-xs text-muted-foreground">
+                  {uploading ? 'Enviando...' : 'Clique para enviar imagem'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+              </label>
+            )}
+          </div>
+
           <div className="space-y-1">
             <Label>Nome *</Label>
             <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nome do produto" />
