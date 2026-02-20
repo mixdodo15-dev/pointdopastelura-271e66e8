@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN is_top_week boolean NOT NULL DEFAULT false;

@@ -7,6 +7,7 @@ export interface MenuItem {
   subcategory?: string;
   maxFlavors?: number;
   imageUrl?: string;
+  isTopWeek?: boolean;
 }
 
 export interface FlavorOption {
