@@ -91,10 +91,13 @@ const Index = () => {
               sectionRef={el => { sectionRefs.current[cat.id] = el; }}
               isActive={activeCategory === cat.id}
             >
-              <h2 className="text-xl font-extrabold mb-4 flex items-center justify-center gap-2">
-                <span>{cat.icon}</span>
-                <span>{cat.label}</span>
-              </h2>
+              <div className="flex flex-col items-center mb-5">
+                <span className="text-3xl mb-1">{cat.icon}</span>
+                <h2 className="text-2xl font-extrabold text-foreground tracking-tight">
+                  {cat.label}
+                </h2>
+                <div className="h-1 w-12 bg-primary rounded-full mt-2" />
+              </div>
               <MenuSection category={cat.id} />
             </SectionReveal>
           ))}
