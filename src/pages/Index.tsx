@@ -4,6 +4,7 @@ import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
 import { CartProvider } from '@/contexts/CartContext';
 import { useCategories } from '@/hooks/useCategories';
+import AnimatedCard from '@/components/AnimatedCard';
 
 const Index = () => {
   const { categories, loading } = useCategories();
@@ -63,22 +64,26 @@ const Index = () => {
         <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
 
         <main className="max-w-3xl mx-auto px-4 py-6 space-y-10">
-          {categories.map(cat => (
-            <div
+          {categories.map((cat, idx) => (
+            <AnimatedCard
               key={cat.slug}
-              ref={el => { sectionRefs.current[cat.slug] = el; }}
-              id={`section-${cat.slug}`}
-              className="animate-fade-in"
+              index={idx}
+              className="scroll-mt-20"
             >
-              <div className="flex flex-col items-center mb-5">
-                <span className="text-3xl mb-1">{cat.icon}</span>
-                <h2 className="text-2xl font-extrabold text-foreground tracking-tight">
-                  {cat.label}
-                </h2>
-                <div className="h-1 w-12 bg-primary rounded-full mt-2" />
+              <div
+                ref={el => { sectionRefs.current[cat.slug] = el; }}
+                id={`section-${cat.slug}`}
+              >
+                <div className="flex flex-col items-center mb-5">
+                  <span className="text-3xl mb-1">{cat.icon}</span>
+                  <h2 className="text-2xl font-extrabold text-foreground tracking-tight">
+                    {cat.label}
+                  </h2>
+                  <div className="h-1 w-12 bg-primary rounded-full mt-2" />
+                </div>
+                <MenuSection category={cat.slug} />
               </div>
-              <MenuSection category={cat.slug} />
-            </div>
+            </AnimatedCard>
           ))}
         </main>
       </div>
