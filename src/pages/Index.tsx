@@ -5,9 +5,10 @@ import MenuSection from '@/components/MenuSection';
 import { CartProvider } from '@/contexts/CartContext';
 import { CATEGORIES } from '@/data/menu';
 
-const SectionReveal = ({ children, id, sectionRef }: { children: React.ReactNode; id: string; sectionRef: (el: HTMLDivElement | null) => void }) => {
+const SectionReveal = ({ children, id, sectionRef, isActive }: { children: React.ReactNode; id: string; sectionRef: (el: HTMLDivElement | null) => void; isActive: boolean }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [flash, setFlash] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -20,11 +21,20 @@ const SectionReveal = ({ children, id, sectionRef }: { children: React.ReactNode
     return () => observer.disconnect();
   }, []);
 
+  // Flash animation when section becomes active
+  useEffect(() => {
+    if (isActive && visible) {
+      setFlash(true);
+      const t = setTimeout(() => setFlash(false), 500);
+      return () => clearTimeout(t);
+    }
+  }, [isActive]);
+
   return (
     <div
       ref={(el) => { (ref as React.MutableRefObject<HTMLDivElement | null>).current = el; sectionRef(el); }}
       id={id}
-      className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+      className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'} ${flash ? 'animate-section-highlight' : ''}`}
     >
       {children}
     </div>
@@ -79,6 +89,7 @@ const Index = () => {
               key={cat.id}
               id={`section-${cat.id}`}
               sectionRef={el => { sectionRefs.current[cat.id] = el; }}
+              isActive={activeCategory === cat.id}
             >
               <h2 className="text-xl font-extrabold mb-4 flex items-center justify-center gap-2">
                 <span>{cat.icon}</span>
