@@ -5,6 +5,7 @@ import MenuSection from '@/components/MenuSection';
 import { CartProvider } from '@/contexts/CartContext';
 import { useCategories } from '@/hooks/useCategories';
 import AnimatedCard from '@/components/AnimatedCard';
+import SectionTitle from '@/components/SectionTitle';
 
 const Index = () => {
   const { categories, loading } = useCategories();
@@ -74,13 +75,7 @@ const Index = () => {
                 ref={el => { sectionRefs.current[cat.slug] = el; }}
                 id={`section-${cat.slug}`}
               >
-                <div className="flex flex-col items-center mb-5">
-                  <span className="text-3xl mb-1">{cat.icon}</span>
-                  <h2 className="text-2xl font-extrabold text-foreground tracking-tight">
-                    {cat.label}
-                  </h2>
-                  <div className="h-1 w-12 bg-primary rounded-full mt-2" />
-                </div>
+                <SectionTitle icon={cat.icon} label={cat.label} />
                 <MenuSection category={cat.slug} />
               </div>
             </AnimatedCard>

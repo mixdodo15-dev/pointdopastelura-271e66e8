@@ -88,6 +88,16 @@ export default {
           "0%": { opacity: "0", transform: "translateY(24px) scale(0.96)" },
           "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
         },
+        "pulse-title": {
+          "0%": { opacity: "0", transform: "scale(0.9)" },
+          "50%": { opacity: "1", transform: "scale(1.05)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "pulse-icon": {
+          "0%": { transform: "scale(0.5) rotate(-10deg)", opacity: "0" },
+          "50%": { transform: "scale(1.2) rotate(5deg)", opacity: "1" },
+          "100%": { transform: "scale(1) rotate(0deg)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
