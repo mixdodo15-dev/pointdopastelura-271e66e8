@@ -15,7 +15,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-primary text-primary-foreground py-4 px-4 shadow-lg">
+      <header className="sticky top-0 z-40 bg-primary text-primary-foreground py-4 px-4 shadow-lg">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex-1 text-center">
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight" style={{ fontFamily: "'Fredoka One', cursive" }}>
