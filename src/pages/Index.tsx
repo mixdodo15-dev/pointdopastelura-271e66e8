@@ -25,7 +25,7 @@ const Index = () => {
     setActiveCategory(slug);
     const el = sectionRefs.current[slug];
     if (el) {
-      const offset = 70;
+      const offset = 130;
       const top = el.getBoundingClientRect().top + window.scrollY - offset;
       window.scrollTo({ top, behavior: 'smooth' });
       setTimeout(() => { isScrollingTo.current = false; }, 800);
