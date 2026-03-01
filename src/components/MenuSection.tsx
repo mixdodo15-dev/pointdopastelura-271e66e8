@@ -265,7 +265,7 @@ const EspecialCard = ({
 
   return (
     <>
-      <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
+      <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
         <div className="flex items-start gap-3">
           <ProductImage src={item.imageUrl} alt={item.name} />
           <div className="flex-1">
@@ -337,7 +337,7 @@ const DoceCard = ({
   const hasMaxFlavors = !!item.maxFlavors;
 
   return (
-    <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-gray-200 hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
+    <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
       <div className="flex items-start gap-3">
         <ProductImage src={item.imageUrl} alt={item.name} />
         <div className="flex-1">
