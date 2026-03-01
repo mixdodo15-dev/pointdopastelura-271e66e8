@@ -174,21 +174,50 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   }
 
   // Adicionais - grid
+  if (category === 'adicionais') {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {items.map((item, idx) => (
+          <AnimatedCard key={item.id} index={idx}>
+            <div
+              className={CARD_CLASS + " text-center flex flex-col items-center gap-2"}
+            >
+              {item.imageUrl && (
+                <img src={item.imageUrl} alt={item.name} className="h-14 w-14 rounded-lg object-cover" />
+              )}
+              <span className="font-bold text-sm text-foreground">{item.name}</span>
+              <span className="text-primary font-extrabold">{formatPrice(item.price)}</span>
+              <Button size="sm" className="rounded-full w-full" onClick={() => handleAdd(item)}>
+                <Plus className="h-4 w-4 mr-1" /> Adicionar
+              </Button>
+            </div>
+          </AnimatedCard>
+        ))}
+      </div>
+    );
+  }
+
+  // Default - layout padrão com imagem, descrição e preço
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+    <div className="grid gap-3">
       {items.map((item, idx) => (
         <AnimatedCard key={item.id} index={idx}>
-          <div
-            className={CARD_CLASS + " text-center flex flex-col items-center gap-2"}
-          >
+          <div className="bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden">
             {item.imageUrl && (
-              <img src={item.imageUrl} alt={item.name} className="h-14 w-14 rounded-lg object-cover" />
+              <img src={item.imageUrl} alt={item.name} className="w-full h-40 object-cover" />
             )}
-            <span className="font-bold text-sm text-foreground">{item.name}</span>
-            <span className="text-primary font-extrabold">{formatPrice(item.price)}</span>
-            <Button size="sm" className="rounded-full w-full" onClick={() => handleAdd(item)}>
-              <Plus className="h-4 w-4 mr-1" /> Adicionar
-            </Button>
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
+                <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+              </div>
+              {item.description && (
+                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+              )}
+              <Button size="sm" className="rounded-full w-full mt-3" onClick={() => handleAdd(item)}>
+                <Plus className="h-4 w-4 mr-1" /> Adicionar
+              </Button>
+            </div>
           </div>
         </AnimatedCard>
       ))}
