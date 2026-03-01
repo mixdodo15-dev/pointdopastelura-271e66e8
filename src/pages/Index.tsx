@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
+import Footer from '@/components/Footer';
 import { CartProvider } from '@/contexts/CartContext';
 import { useCategories } from '@/hooks/useCategories';
 import AnimatedCard from '@/components/AnimatedCard';
@@ -84,6 +85,8 @@ const Index = () => {
             </AnimatedCard>
           ))}
         </main>
+
+        <Footer />
       </div>
     </CartProvider>
   );
