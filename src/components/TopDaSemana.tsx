@@ -30,7 +30,7 @@ const TopDaSemana = () => {
   };
 
   return (
-    <section className="max-w-3xl mx-auto px-4 pt-6 overflow-hidden">
+    <section className="max-w-md mx-auto px-4 pt-6 overflow-hidden">
       <SectionTitle icon="🏆" label="TOP Da Semana" />
       <div className="grid gap-3">
         {topProducts.map((item, idx) => (
