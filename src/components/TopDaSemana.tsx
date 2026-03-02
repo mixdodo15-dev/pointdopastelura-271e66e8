@@ -1,4 +1,5 @@
 import { useProducts } from '@/hooks/useProducts';
+import { useCategories } from '@/hooks/useCategories';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Plus, Trophy } from 'lucide-react';
@@ -11,9 +12,15 @@ const formatPrice = (price: number) =>
 
 const TopDaSemana = () => {
   const { products, loading } = useProducts();
+  const { categories } = useCategories();
   const { addItem } = useCart();
 
   const topProducts = products.filter(p => p.isTopWeek);
+
+  // Map category slug to label
+  const categoryLabelMap = Object.fromEntries(
+    categories.map(c => [c.slug, c.label])
+  );
 
   if (loading || topProducts.length === 0) return null;
 
@@ -44,7 +51,7 @@ const TopDaSemana = () => {
                   {item.description && (
                     <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
                   )}
-                  <p className="text-xs text-muted-foreground mt-0.5">{item.category}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{categoryLabelMap[item.category] || item.category}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <span className="text-lg font-extrabold text-primary">{formatPrice(item.price)}</span>
