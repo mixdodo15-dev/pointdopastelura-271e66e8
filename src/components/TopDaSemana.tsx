@@ -30,36 +30,30 @@ const TopDaSemana = () => {
   };
 
   return (
-    <section className="max-w-md mx-auto px-4 pt-6 overflow-hidden">
+    <section className="max-w-3xl mx-auto px-4 pt-6">
       <SectionTitle icon="🏆" label="TOP Da Semana" />
       <div className="grid gap-3">
         {topProducts.map((item, idx) => (
           <AnimatedCard key={item.id} index={idx}>
-            <div className="bg-card rounded-xl p-3 shadow-md border-2 border-primary/30 hover:border-primary hover:shadow-lg transition-all duration-200 cursor-pointer relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg z-10">
-                TOP
+            <div className="bg-card rounded-xl shadow-sm border-2 border-primary/30 hover:border-primary hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden relative">
+              <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full z-10 flex items-center gap-1">
+                <Trophy className="h-3 w-3" /> TOP
               </div>
-              <div className="flex items-center gap-2 min-w-0">
-                {item.imageUrl && (
-                  <img src={item.imageUrl} alt={item.name} className="h-14 w-14 rounded-lg object-cover shrink-0" />
-                )}
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <div className="flex items-center gap-1 mb-0.5">
-                    <Trophy className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <h3 className="font-bold text-sm text-foreground truncate">{item.name}</h3>
-                  </div>
-                  {item.description && (
-                    <p className="text-[11px] text-muted-foreground truncate">{item.description}</p>
-                  )}
-                  <div className="flex items-center justify-between gap-2 mt-1">
-                    <p className="text-[11px] text-muted-foreground truncate">{categoryLabelMap[item.category] || item.category}</p>
-                    <span className="text-sm font-extrabold text-primary whitespace-nowrap">{formatPrice(item.price)}</span>
-                  </div>
+              {item.imageUrl && (
+                <img src={item.imageUrl} alt={item.name} className="w-full h-40 object-cover" />
+              )}
+              <div className="p-5">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
+                  <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
                 </div>
+                {item.description && (
+                  <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                )}
+                <Button size="sm" className="rounded-full w-full mt-3" onClick={() => handleAdd(item)}>
+                  <Plus className="h-4 w-4 mr-1" /> Pedir
+                </Button>
               </div>
-              <Button size="sm" className="rounded-full h-8 text-xs w-full mt-2" onClick={() => handleAdd(item)}>
-                <Plus className="h-3.5 w-3.5 mr-0.5" /> Pedir
-              </Button>
             </div>
           </AnimatedCard>
         ))}

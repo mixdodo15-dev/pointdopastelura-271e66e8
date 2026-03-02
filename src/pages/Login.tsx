@@ -84,7 +84,7 @@ const Login = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-primary" style={{ fontFamily: "'Fredoka One', cursive" }}>
+          <h1 className="text-3xl font-extrabold text-primary" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, letterSpacing: '0.05em' }}>
             POINT DO PASTEL
           </h1>
           <p className="text-muted-foreground mt-1">Área Administrativa</p>

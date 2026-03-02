@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="max-w-3xl mx-auto space-y-5">
         <h2
           className="text-center text-xl font-extrabold tracking-tight"
-          style={{ fontFamily: "'Fredoka One', cursive" }}
+          style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, letterSpacing: '0.05em' }}
         >
           POINT DO PASTEL
         </h2>
