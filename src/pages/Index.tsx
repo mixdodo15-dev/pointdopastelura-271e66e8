@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
+import BottomNav from '@/components/BottomNav';
 import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
 import Footer from '@/components/Footer';
@@ -14,6 +16,7 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState('');
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrollingTo = useRef(false);
+  const [cartSheetOpen, setCartSheetOpen] = useState(false);
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategory) {
@@ -62,8 +65,9 @@ const Index = () => {
 
   return (
     <CartProvider>
-      <div className="min-h-screen bg-background pb-24">
-        <Header />
+      <div className="min-h-screen bg-[hsl(0,0%,96%)] pb-24">
+        <HeroSection />
+        <Header cartOpen={cartSheetOpen} setCartOpen={setCartSheetOpen} />
         <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
 
         <TopDaSemana />
@@ -87,6 +91,7 @@ const Index = () => {
         </main>
 
         <Footer />
+        <BottomNav onCartOpen={() => setCartSheetOpen(true)} />
       </div>
     </CartProvider>
   );

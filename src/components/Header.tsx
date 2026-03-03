@@ -8,32 +8,24 @@ import CheckoutModal from './CheckoutModal';
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
 
-const Header = () => {
+interface HeaderProps {
+  cartOpen?: boolean;
+  setCartOpen?: (open: boolean) => void;
+}
+
+const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }: HeaderProps = {}) => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
-  const [cartOpen, setCartOpen] = useState(false);
+  const [internalCartOpen, setInternalCartOpen] = useState(false);
+  const cartOpen = externalCartOpen ?? internalCartOpen;
+  const setCartOpen = externalSetCartOpen ?? setInternalCartOpen;
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-primary text-primary-foreground py-4 px-4 shadow-lg">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex-1 text-center">
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight" style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, letterSpacing: '0.05em' }}>
-              POINT DO PASTEL
-            </h1>
-            <p className="text-sm font-medium opacity-90 tracking-widest">— Cardápio Digital —</p>
-          </div>
-          <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-            <SheetTrigger asChild>
-              <button className="relative bg-black rounded-full p-3 hover:scale-105 transition-transform shadow-lg ring-2 ring-card">
-                <ShoppingCart className="h-7 w-7 text-white" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-foreground text-background text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </button>
-            </SheetTrigger>
+      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+        <SheetTrigger asChild>
+          <span className="hidden" />
+        </SheetTrigger>
             <SheetContent className="w-full sm:w-96 flex flex-col bg-black text-white border-l-0 p-0">
               {/* Header do carrinho */}
               <div className="px-5 pt-5 pb-4 border-b border-white/10">
@@ -107,8 +99,6 @@ const Header = () => {
               )}
             </SheetContent>
           </Sheet>
-        </div>
-      </header>
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
     </>
   );
