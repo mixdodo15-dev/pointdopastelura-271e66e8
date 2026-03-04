@@ -14,7 +14,7 @@ const HeroSection = () => {
           className="w-full h-full object-cover"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(0,100%,20%,0.6)] via-[hsl(0,100%,25%,0.4)] to-[hsl(0,100%,20%,0.8)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(0,0%,0%,0.4)] via-[hsl(0,0%,0%,0.2)] to-[hsl(0,0%,0%,0.7)]" />
 
         {/* Top icons */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
