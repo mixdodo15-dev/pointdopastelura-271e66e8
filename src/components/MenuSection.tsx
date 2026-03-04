@@ -3,7 +3,7 @@ import { type MenuItem, SWEET_SPECIAL_FLAVORS } from '@/data/menu';
 import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Star } from 'lucide-react';
+import { Plus, Star, ShoppingCart } from 'lucide-react';
 import FlavorModal from './FlavorModal';
 import AdicionaisModal from './AdicionaisModal';
 import AnimatedCard from './AnimatedCard';
@@ -83,24 +83,55 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   if (category === 'monte') {
     return (
       <>
-        <div className="grid gap-3">
+        <div className="grid gap-4">
           {items.map((item, idx) => (
             <AnimatedCard key={item.id} index={idx}>
-              <div
-                className="bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden"
-              >
-                {item.imageUrl && (
-                  <img src={item.imageUrl} alt={item.name} className="w-full h-40 object-cover" />
-                )}
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
-                    <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+              <div className="bg-card rounded-[18px] shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-border/50">
+                <div className="flex gap-0">
+                  {/* Product image */}
+                  {item.imageUrl && (
+                    <div className="w-32 sm:w-36 shrink-0">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover rounded-l-[18px]"
+                        style={{ minHeight: '160px' }}
+                      />
+                    </div>
+                  )}
+                  {/* Content */}
+                  <div className="flex-1 p-4 flex flex-col justify-between">
+                    <div>
+                      <h3
+                        className="font-bold text-base text-foreground leading-tight"
+                        style={{ fontFamily: "'Poppins', sans-serif" }}
+                      >
+                        {item.name}
+                      </h3>
+                      <p className="text-xs text-primary font-semibold mt-1">
+                        Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}
+                      </p>
+                      {item.description && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
+                      )}
+                    </div>
+                    <div className="mt-3">
+                      <span
+                        className="text-lg font-extrabold text-primary"
+                        style={{ fontFamily: "'Poppins', sans-serif" }}
+                      >
+                        {formatPrice(item.price)}
+                      </span>
+                      <button
+                        onClick={() => handleAdd(item)}
+                        className="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground text-xs font-bold py-2.5 rounded-full transition-all duration-200 shadow-sm"
+                        style={{ fontFamily: "'Poppins', sans-serif" }}
+                      >
+                        <ShoppingCart className="h-3.5 w-3.5" />
+                        PEDIR AGORA
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-sm font-semibold text-primary mb-3">Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}</p>
-                  <Button className="rounded-full w-full" onClick={() => handleAdd(item)}>
-                    <Plus className="h-4 w-4 mr-1" /> Selecionar Sabores
-                  </Button>
                 </div>
               </div>
             </AnimatedCard>
