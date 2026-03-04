@@ -28,16 +28,16 @@ const SectionTitle = ({ icon, label }: SectionTitleProps) => {
   return (
     <div
       ref={ref}
-      className={`rounded-[20px] py-5 px-6 mb-5 text-center shadow-md transition-all duration-500 ${
+      className={`rounded-2xl py-3 px-4 mb-4 flex items-center justify-center gap-2 shadow-sm transition-all duration-500 ${
         visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
       }`}
       style={{
         background: 'linear-gradient(135deg, hsl(0,100%,27%), hsl(0,100%,38%))',
       }}
     >
-      <span className="text-3xl mb-1 block">{icon}</span>
+      <span className="text-lg">{icon}</span>
       <h2
-        className="text-xl font-black text-white uppercase tracking-[0.15em]"
+        className="text-sm font-bold text-white uppercase tracking-[0.12em]"
         style={{ fontFamily: "'Poppins', sans-serif" }}
       >
         {label}
