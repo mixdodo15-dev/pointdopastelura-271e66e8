@@ -68,9 +68,10 @@ const Index = () => {
       <div className="min-h-screen bg-[hsl(0,0%,96%)] pb-24">
         <HeroSection />
         <Header cartOpen={cartSheetOpen} setCartOpen={setCartSheetOpen} />
-        <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
 
         <TopDaSemana />
+
+        <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
 
         <main className="max-w-3xl mx-auto px-4 py-6 space-y-10">
           {categories.map((cat, idx) => (
