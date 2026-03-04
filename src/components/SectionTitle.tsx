@@ -26,26 +26,22 @@ const SectionTitle = ({ icon, label }: SectionTitleProps) => {
   }, []);
 
   return (
-    <div ref={ref} className="flex flex-col items-center mb-5">
-      <span
-        className={`text-3xl mb-1 transition-transform duration-500 ${
-          visible ? 'animate-[pulse-icon_0.8s_ease-in-out]' : 'opacity-0'
-        }`}
-      >
-        {icon}
-      </span>
+    <div
+      ref={ref}
+      className={`rounded-[20px] py-5 px-6 mb-5 text-center shadow-md transition-all duration-500 ${
+        visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+      }`}
+      style={{
+        background: 'linear-gradient(135deg, hsl(0,100%,27%), hsl(0,100%,38%))',
+      }}
+    >
+      <span className="text-3xl mb-1 block">{icon}</span>
       <h2
-        className={`text-2xl font-extrabold text-foreground tracking-tight transition-all duration-500 ${
-          visible ? 'animate-[pulse-title_0.6s_ease-out]' : 'opacity-0 scale-95'
-        }`}
+        className="text-xl font-black text-white uppercase tracking-[0.15em]"
+        style={{ fontFamily: "'Poppins', sans-serif" }}
       >
         {label}
       </h2>
-      <div
-        className={`h-1 bg-primary rounded-full mt-2 transition-all duration-700 ease-out ${
-          visible ? 'w-12' : 'w-0'
-        }`}
-      />
     </div>
   );
 };
