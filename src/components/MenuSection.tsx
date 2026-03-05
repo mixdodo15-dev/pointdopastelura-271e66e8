@@ -87,19 +87,17 @@ const MenuSection = ({ category }: MenuSectionProps) => {
           {items.map((item, idx) => (
             <AnimatedCard key={item.id} index={idx}>
               <div className="bg-card rounded-[14px] shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-border/50">
-                <div className="flex gap-0">
+                <div className="flex items-center gap-3 p-3">
                   {/* Product image */}
                   {item.imageUrl && (
-                    <div className="w-20 sm:w-24 shrink-0">
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-cover rounded-l-[14px]"
-                      />
-                    </div>
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0"
+                    />
                   )}
                   {/* Content */}
-                  <div className="flex-1 p-3">
+                  <div className="flex-1 min-w-0">
                     <h3
                       className="font-bold text-sm text-foreground leading-tight"
                       style={{ fontFamily: "'Poppins', sans-serif" }}
@@ -124,7 +122,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                 <div className="px-3 pb-3">
                   <button
                     onClick={() => handleAdd(item)}
-                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground text-xs font-bold py-2 rounded-full transition-all duration-200 shadow-sm"
+                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground text-xs font-bold py-2.5 rounded-full transition-all duration-200 shadow-sm"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     <ShoppingCart className="h-3.5 w-3.5" />
