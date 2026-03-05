@@ -86,21 +86,21 @@ const MenuSection = ({ category }: MenuSectionProps) => {
         <div className="grid gap-4">
           {items.map((item, idx) => (
             <AnimatedCard key={item.id} index={idx}>
-              <div className="bg-card rounded-[18px] shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-border/50">
+              <div className="bg-card rounded-[14px] shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-border/50">
                 <div className="flex gap-0">
                   {/* Product image */}
                   {item.imageUrl && (
-                    <div className="w-32 sm:w-36 shrink-0">
+                    <div className="w-24 sm:w-28 shrink-0">
                       <img
                         src={item.imageUrl}
                         alt={item.name}
-                        className="w-full h-full object-cover rounded-l-[18px]"
-                        style={{ minHeight: '160px' }}
+                        className="w-full h-full object-cover rounded-l-[14px]"
+                        style={{ minHeight: '120px' }}
                       />
                     </div>
                   )}
                   {/* Content */}
-                  <div className="flex-1 p-4 flex flex-col justify-between">
+                  <div className="flex-1 p-3 flex flex-col justify-between">
                     <div>
                       <h3
                         className="font-bold text-base text-foreground leading-tight"
