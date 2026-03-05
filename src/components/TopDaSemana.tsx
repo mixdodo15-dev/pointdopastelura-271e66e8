@@ -95,7 +95,7 @@ const TopDaSemana = () => {
             >
               <div className="bg-white rounded-[20px] shadow-xl overflow-hidden">
                 {/* Image */}
-                <div className="relative w-full h-48 sm:h-56">
+                <div className="relative w-full h-32 sm:h-40">
                   {item.imageUrl ? (
                     <img
                       src={item.imageUrl}
