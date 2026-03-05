@@ -95,7 +95,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                         src={item.imageUrl}
                         alt={item.name}
                         className="w-full h-full object-cover rounded-l-[14px]"
-                        style={{ minHeight: '120px' }}
+                        style={{ minHeight: '100px' }}
                       />
                     </div>
                   )}
