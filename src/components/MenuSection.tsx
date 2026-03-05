@@ -90,48 +90,46 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                 <div className="flex gap-0">
                   {/* Product image */}
                   {item.imageUrl && (
-                    <div className="w-24 sm:w-28 shrink-0">
+                    <div className="w-20 sm:w-24 shrink-0">
                       <img
                         src={item.imageUrl}
                         alt={item.name}
                         className="w-full h-full object-cover rounded-l-[14px]"
-                        style={{ minHeight: '100px' }}
                       />
                     </div>
                   )}
                   {/* Content */}
-                  <div className="flex-1 p-3 flex flex-col justify-between">
-                    <div>
-                      <h3
-                        className="font-bold text-base text-foreground leading-tight"
-                        style={{ fontFamily: "'Poppins', sans-serif" }}
-                      >
-                        {item.name}
-                      </h3>
-                      <p className="text-xs text-primary font-semibold mt-1">
-                        Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}
-                      </p>
-                      {item.description && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
-                      )}
-                    </div>
-                    <div className="mt-3">
-                      <span
-                        className="text-lg font-extrabold text-primary"
-                        style={{ fontFamily: "'Poppins', sans-serif" }}
-                      >
-                        {formatPrice(item.price)}
-                      </span>
-                      <button
-                        onClick={() => handleAdd(item)}
-                        className="mt-2 w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground text-xs font-bold py-2.5 rounded-full transition-all duration-200 shadow-sm"
-                        style={{ fontFamily: "'Poppins', sans-serif" }}
-                      >
-                        <ShoppingCart className="h-3.5 w-3.5" />
-                        PEDIR AGORA
-                      </button>
-                    </div>
+                  <div className="flex-1 p-3">
+                    <h3
+                      className="font-bold text-sm text-foreground leading-tight"
+                      style={{ fontFamily: "'Poppins', sans-serif" }}
+                    >
+                      {item.name}
+                    </h3>
+                    <p className="text-xs text-primary font-semibold mt-0.5">
+                      Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}
+                    </p>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
+                    )}
+                    <span
+                      className="text-base font-extrabold text-primary mt-1 block"
+                      style={{ fontFamily: "'Poppins', sans-serif" }}
+                    >
+                      {formatPrice(item.price)}
+                    </span>
                   </div>
+                </div>
+                {/* Button below */}
+                <div className="px-3 pb-3">
+                  <button
+                    onClick={() => handleAdd(item)}
+                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground text-xs font-bold py-2 rounded-full transition-all duration-200 shadow-sm"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}
+                  >
+                    <ShoppingCart className="h-3.5 w-3.5" />
+                    PEDIR AGORA
+                  </button>
                 </div>
               </div>
             </AnimatedCard>
