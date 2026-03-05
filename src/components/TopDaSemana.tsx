@@ -93,7 +93,7 @@ const TopDaSemana = () => {
               key={item.id}
               className="w-full flex-shrink-0 px-2"
             >
-              <div className="bg-white rounded-[20px] shadow-xl overflow-hidden">
+              <div className="bg-white rounded-[20px] shadow-xl overflow-hidden border-2 border-[hsl(0,100%,38%)]">
                 {/* Image */}
                 <div className="relative w-full h-32 sm:h-40">
                   {item.imageUrl ? (
