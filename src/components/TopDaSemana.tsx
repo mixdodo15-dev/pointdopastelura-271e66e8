@@ -78,7 +78,7 @@ const TopDaSemana = () => {
 
       {/* Carousel */}
       <div
-        className="relative max-w-md mx-auto px-8"
+        className="relative max-w-[280px] mx-auto px-4"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
