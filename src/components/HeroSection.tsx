@@ -2,6 +2,7 @@ import { Search, User } from 'lucide-react';
 import { ShoppingBag, Clock, Bike } from 'lucide-react';
 import heroBg from '@/assets/hero-pastel.jpg';
 import logoImg from '@/assets/logo-point.jpg';
+import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
 
 const HeroSection = () => {
   return (
