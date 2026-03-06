@@ -7,6 +7,10 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import Cadastro from "./pages/Cadastro";
+import ClienteLogin from "./pages/ClienteLogin";
+import ResetPassword from "./pages/ResetPassword";
+import MinhaConta from "./pages/MinhaConta";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +24,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/cadastro" element={<Cadastro />} />
+          <Route path="/cliente-login" element={<ClienteLogin />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/minha-conta" element={<MinhaConta />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
