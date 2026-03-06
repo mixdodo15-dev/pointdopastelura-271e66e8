@@ -31,14 +31,14 @@ const HeroSection = () => {
       </div>
 
       {/* Logo circular */}
-      <div className="relative z-10 flex justify-center -mt-14">
+      <div className="relative z-10 flex justify-center -mt-16">
         <div className="w-28 h-28 rounded-full bg-white border-4 border-[hsl(0,100%,38%)] shadow-xl overflow-hidden">
           <img src={logoImg} alt="Point do Pastel" className="w-full h-full object-cover" />
         </div>
       </div>
 
       {/* Info Card */}
-      <div className="relative z-10 max-w-md mx-auto px-4 -mt-4">
+      <div className="relative z-10 max-w-md mx-auto px-4 mt-4">
         <div className="bg-white rounded-[20px] shadow-lg p-5 space-y-4">
           <div className="text-center">
             <h2
