@@ -5,6 +5,8 @@ import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
 
 const HeroSection = () => {
+  const { isOpen, label, subtitle } = useRestaurantStatus();
+
   return (
     <section className="relative w-full">
       {/* Banner with overlay */}
