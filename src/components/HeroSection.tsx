@@ -47,10 +47,22 @@ const HeroSection = () => {
             >
               POINT DO PASTEL
             </h2>
-            <p className="text-sm font-semibold text-[hsl(0,100%,38%)] mt-1 flex items-center justify-center gap-1.5">
-              <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
-              Aberto até às 23:00
-            </p>
+            <div className="flex flex-col items-center gap-0.5 mt-1">
+              <span
+                className={`inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide text-white transition-all duration-300 ${
+                  isOpen
+                    ? 'bg-[hsl(145,100%,39%)] shadow-[0_0_12px_hsl(145,100%,39%,0.4)] animate-pulse'
+                    : 'bg-destructive shadow-[0_0_12px_hsl(0,84%,60%,0.3)]'
+                }`}
+                style={{ fontFamily: "'Poppins', sans-serif" }}
+              >
+                <span className={`w-2 h-2 rounded-full ${isOpen ? 'bg-white' : 'bg-white/80'}`} />
+                {label}
+              </span>
+              <span className="text-[11px] font-medium text-muted-foreground">
+                {subtitle}
+              </span>
+            </div>
           </div>
 
           {/* Delivery options */}
