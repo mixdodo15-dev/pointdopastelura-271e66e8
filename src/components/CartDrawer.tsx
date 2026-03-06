@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 import CheckoutModal from './CheckoutModal';
+import ExitIntentPopup from './ExitIntentPopup';
+import { useBackButtonControl } from '@/hooks/useBackButtonControl';
 
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
@@ -12,11 +14,49 @@ const CartDrawer = () => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [exitPopupOpen, setExitPopupOpen] = useState(false);
+
+  // Back button: when cart is open and has items, show exit popup
+  const handleCartBack = useCallback(() => {
+    if (items.length > 0) {
+      setExitPopupOpen(true);
+    } else {
+      setCartOpen(false);
+    }
+  }, [items.length]);
+
+  useBackButtonControl(cartOpen, 'cart-open', handleCartBack);
+
+  // Back button: when checkout is open, go back to cart
+  const handleCheckoutBack = useCallback(() => {
+    setCheckoutOpen(false);
+    setCartOpen(true);
+  }, []);
+
+  useBackButtonControl(checkoutOpen, 'checkout-open', handleCheckoutBack);
+
+  const handleCartClose = (open: boolean) => {
+    if (!open && items.length > 0) {
+      setExitPopupOpen(true);
+    } else {
+      setCartOpen(open);
+    }
+  };
+
+  const handleExitClose = () => {
+    setExitPopupOpen(false);
+    setCartOpen(false);
+  };
+
+  const handleExitFinalize = () => {
+    setExitPopupOpen(false);
+    setCartOpen(false);
+    setCheckoutOpen(true);
+  };
 
   return (
     <>
-      {/* Floating cart button */}
-      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+      <Sheet open={cartOpen} onOpenChange={handleCartClose}>
         <SheetTrigger asChild>
           <button className="fixed bottom-6 right-6 z-50 bg-black text-white rounded-full p-4 shadow-2xl hover:scale-105 transition-transform active:scale-95">
             <ShoppingCart className="h-6 w-6" />
@@ -100,6 +140,12 @@ const CartDrawer = () => {
           )}
         </SheetContent>
       </Sheet>
+
+      <ExitIntentPopup
+        open={exitPopupOpen}
+        onClose={handleExitClose}
+        onFinalize={handleExitFinalize}
+      />
 
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
     </>
