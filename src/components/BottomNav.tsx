@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { UtensilsCrossed, ShoppingCart, ClipboardList } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { UtensilsCrossed, ShoppingCart, User } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 
 const tabs = [
   { id: 'cardapio', label: 'Cardápio', icon: UtensilsCrossed },
   { id: 'carrinho', label: 'Carrinho', icon: ShoppingCart },
-  { id: 'status', label: 'Status', icon: ClipboardList },
+  { id: 'conta', label: 'Conta', icon: User },
 ] as const;
 
 interface BottomNavProps {
@@ -15,6 +16,7 @@ interface BottomNavProps {
 const BottomNav = ({ onCartOpen }: BottomNavProps) => {
   const [active, setActive] = useState<string>('cardapio');
   const { totalItems } = useCart();
+  const navigate = useNavigate();
 
   const handleClick = (id: string) => {
     setActive(id);
@@ -23,6 +25,9 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
     }
     if (id === 'cardapio') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (id === 'conta') {
+      navigate('/cliente-login');
     }
   };
 
@@ -39,16 +44,16 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
             >
               <div className="relative">
                 <Icon
-                  className={`h-5 w-5 transition-colors ${isActive ? 'text-[hsl(0,100%,38%)]' : 'text-[hsl(0,0%,60%)]'}`}
+                  className={`h-5 w-5 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                 />
                 {id === 'carrinho' && totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-[hsl(0,100%,38%)] text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-2 bg-primary text-primary-foreground text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}
               </div>
               <span
-                className={`text-[10px] font-semibold transition-colors ${isActive ? 'text-[hsl(0,100%,38%)]' : 'text-[hsl(0,0%,60%)]'}`}
+                className={`text-[10px] font-semibold transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
               >
                 {label}
               </span>
