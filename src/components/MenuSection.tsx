@@ -99,8 +99,8 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <h3
-                      className="font-bold text-base sm:text-lg text-foreground leading-tight"
-                      style={{ fontFamily: "'Poppins', sans-serif" }}
+                      className="font-bold text-base sm:text-lg text-foreground leading-tight uppercase"
+                      style={{ fontFamily: "'Poppins', sans-serif", textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}
                     >
                       {item.name}
                     </h3>
@@ -232,7 +232,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                 <img src={item.imageUrl} alt={item.name} className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0" />
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-sm text-foreground leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <h3 className="font-bold text-sm text-foreground leading-tight uppercase" style={{ fontFamily: "'Poppins', sans-serif", textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>
                   {item.name}
                 </h3>
                 {item.description && (
@@ -272,7 +272,7 @@ const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => 
     <div className="flex items-center gap-2 flex-1 min-w-0">
       <ProductImage src={item.imageUrl} alt={item.name} small />
       <div className="min-w-0">
-        <h3 className="font-bold text-xs text-foreground">{item.name}</h3>
+        <h3 className="font-bold text-xs text-foreground uppercase" style={{ textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>{item.name}</h3>
         {item.description && <p className="text-[10px] text-muted-foreground">{item.description}</p>}
       </div>
     </div>
@@ -336,7 +336,7 @@ const EspecialCard = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-accent fill-accent" />
-                <h3 className="font-bold text-foreground">{item.name}</h3>
+                <h3 className="font-bold text-foreground uppercase" style={{ textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>{item.name}</h3>
               </div>
               <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
             </div>
@@ -406,7 +406,7 @@ const DoceCard = ({
         <ProductImage src={item.imageUrl} alt={item.name} />
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
+            <h3 className="font-bold text-foreground uppercase" style={{ textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>🍫 {item.name}</h3>
             <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
           </div>
           {item.description && (
@@ -455,7 +455,7 @@ const BatataCard = ({
       )}
       <div className="p-5">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="font-bold text-lg text-foreground">🍟 {item.name}</h3>
+          <h3 className="font-bold text-lg text-foreground uppercase" style={{ textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>🍟 {item.name}</h3>
           <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
         </div>
         {item.description && (
