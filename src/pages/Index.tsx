@@ -17,7 +17,6 @@ const Index = () => {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrollingTo = useRef(false);
   const [cartSheetOpen, setCartSheetOpen] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
 
   // Auto-open cart after registration
   useEffect(() => {
