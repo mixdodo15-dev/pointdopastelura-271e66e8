@@ -73,8 +73,8 @@ const Cadastro = () => {
         }
       }
 
-      toast.success('Conta criada! Verifique seu email para confirmar.');
-      navigate('/cliente-login');
+      toast.success('Conta criada com sucesso! Bem-vindo(a)!');
+      navigate('/');
     } catch (error: any) {
       toast.error(error.message || 'Erro ao criar conta');
     } finally {
