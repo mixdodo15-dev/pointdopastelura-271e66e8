@@ -590,44 +590,50 @@ const ProductModal = ({
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{product ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label>Imagem</Label>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+        <div className="bg-primary px-6 pt-6 pb-4 rounded-t-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary-foreground text-lg font-extrabold flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              {product ? 'Editar Produto' : 'Novo Produto'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Imagem</Label>
             {imageUrl ? (
-              <div className="relative w-full h-40 rounded-lg overflow-hidden bg-secondary">
+              <div className="relative w-full h-40 rounded-xl overflow-hidden bg-secondary">
                 <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
                 <button onClick={() => setImageUrl('')} className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 hover:bg-black/80">
                   <X className="h-4 w-4" />
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors bg-secondary/50">
+              <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary transition-colors bg-secondary/50">
                 <Upload className="h-6 w-6 text-muted-foreground mb-1" />
                 <span className="text-xs text-muted-foreground">{uploading ? 'Enviando...' : 'Clique para enviar imagem'}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
               </label>
             )}
           </div>
-          <div className="space-y-1">
-            <Label>Nome *</Label>
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nome do produto" />
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Nome *</Label>
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nome do produto" className="h-11 rounded-xl bg-secondary border-0" />
           </div>
-          <div className="space-y-1">
-            <Label>Descrição</Label>
-            <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Descrição" rows={2} />
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Descrição</Label>
+            <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Descrição" rows={2} className="rounded-xl bg-secondary border-0 resize-none" />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label>Preço *</Label>
-              <Input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" />
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Preço *</Label>
+              <Input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" className="h-11 rounded-xl bg-secondary border-0" />
             </div>
-            <div className="space-y-1">
-              <Label>Categoria</Label>
-              <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={category} onChange={e => setCategory(e.target.value)}>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Categoria</Label>
+              <select className="w-full h-11 rounded-xl bg-secondary border-0 px-3 text-sm" value={category} onChange={e => setCategory(e.target.value)}>
                 {categories.map(c => (
                   <option key={c.slug} value={c.slug}>{c.icon} {c.label}</option>
                 ))}
@@ -635,31 +641,32 @@ const ProductModal = ({
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label>Subcategoria</Label>
-              <Input value={subcategory} onChange={e => setSubcategory(e.target.value)} placeholder="ex: Refrigerante Lata" />
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Subcategoria</Label>
+              <Input value={subcategory} onChange={e => setSubcategory(e.target.value)} placeholder="ex: Refrigerante Lata" className="h-11 rounded-xl bg-secondary border-0" />
             </div>
-            <div className="space-y-1">
-              <Label>Máx. Sabores</Label>
-              <Input type="number" value={maxFlavors} onChange={e => setMaxFlavors(e.target.value)} placeholder="0" />
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Máx. Sabores</Label>
+              <Input type="number" value={maxFlavors} onChange={e => setMaxFlavors(e.target.value)} placeholder="0" className="h-11 rounded-xl bg-secondary border-0" />
             </div>
           </div>
-          <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-border">
             <div>
               <Label className="font-bold">🏆 TOP da Semana</Label>
               <p className="text-xs text-muted-foreground">Destacar na seção TOP</p>
             </div>
             <Switch checked={isTopWeek} onCheckedChange={setIsTopWeek} />
           </div>
-          <div className="space-y-1">
-            <Label>Ordem</Label>
-            <Input type="number" value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="0" />
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Ordem</Label>
+            <Input type="number" value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="0" className="h-11 rounded-xl bg-secondary border-0" />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
-        </DialogFooter>
+
+        <div className="px-6 pb-6 flex gap-3">
+          <Button variant="outline" className="flex-1 rounded-xl py-5" onClick={onClose}>Cancelar</Button>
+          <Button className="flex-1 rounded-xl py-5 font-bold" onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -702,27 +709,34 @@ const FlavorEditModal = ({
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{flavor ? 'Editar Sabor' : 'Novo Sabor'}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label>Nome *</Label>
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nome do sabor" />
+      <DialogContent className="max-w-sm p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+        <div className="bg-primary px-6 pt-6 pb-4 rounded-t-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary-foreground text-lg font-extrabold flex items-center gap-2">
+              <IceCream className="h-5 w-5" />
+              {flavor ? 'Editar Sabor' : 'Novo Sabor'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Nome *</Label>
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nome do sabor" className="h-11 rounded-xl bg-secondary border-0" />
           </div>
-          <div className="space-y-1">
-            <Label>Tipo</Label>
-            <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={type} onChange={e => setType(e.target.value)}>
-              <option value="salgado">Salgado</option>
-              <option value="doce">Doce</option>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Tipo</Label>
+            <select className="w-full h-11 rounded-xl bg-secondary border-0 px-3 text-sm" value={type} onChange={e => setType(e.target.value)}>
+              <option value="salgado">🥩 Salgado</option>
+              <option value="doce">🍬 Doce</option>
             </select>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
-        </DialogFooter>
+
+        <div className="px-6 pb-6 flex gap-3">
+          <Button variant="outline" className="flex-1 rounded-xl py-5" onClick={onClose}>Cancelar</Button>
+          <Button className="flex-1 rounded-xl py-5 font-bold" onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -786,35 +800,42 @@ const CategoryModal = ({
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{category ? 'Editar Categoria' : 'Nova Categoria'}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label>Nome *</Label>
-            <Input value={label} onChange={e => handleLabelChange(e.target.value)} placeholder="Ex: Combos" />
+      <DialogContent className="max-w-sm p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+        <div className="bg-primary px-6 pt-6 pb-4 rounded-t-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary-foreground text-lg font-extrabold flex items-center gap-2">
+              <LayoutGrid className="h-5 w-5" />
+              {category ? 'Editar Categoria' : 'Nova Categoria'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Nome *</Label>
+            <Input value={label} onChange={e => handleLabelChange(e.target.value)} placeholder="Ex: Combos" className="h-11 rounded-xl bg-secondary border-0" />
           </div>
-          <div className="space-y-1">
-            <Label>Slug *</Label>
-            <Input value={slug} onChange={e => setSlug(e.target.value)} placeholder="ex: combos" />
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Slug *</Label>
+            <Input value={slug} onChange={e => setSlug(e.target.value)} placeholder="ex: combos" className="h-11 rounded-xl bg-secondary border-0" />
             <p className="text-xs text-muted-foreground">Identificador único (sem espaços)</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label>Ícone (emoji)</Label>
-              <Input value={icon} onChange={e => setIcon(e.target.value)} placeholder="📦" />
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Ícone (emoji)</Label>
+              <Input value={icon} onChange={e => setIcon(e.target.value)} placeholder="📦" className="h-11 rounded-xl bg-secondary border-0" />
             </div>
-            <div className="space-y-1">
-              <Label>Ordem</Label>
-              <Input type="number" value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="0" />
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Ordem</Label>
+              <Input type="number" value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="0" className="h-11 rounded-xl bg-secondary border-0" />
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
-        </DialogFooter>
+
+        <div className="px-6 pb-6 flex gap-3">
+          <Button variant="outline" className="flex-1 rounded-xl py-5" onClick={onClose}>Cancelar</Button>
+          <Button className="flex-1 rounded-xl py-5 font-bold" onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
