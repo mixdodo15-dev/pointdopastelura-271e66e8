@@ -26,7 +26,8 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
     <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm">
       <div
         ref={containerRef}
-        className="relative flex overflow-x-auto gap-2 px-3 py-3 max-w-3xl mx-auto scrollbar-hide"
+        className="relative flex overflow-x-auto gap-2 px-4 py-3 max-w-3xl mx-auto"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {categories.map((cat, idx) => {
           const isActive = activeCategory === cat.slug;
@@ -40,7 +41,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                "relative flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 min-w-[72px]",
+                "relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 shrink-0",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(var(--primary)/0.4)] scale-105"
                   : "bg-card text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm hover:shadow-md"
@@ -52,7 +53,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
               )}>
                 {cat.icon}
               </span>
-              <span className="leading-tight">{cat.label}</span>
+              <span className="leading-tight text-[11px]">{cat.label}</span>
               {isActive && (
                 <motion.div
                   layoutId="activeTabDot"
