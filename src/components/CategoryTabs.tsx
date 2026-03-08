@@ -30,7 +30,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
   }, [activeCategory, categories]);
 
   return (
-    <div className="sticky top-[72px] z-30 bg-background border-b shadow-sm">
+    <div className="sticky top-0 z-30 bg-background border-b shadow-sm">
       <div
         ref={containerRef}
         className="relative flex overflow-x-auto gap-1 p-2 max-w-3xl mx-auto scrollbar-hide"
