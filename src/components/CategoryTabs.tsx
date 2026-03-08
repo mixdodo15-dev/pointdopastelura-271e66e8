@@ -40,7 +40,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                "relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all duration-300 min-w-[60px] shrink-0",
+                "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl text-[9px] sm:text-[11px] font-bold whitespace-nowrap transition-all duration-300 shrink-0",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-[0_4px_16px_hsl(var(--primary)/0.35)] scale-105"
                   : "bg-card text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
