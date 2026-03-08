@@ -23,9 +23,9 @@ const CartDrawer = () => {
   const handleFinalize = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      toast.info('Crie sua conta para finalizar seu pedido!');
       setCartOpen(false);
-      navigate('/cliente-login');
+      navigate('/cadastro');
       return;
     }
     setCheckoutOpen(true);
@@ -68,9 +68,9 @@ const CartDrawer = () => {
     setExitPopupOpen(false);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      toast.info('Crie sua conta para finalizar seu pedido!');
       setCartOpen(false);
-      navigate('/cliente-login');
+      navigate('/cadastro');
       return;
     }
     setCartOpen(false);
