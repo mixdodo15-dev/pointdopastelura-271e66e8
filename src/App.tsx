@@ -13,6 +13,7 @@ import ResetPassword from "./pages/ResetPassword";
 import MinhaConta from "./pages/MinhaConta";
 import MeusPedidos from "./pages/MeusPedidos";
 import AdminPedidos from "./pages/AdminPedidos";
+import Entregador from "./pages/Entregador";
 
 const queryClient = new QueryClient();
 
