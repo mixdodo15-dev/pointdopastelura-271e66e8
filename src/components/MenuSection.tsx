@@ -336,7 +336,7 @@ const EspecialCard = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-accent fill-accent" />
-                <h3 className="font-bold text-foreground">{item.name}</h3>
+                <h3 className="font-bold text-foreground uppercase" style={{ textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>{item.name}</h3>
               </div>
               <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
             </div>
