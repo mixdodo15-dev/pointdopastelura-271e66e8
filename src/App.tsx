@@ -11,6 +11,8 @@ import Cadastro from "./pages/Cadastro";
 import ClienteLogin from "./pages/ClienteLogin";
 import ResetPassword from "./pages/ResetPassword";
 import MinhaConta from "./pages/MinhaConta";
+import MeusPedidos from "./pages/MeusPedidos";
+import AdminPedidos from "./pages/AdminPedidos";
 
 const queryClient = new QueryClient();
 
@@ -24,10 +26,12 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/pedidos" element={<AdminPedidos />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/cliente-login" element={<ClienteLogin />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/minha-conta" element={<MinhaConta />} />
+          <Route path="/meus-pedidos" element={<MeusPedidos />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
