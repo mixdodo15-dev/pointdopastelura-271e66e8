@@ -94,14 +94,14 @@ const HeroSection = () => {
               <span className="text-[11px] font-medium text-muted-foreground">30 min</span>
             </motion.div>
             <motion.div
-              className="flex items-center gap-2 bg-[hsl(0,0%,96%)] rounded-xl px-4 py-2"
+              className="flex items-center gap-2 bg-secondary rounded-xl px-4 py-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Bike className="h-4 w-4 text-[hsl(0,100%,38%)]" />
-              <span className="text-xs font-bold text-[hsl(0,0%,10%)]">Delivery</span>
-              <Clock className="h-3 w-3 text-[hsl(0,0%,45%)]" />
-              <span className="text-[11px] font-medium text-[hsl(0,0%,45%)]">60 min</span>
+              <Bike className="h-4 w-4 text-primary" />
+              <span className="text-xs font-bold text-foreground">Delivery</span>
+              <Clock className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[11px] font-medium text-muted-foreground">60 min</span>
             </motion.div>
           </div>
 
