@@ -1,5 +1,6 @@
 import { Search, User } from 'lucide-react';
 import { ShoppingBag, Clock, Bike } from 'lucide-react';
+import { motion } from 'framer-motion';
 import heroBg from '@/assets/hero-pastel.jpg';
 import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
@@ -11,11 +12,14 @@ const HeroSection = () => {
     <section className="relative w-full">
       {/* Banner with overlay */}
       <div className="relative w-full h-56 sm:h-64 md:h-72 overflow-hidden">
-        <img
+        <motion.img
           src={heroBg}
           alt="Pastel artesanal"
           className="w-full h-full object-cover"
           loading="eager"
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(0,0%,0%,0.4)] via-[hsl(0,0%,0%,0.2)] to-[hsl(0,0%,0%,0.7)]" />
 
@@ -31,14 +35,24 @@ const HeroSection = () => {
       </div>
 
       {/* Logo circular */}
-      <div className="relative z-10 flex justify-center -mt-16">
+      <motion.div
+        className="relative z-10 flex justify-center -mt-16"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.3, type: 'spring', stiffness: 200 }}
+      >
         <div className="w-28 h-28 rounded-full bg-white border-4 border-[hsl(0,100%,38%)] shadow-xl overflow-hidden">
           <img src={logoImg} alt="Point do Pastel" className="w-full h-full object-cover" />
         </div>
-      </div>
+      </motion.div>
 
       {/* Info Card */}
-      <div className="relative z-10 max-w-md mx-auto px-4 mt-4">
+      <motion.div
+        className="relative z-10 max-w-md mx-auto px-4 mt-4"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
         <div className="bg-white rounded-[20px] shadow-lg p-5 space-y-4">
           <div className="text-center">
             <h2
@@ -67,18 +81,26 @@ const HeroSection = () => {
 
           {/* Delivery options */}
           <div className="flex items-center justify-center gap-3">
-            <div className="flex items-center gap-2 bg-[hsl(0,0%,96%)] rounded-xl px-4 py-2">
+            <motion.div
+              className="flex items-center gap-2 bg-[hsl(0,0%,96%)] rounded-xl px-4 py-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <ShoppingBag className="h-4 w-4 text-[hsl(0,100%,38%)]" />
               <span className="text-xs font-bold text-[hsl(0,0%,10%)]">Retirada</span>
               <Clock className="h-3 w-3 text-[hsl(0,0%,45%)]" />
               <span className="text-[11px] font-medium text-[hsl(0,0%,45%)]">30 min</span>
-            </div>
-            <div className="flex items-center gap-2 bg-[hsl(0,0%,96%)] rounded-xl px-4 py-2">
+            </motion.div>
+            <motion.div
+              className="flex items-center gap-2 bg-[hsl(0,0%,96%)] rounded-xl px-4 py-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <Bike className="h-4 w-4 text-[hsl(0,100%,38%)]" />
               <span className="text-xs font-bold text-[hsl(0,0%,10%)]">Delivery</span>
               <Clock className="h-3 w-3 text-[hsl(0,0%,45%)]" />
               <span className="text-[11px] font-medium text-[hsl(0,0%,45%)]">60 min</span>
-            </div>
+            </motion.div>
           </div>
 
           {/* Minimum order */}
@@ -86,7 +108,7 @@ const HeroSection = () => {
             Pedido mínimo: R$ 10,00
           </p>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

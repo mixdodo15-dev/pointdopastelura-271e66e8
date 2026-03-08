@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 interface AnimatedCardProps {
   children: React.ReactNode;
@@ -7,36 +7,16 @@ interface AnimatedCardProps {
 }
 
 const AnimatedCard = ({ children, index, className = '' }: AnimatedCardProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.05, rootMargin: '0px 0px -30px 0px' }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div
-      ref={ref}
+    <motion.div
       className={className}
-      style={{
-        opacity: visible ? undefined : 0,
-        animation: visible ? `card-appear 0.5s ease-out ${index * 0.1}s both` : 'none',
-      }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-30px' }}
+      transition={{ duration: 0.4, delay: index * 0.08, ease: 'easeOut' }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 };
 
