@@ -709,27 +709,34 @@ const FlavorEditModal = ({
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{flavor ? 'Editar Sabor' : 'Novo Sabor'}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label>Nome *</Label>
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nome do sabor" />
+      <DialogContent className="max-w-sm p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+        <div className="bg-primary px-6 pt-6 pb-4 rounded-t-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary-foreground text-lg font-extrabold flex items-center gap-2">
+              <IceCream className="h-5 w-5" />
+              {flavor ? 'Editar Sabor' : 'Novo Sabor'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Nome *</Label>
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nome do sabor" className="h-11 rounded-xl bg-secondary border-0" />
           </div>
-          <div className="space-y-1">
-            <Label>Tipo</Label>
-            <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={type} onChange={e => setType(e.target.value)}>
-              <option value="salgado">Salgado</option>
-              <option value="doce">Doce</option>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Tipo</Label>
+            <select className="w-full h-11 rounded-xl bg-secondary border-0 px-3 text-sm" value={type} onChange={e => setType(e.target.value)}>
+              <option value="salgado">🥩 Salgado</option>
+              <option value="doce">🍬 Doce</option>
             </select>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
-        </DialogFooter>
+
+        <div className="px-6 pb-6 flex gap-3">
+          <Button variant="outline" className="flex-1 rounded-xl py-5" onClick={onClose}>Cancelar</Button>
+          <Button className="flex-1 rounded-xl py-5 font-bold" onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
