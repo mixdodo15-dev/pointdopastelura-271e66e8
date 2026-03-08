@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
-import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface CheckoutModalProps {
   open: boolean;
@@ -26,50 +28,120 @@ const paymentOptions = [
 
 const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const { items, totalPrice, clearCart } = useCart();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [payment, setPayment] = useState('');
   const [notes, setNotes] = useState('');
+  const [sending, setSending] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
     if (!phone.trim()) { toast.error('Informe seu telefone.'); return; }
     if (!address.trim()) { toast.error('Informe seu endereço.'); return; }
     if (!payment) { toast.error('Selecione o método de pagamento.'); return; }
+
+    setSending(true);
 
     const sanitizedName = name.trim().slice(0, 100);
     const sanitizedPhone = phone.trim().slice(0, 20);
     const sanitizedAddress = address.trim().slice(0, 200);
     const sanitizedNotes = notes.trim().slice(0, 500);
 
-    let msg = `🧾 *PEDIDO - Point Do Pastel*\n\n`;
-    msg += `👤 *Cliente:* ${sanitizedName}\n`;
-    msg += `📞 *Telefone:* ${sanitizedPhone}\n`;
-    msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
-    msg += `💳 *Pagamento:* ${payment}\n`;
-    if (sanitizedNotes) msg += `📝 *Obs:* ${sanitizedNotes}\n`;
-    msg += `\n━━━━━━━━━━━━━━━━━━\n`;
-    msg += `📋 *Itens do pedido:*\n\n`;
+    try {
+      // Get current user (may be null for anonymous orders)
+      const { data: { user } } = await supabase.auth.getUser();
 
-    items.forEach(item => {
-      msg += `• ${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}\n`;
-    });
+      // Save order to database
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user?.id || null,
+          customer_name: sanitizedName,
+          customer_phone: sanitizedPhone,
+          delivery_address: sanitizedAddress,
+          payment_method: payment,
+          notes: sanitizedNotes || null,
+          total_price: totalPrice,
+          status: 'received' as const,
+        })
+        .select()
+        .single();
 
-    msg += `\n━━━━━━━━━━━━━━━━━━\n`;
-    msg += `💰 *TOTAL: ${formatPrice(totalPrice)}*`;
+      if (orderError) throw orderError;
 
-    const encoded = encodeURIComponent(msg);
-    window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
+      // Save order items
+      const orderItems = items.map(item => ({
+        order_id: order.id,
+        product_name: item.name,
+        quantity: item.quantity,
+        unit_price: item.price,
+      }));
 
-    clearCart();
-    setName('');
-    setPhone('');
-    setAddress('');
-    setPayment('');
-    setNotes('');
-    onClose();
-    toast.success('Pedido enviado para o WhatsApp!');
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Build WhatsApp message
+      let msg = `🧾 *PEDIDO #${order.id.slice(0, 8).toUpperCase()} - Point Do Pastel*\n\n`;
+      msg += `👤 *Cliente:* ${sanitizedName}\n`;
+      msg += `📞 *Telefone:* ${sanitizedPhone}\n`;
+      msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
+      msg += `💳 *Pagamento:* ${payment}\n`;
+      if (sanitizedNotes) msg += `📝 *Obs:* ${sanitizedNotes}\n`;
+      msg += `\n━━━━━━━━━━━━━━━━━━\n`;
+      msg += `📋 *Itens do pedido:*\n\n`;
+
+      items.forEach(item => {
+        msg += `• ${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}\n`;
+      });
+
+      msg += `\n━━━━━━━━━━━━━━━━━━\n`;
+      msg += `💰 *TOTAL: ${formatPrice(totalPrice)}*`;
+
+      const encoded = encodeURIComponent(msg);
+      window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
+
+      clearCart();
+      setName('');
+      setPhone('');
+      setAddress('');
+      setPayment('');
+      setNotes('');
+      onClose();
+      toast.success('Pedido enviado com sucesso!');
+
+      // Navigate to order tracking if user is logged in
+      if (user) {
+        navigate(`/meus-pedidos`);
+      }
+    } catch (error: any) {
+      console.error('Error saving order:', error);
+      // If DB save fails, still send via WhatsApp
+      let msg = `🧾 *PEDIDO - Point Do Pastel*\n\n`;
+      msg += `👤 *Cliente:* ${sanitizedName}\n`;
+      msg += `📞 *Telefone:* ${sanitizedPhone}\n`;
+      msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
+      msg += `💳 *Pagamento:* ${payment}\n`;
+      if (sanitizedNotes) msg += `📝 *Obs:* ${sanitizedNotes}\n`;
+      msg += `\n━━━━━━━━━━━━━━━━━━\n`;
+      msg += `📋 *Itens do pedido:*\n\n`;
+      items.forEach(item => {
+        msg += `• ${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}\n`;
+      });
+      msg += `\n━━━━━━━━━━━━━━━━━━\n`;
+      msg += `💰 *TOTAL: ${formatPrice(totalPrice)}*`;
+      const encoded = encodeURIComponent(msg);
+      window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
+      clearCart();
+      onClose();
+      toast.success('Pedido enviado para o WhatsApp!');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -151,8 +223,9 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         </div>
 
         <div className="px-6 pb-6">
-          <Button className="w-full rounded-xl text-base font-bold py-6 gap-2 shadow-lg" onClick={handleSend}>
-            <MessageCircle className="h-5 w-5" /> Enviar Pedido via WhatsApp
+          <Button className="w-full rounded-xl text-base font-bold py-6 gap-2 shadow-lg" onClick={handleSend} disabled={sending}>
+            {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <MessageCircle className="h-5 w-5" />}
+            {sending ? 'Enviando...' : 'Enviar Pedido via WhatsApp'}
           </Button>
         </div>
       </DialogContent>
