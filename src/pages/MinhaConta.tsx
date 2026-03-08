@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { User, MapPin, LogOut, ArrowLeft, Save } from 'lucide-react';
+import { User, MapPin, LogOut, ArrowLeft, Save, Package } from 'lucide-react';
 
 const MinhaConta = () => {
   const navigate = useNavigate();
