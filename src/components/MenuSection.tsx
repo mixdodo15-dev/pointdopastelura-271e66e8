@@ -249,10 +249,10 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   );
 };
 
-const ProductImage = ({ src, alt }: { src?: string; alt: string }) => {
+const ProductImage = ({ src, alt, small }: { src?: string; alt: string; small?: boolean }) => {
   if (!src) return null;
   return (
-    <img src={src} alt={alt} className="h-32 w-32 rounded-lg object-cover shrink-0" />
+    <img src={src} alt={alt} className={small ? "h-16 w-16 rounded-lg object-cover shrink-0" : "h-32 w-32 rounded-lg object-cover shrink-0"} />
   );
 };
 
