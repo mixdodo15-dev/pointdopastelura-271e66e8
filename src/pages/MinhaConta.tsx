@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { User, MapPin, LogOut, ArrowLeft, Save } from 'lucide-react';
+import { User, MapPin, LogOut, ArrowLeft, Save, Package } from 'lucide-react';
 
 const MinhaConta = () => {
   const navigate = useNavigate();
@@ -176,9 +176,14 @@ const MinhaConta = () => {
           </div>
         </div>
 
-        <Button onClick={handleSave} className="w-full rounded-xl py-5 text-sm font-bold gap-2" disabled={saving}>
+        <Button onClick={handleSave} className="w-full rounded-xl py-5 text-sm font-bold gap-2 mb-3" disabled={saving}>
           <Save className="h-4 w-4" />
           {saving ? 'Salvando...' : 'Salvar alterações'}
+        </Button>
+
+        <Button variant="outline" onClick={() => navigate('/meus-pedidos')} className="w-full rounded-xl py-5 text-sm font-bold gap-2 border-primary text-primary hover:bg-primary/5">
+          <Package className="h-4 w-4" />
+          Meus Pedidos
         </Button>
       </div>
     </div>
