@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,43 +35,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [payment, setPayment] = useState('');
   const [notes, setNotes] = useState('');
   const [sending, setSending] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  // Pre-fill from profile and address when modal opens
-  useEffect(() => {
-    if (!open) return;
-    const prefill = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.info('Faça login para finalizar seu pedido.');
-        onClose();
-        navigate('/cliente-login');
-        return;
-      }
-      setUserId(user.id);
-
-      const { data: prof } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
-      if (prof) {
-        if (prof.display_name) setName(prof.display_name);
-        if (prof.phone) setPhone(prof.phone);
-      }
-
-      const { data: addr } = await supabase.from('addresses').select('*').eq('user_id', user.id).limit(1).single();
-      if (addr) {
-        const parts = [addr.street, addr.number, addr.neighborhood, addr.complement, addr.city].filter(Boolean);
-        setAddress(parts.join(', '));
-      }
-    };
-    prefill();
-  }, [open, navigate, onClose]);
 
   const handleSend = async () => {
-    if (!userId) {
-      toast.info('Faça login para finalizar seu pedido.');
-      onClose();
-      navigate('/cliente-login');
-      return;
-    }
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
     if (!phone.trim()) { toast.error('Informe seu telefone.'); return; }
     if (!address.trim()) { toast.error('Informe seu endereço.'); return; }
@@ -85,10 +50,14 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     const sanitizedNotes = notes.trim().slice(0, 500);
 
     try {
+      // Get current user (may be null for anonymous orders)
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Save order to database
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: userId,
+          user_id: user?.id || null,
           customer_name: sanitizedName,
           customer_phone: sanitizedPhone,
           delivery_address: sanitizedAddress,
@@ -144,10 +113,32 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setNotes('');
       onClose();
       toast.success('Pedido enviado com sucesso!');
-      navigate('/meus-pedidos');
+
+      // Navigate to order tracking if user is logged in
+      if (user) {
+        navigate(`/meus-pedidos`);
+      }
     } catch (error: any) {
       console.error('Error saving order:', error);
-      toast.error('Erro ao salvar pedido. Tente novamente.');
+      // If DB save fails, still send via WhatsApp
+      let msg = `🧾 *PEDIDO - Point Do Pastel*\n\n`;
+      msg += `👤 *Cliente:* ${sanitizedName}\n`;
+      msg += `📞 *Telefone:* ${sanitizedPhone}\n`;
+      msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
+      msg += `💳 *Pagamento:* ${payment}\n`;
+      if (sanitizedNotes) msg += `📝 *Obs:* ${sanitizedNotes}\n`;
+      msg += `\n━━━━━━━━━━━━━━━━━━\n`;
+      msg += `📋 *Itens do pedido:*\n\n`;
+      items.forEach(item => {
+        msg += `• ${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}\n`;
+      });
+      msg += `\n━━━━━━━━━━━━━━━━━━\n`;
+      msg += `💰 *TOTAL: ${formatPrice(totalPrice)}*`;
+      const encoded = encodeURIComponent(msg);
+      window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
+      clearCart();
+      onClose();
+      toast.success('Pedido enviado para o WhatsApp!');
     } finally {
       setSending(false);
     }

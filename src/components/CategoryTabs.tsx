@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useCategories, type Category } from '@/hooks/useCategories';
-import { motion } from 'framer-motion';
 
 interface CategoryTabsProps {
   activeCategory: string;
@@ -14,55 +13,48 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
   const categories = propCategories || dbCategories;
   const containerRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
 
   useEffect(() => {
     const activeTab = tabRefs.current[activeCategory];
-    if (activeTab) {
+    const container = containerRef.current;
+    if (activeTab && container) {
+      const containerRect = container.getBoundingClientRect();
+      const tabRect = activeTab.getBoundingClientRect();
+      setIndicator({
+        left: tabRect.left - containerRect.left + container.scrollLeft,
+        width: tabRect.width,
+      });
       activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
   }, [activeCategory, categories]);
 
   return (
-    <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm">
+    <div className="sticky top-0 z-30 bg-background border-b shadow-sm">
       <div
         ref={containerRef}
-        className="relative flex overflow-x-auto gap-2 px-3 py-3 max-w-3xl mx-auto scrollbar-hide"
+        className="relative flex overflow-x-auto gap-1 p-2 max-w-3xl mx-auto scrollbar-hide"
       >
-        {categories.map((cat, idx) => {
-          const isActive = activeCategory === cat.slug;
-          return (
-            <motion.button
-              key={cat.slug}
-              ref={el => { tabRefs.current[cat.slug] = el; }}
-              onClick={() => onCategoryChange(cat.slug)}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={cn(
-                "relative flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 min-w-[72px]",
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(var(--primary)/0.4)] scale-105"
-                  : "bg-card text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm hover:shadow-md"
-              )}
-            >
-              <span className={cn(
-                "text-lg transition-transform duration-300",
-                isActive && "animate-bounce"
-              )}>
-                {cat.icon}
-              </span>
-              <span className="leading-tight">{cat.label}</span>
-              {isActive && (
-                <motion.div
-                  layoutId="activeTabDot"
-                  className="absolute -bottom-0.5 w-1.5 h-1.5 rounded-full bg-primary-foreground"
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                />
-              )}
-            </motion.button>
-          );
-        })}
+        <div
+          className="absolute bottom-1 h-1 rounded-full bg-primary transition-all duration-300 ease-out"
+          style={{ left: indicator.left, width: indicator.width }}
+        />
+        {categories.map(cat => (
+          <button
+            key={cat.slug}
+            ref={el => { tabRefs.current[cat.slug] = el; }}
+            onClick={() => onCategoryChange(cat.slug)}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 border-2",
+              activeCategory === cat.slug
+                ? "bg-primary text-primary-foreground shadow-lg scale-105 border-primary"
+                : "bg-white text-primary border-primary/30 hover:border-primary hover:bg-primary/5"
+            )}
+          >
+            <span className="transition-transform duration-300">{cat.icon}</span>
+            <span>{cat.label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );

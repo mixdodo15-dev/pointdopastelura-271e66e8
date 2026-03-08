@@ -110,7 +110,7 @@ const MeusPedidos = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[hsl(0,0%,96%)]">
       {/* Header */}
       <div className="bg-primary text-primary-foreground px-4 py-4 flex items-center gap-3 sticky top-0 z-40">
         <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate('/')}>
