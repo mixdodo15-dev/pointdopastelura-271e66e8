@@ -15,9 +15,22 @@ const formatPrice = (price: number) =>
 
 const CartDrawer = () => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
+  const navigate = useNavigate();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [exitPopupOpen, setExitPopupOpen] = useState(false);
+
+  const handleFinalize = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      setCartOpen(false);
+      navigate('/cliente-login');
+      return;
+    }
+    setCheckoutOpen(true);
+    setCartOpen(false);
+  };
 
   // Back button: when cart is open and has items, show exit popup
   const handleCartBack = useCallback(() => {
