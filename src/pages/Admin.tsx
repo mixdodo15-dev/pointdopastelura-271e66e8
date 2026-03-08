@@ -459,9 +459,14 @@ const Admin = () => {
                     <p className="text-xs text-muted-foreground truncate">{client.email || '—'}</p>
                     {client.phone && <p className="text-xs text-muted-foreground">{client.phone}</p>}
                   </div>
-                  <span className="text-[10px] text-muted-foreground shrink-0">
-                    {new Date(client.created_at).toLocaleDateString('pt-BR')}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(client.created_at).toLocaleDateString('pt-BR')}
+                    </span>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteClient(client.user_id, client.display_name || '')}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </motion.div>
               ))}
               {clients.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum cliente cadastrado.</p>}
