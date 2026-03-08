@@ -1,9 +1,12 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 import CheckoutModal from './CheckoutModal';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import ExitIntentPopup from './ExitIntentPopup';
 import { useBackButtonControl } from '@/hooks/useBackButtonControl';
 
@@ -12,9 +15,22 @@ const formatPrice = (price: number) =>
 
 const CartDrawer = () => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
+  const navigate = useNavigate();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [exitPopupOpen, setExitPopupOpen] = useState(false);
+
+  const handleFinalize = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      setCartOpen(false);
+      navigate('/cliente-login');
+      return;
+    }
+    setCheckoutOpen(true);
+    setCartOpen(false);
+  };
 
   // Back button: when cart is open and has items, show exit popup
   const handleCartBack = useCallback(() => {
@@ -48,8 +64,15 @@ const CartDrawer = () => {
     setCartOpen(false);
   };
 
-  const handleExitFinalize = () => {
+  const handleExitFinalize = async () => {
     setExitPopupOpen(false);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      setCartOpen(false);
+      navigate('/cliente-login');
+      return;
+    }
     setCartOpen(false);
     setCheckoutOpen(true);
   };
@@ -131,7 +154,7 @@ const CartDrawer = () => {
                 </div>
                 <Button
                   className="w-full rounded-full text-base font-bold py-6"
-                  onClick={() => { setCheckoutOpen(true); setCartOpen(false); }}
+                  onClick={handleFinalize}
                 >
                   Finalizar Pedido
                 </Button>
