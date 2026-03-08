@@ -232,7 +232,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                 <img src={item.imageUrl} alt={item.name} className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0" />
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-sm text-foreground leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <h3 className="font-bold text-sm text-foreground leading-tight uppercase" style={{ fontFamily: "'Poppins', sans-serif", textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>
                   {item.name}
                 </h3>
                 {item.description && (
