@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Product {
@@ -49,7 +49,10 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [flavors, setFlavors] = useState<Flavor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers'>('products');
+  const [drivers, setDrivers] = useState<{id: string; user_id: string; email: string}[]>([]);
+  const [newDriverEmail, setNewDriverEmail] = useState('');
+  const [addingDriver, setAddingDriver] = useState(false);
   const [activeCategory, setActiveCategory] = useState('');
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState(false);
@@ -83,6 +86,7 @@ const Admin = () => {
     loadProducts();
     loadFlavors();
     loadCategories();
+    loadDrivers();
   }, [loading]);
 
   const loadProducts = async () => {
@@ -148,6 +152,49 @@ const Admin = () => {
     toast.success('Categoria excluída');
   };
 
+  const loadDrivers = async () => {
+    const { data, error } = await supabase.from('user_roles').select('id, user_id').eq('role', 'driver');
+    if (error) { toast.error('Erro ao carregar entregadores'); return; }
+    if (!data || data.length === 0) { setDrivers([]); return; }
+    const userIds = data.map(d => d.user_id);
+    const { data: profiles } = await supabase.from('profiles').select('user_id, email').in('user_id', userIds);
+    const merged = data.map(d => ({
+      id: d.id,
+      user_id: d.user_id,
+      email: profiles?.find(p => p.user_id === d.user_id)?.email || 'Email não encontrado',
+    }));
+    setDrivers(merged);
+  };
+
+  const addDriver = async () => {
+    if (!newDriverEmail.trim()) return;
+    setAddingDriver(true);
+    const { data: profile, error: pErr } = await supabase.from('profiles').select('user_id').eq('email', newDriverEmail.trim()).maybeSingle();
+    if (pErr || !profile) {
+      toast.error('Usuário não encontrado. O entregador precisa estar cadastrado.');
+      setAddingDriver(false);
+      return;
+    }
+    const { error } = await supabase.from('user_roles').insert({ user_id: profile.user_id, role: 'driver' as any });
+    if (error) {
+      if (error.code === '23505') toast.error('Este usuário já é entregador');
+      else toast.error('Erro ao adicionar entregador');
+      setAddingDriver(false);
+      return;
+    }
+    toast.success('Entregador adicionado!');
+    setNewDriverEmail('');
+    setAddingDriver(false);
+    loadDrivers();
+  };
+
+  const removeDriver = async (roleId: string) => {
+    const { error } = await supabase.from('user_roles').delete().eq('id', roleId);
+    if (error) { toast.error('Erro ao remover'); return; }
+    toast.success('Entregador removido');
+    loadDrivers();
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/login');
@@ -194,6 +241,9 @@ const Admin = () => {
           </Button>
           <Button variant={activeTab === 'categories' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('categories')}>
             <LayoutGrid className="h-4 w-4 mr-1" /> Categorias
+          </Button>
+          <Button variant={activeTab === 'drivers' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('drivers')}>
+            <Truck className="h-4 w-4 mr-1" /> Entregadores
           </Button>
           <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
             📋 Pedidos
@@ -324,6 +374,38 @@ const Admin = () => {
                 </div>
               ))}
               {categories.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhuma categoria cadastrada.</p>}
+            </div>
+          </>
+        )}
+
+        {/* Drivers Tab */}
+        {activeTab === 'drivers' && (
+          <>
+            <h2 className="text-lg font-bold mb-3">Gerenciar Entregadores</h2>
+            <div className="flex gap-2 mb-4">
+              <Input
+                placeholder="Email do usuário cadastrado"
+                value={newDriverEmail}
+                onChange={e => setNewDriverEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addDriver()}
+              />
+              <Button onClick={addDriver} disabled={addingDriver} className="shrink-0">
+                <Plus className="h-4 w-4 mr-1" /> Adicionar
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {drivers.map(driver => (
+                <div key={driver.id} className="bg-card rounded-lg p-4 border flex items-center gap-3">
+                  <Truck className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{driver.email}</p>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => removeDriver(driver.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+              {drivers.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum entregador cadastrado.</p>}
             </div>
           </>
         )}
