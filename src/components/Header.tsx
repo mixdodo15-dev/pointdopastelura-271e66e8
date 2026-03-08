@@ -154,7 +154,7 @@ const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }
                     </div>
                     <Button
                       className="w-full rounded-xl text-base font-bold py-6 bg-primary hover:bg-primary/90 text-white shadow-lg"
-                      onClick={() => { setCheckoutOpen(true); setCartOpen(false); }}
+                      onClick={handleFinalize}
                     >
                       Finalizar Pedido
                     </Button>
