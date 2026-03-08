@@ -52,7 +52,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
               )}>
                 {cat.icon}
               </span>
-              <span className="leading-tight truncate max-w-[64px]">{cat.label}</span>
+              <span className="leading-tight">{cat.label}</span>
               {isActive && (
                 <motion.div
                   layoutId="activeTabDot"
