@@ -253,6 +253,9 @@ const Admin = () => {
           <Button variant={activeTab === 'drivers' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('drivers')}>
             <Truck className="h-4 w-4 mr-1" /> Entregadores
           </Button>
+          <Button variant={activeTab === 'clients' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('clients')}>
+            <Users className="h-4 w-4 mr-1" /> Clientes
+          </Button>
           <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
             📋 Pedidos
           </Button>
