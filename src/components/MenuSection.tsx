@@ -455,7 +455,7 @@ const BatataCard = ({
       )}
       <div className="p-5">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="font-bold text-lg text-foreground">🍟 {item.name}</h3>
+          <h3 className="font-bold text-lg text-foreground uppercase" style={{ textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>🍟 {item.name}</h3>
           <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
         </div>
         {item.description && (
