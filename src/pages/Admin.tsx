@@ -197,6 +197,11 @@ const Admin = () => {
     toast.success('Entregador removido');
     loadDrivers();
   };
+  const loadClients = async () => {
+    const { data, error } = await supabase.from('profiles').select('user_id, display_name, email, phone, created_at').order('created_at', { ascending: false });
+    if (error) { toast.error('Erro ao carregar clientes'); return; }
+    setClients(data || []);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
