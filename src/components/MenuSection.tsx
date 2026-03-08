@@ -104,9 +104,6 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                     >
                       {item.name}
                     </h3>
-                    <p className="text-xs text-primary font-semibold mt-0.5">
-                      Escolha {item.maxFlavors} {item.maxFlavors === 1 ? 'sabor' : 'sabores'}
-                    </p>
                     {item.description && (
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
                     )}
