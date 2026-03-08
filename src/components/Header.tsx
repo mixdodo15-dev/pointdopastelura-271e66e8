@@ -20,6 +20,7 @@ interface HeaderProps {
 
 const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }: HeaderProps = {}) => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
+  const navigate = useNavigate();
   const [internalCartOpen, setInternalCartOpen] = useState(false);
   const cartOpen = externalCartOpen ?? internalCartOpen;
   const setCartOpen = externalSetCartOpen ?? setInternalCartOpen;
