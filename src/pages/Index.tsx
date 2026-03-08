@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import BottomNav from '@/components/BottomNav';
@@ -17,6 +18,15 @@ const Index = () => {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrollingTo = useRef(false);
   const [cartSheetOpen, setCartSheetOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Auto-open cart after registration redirect
+  useEffect(() => {
+    if (searchParams.get('checkout') === 'true') {
+      setCartSheetOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategory) {
