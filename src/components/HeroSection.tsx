@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import heroBg from '@/assets/hero-pastel.jpg';
 import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
+import ThemeToggle from './ThemeToggle';
 
 const HeroSection = () => {
   const { isOpen, label, subtitle } = useRestaurantStatus();
