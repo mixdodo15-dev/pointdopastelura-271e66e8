@@ -203,6 +203,21 @@ const Admin = () => {
     setClients(data || []);
   };
 
+  const deleteClient = async (userId: string, name: string) => {
+    if (!confirm(`Tem certeza que deseja remover o cliente "${name || 'Sem nome'}"? Esta ação é irreversível.`)) return;
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { user_id: userId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success('Cliente removido com sucesso');
+      loadClients();
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao remover cliente');
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/login');
@@ -444,9 +459,14 @@ const Admin = () => {
                     <p className="text-xs text-muted-foreground truncate">{client.email || '—'}</p>
                     {client.phone && <p className="text-xs text-muted-foreground">{client.phone}</p>}
                   </div>
-                  <span className="text-[10px] text-muted-foreground shrink-0">
-                    {new Date(client.created_at).toLocaleDateString('pt-BR')}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(client.created_at).toLocaleDateString('pt-BR')}
+                    </span>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteClient(client.user_id, client.display_name || '')}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </motion.div>
               ))}
               {clients.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum cliente cadastrado.</p>}
