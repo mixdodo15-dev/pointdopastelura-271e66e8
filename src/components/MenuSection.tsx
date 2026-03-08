@@ -268,18 +268,18 @@ const ProductImage = ({ src, alt, small }: { src?: string; alt: string; small?: 
 };
 
 const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => void }) => (
-  <div className={CARD_CLASS + " flex items-center justify-between py-3 px-4"}>
+  <div className={CARD_CLASS + " flex items-center justify-between py-2 px-3"}>
     <div className="flex items-center gap-2 flex-1 min-w-0">
-      <ProductImage src={item.imageUrl} alt={item.name} />
+      <ProductImage src={item.imageUrl} alt={item.name} small />
       <div className="min-w-0">
-        <h3 className="font-bold text-sm text-foreground">{item.name}</h3>
-        {item.description && <p className="text-[11px] text-muted-foreground">{item.description}</p>}
+        <h3 className="font-bold text-xs text-foreground">{item.name}</h3>
+        {item.description && <p className="text-[10px] text-muted-foreground">{item.description}</p>}
       </div>
     </div>
     <div className="flex items-center gap-2 shrink-0">
-      <span className="text-sm font-extrabold text-primary">R$ {item.price.toFixed(2).replace('.', ',')}</span>
-      <Button size="icon" className="rounded-full h-8 w-8" onClick={() => onAdd(item)}>
-        <Plus className="h-3.5 w-3.5" />
+      <span className="text-xs font-extrabold text-primary">R$ {item.price.toFixed(2).replace('.', ',')}</span>
+      <Button size="icon" className="rounded-full h-7 w-7" onClick={() => onAdd(item)}>
+        <Plus className="h-3 w-3" />
       </Button>
     </div>
   </div>
