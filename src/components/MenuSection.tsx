@@ -99,7 +99,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <h3
-                      className="font-bold text-sm text-foreground leading-tight"
+                      className="font-bold text-base sm:text-lg text-foreground leading-tight"
                       style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
                       {item.name}
