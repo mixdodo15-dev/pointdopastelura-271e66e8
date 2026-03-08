@@ -28,11 +28,12 @@ const SectionTitle = ({ icon, label }: SectionTitleProps) => {
   return (
     <div
       ref={ref}
-      className={`rounded-2xl py-3 px-4 mb-4 flex items-center justify-center gap-2 shadow-sm transition-all duration-500 ${
+      className={`rounded-2xl py-3 px-4 mb-4 flex items-center justify-center gap-2 transition-all duration-500 ${
         visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
       }`}
       style={{
         background: 'linear-gradient(135deg, hsl(0,100%,27%), hsl(0,100%,38%))',
+        boxShadow: '0 6px 20px -4px hsla(0, 100%, 30%, 0.55)',
       }}
     >
       <span className="text-lg">{icon}</span>
