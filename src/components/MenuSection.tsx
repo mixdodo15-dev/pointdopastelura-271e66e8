@@ -243,7 +243,7 @@ const ProductImage = ({ src, alt, small }: { src?: string; alt: string; small?: 
 const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => void }) => (
   <div className={CARD_CLASS + " flex items-center justify-between py-3 px-4"}>
     <div className="flex items-center gap-2 flex-1 min-w-0">
-      <ProductImage src={item.imageUrl} alt={item.name} small />
+      <ProductImage src={item.imageUrl} alt={item.name} />
       <div className="min-w-0">
         <h3 className="font-bold text-sm text-foreground">{item.name}</h3>
         {item.description && <p className="text-[11px] text-muted-foreground">{item.description}</p>}
