@@ -74,7 +74,7 @@ const Cadastro = () => {
       }
 
       toast.success('Conta criada com sucesso! Bem-vindo(a)!');
-      navigate('/');
+      navigate('/?checkout=true');
     } catch (error: any) {
       toast.error(error.message || 'Erro ao criar conta');
     } finally {
