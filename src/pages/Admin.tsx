@@ -8,8 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface Product {
   id: string;
@@ -49,10 +50,11 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [flavors, setFlavors] = useState<Flavor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients'>('products');
   const [drivers, setDrivers] = useState<{id: string; user_id: string; email: string}[]>([]);
   const [newDriverEmail, setNewDriverEmail] = useState('');
   const [addingDriver, setAddingDriver] = useState(false);
+  const [clients, setClients] = useState<{user_id: string; display_name: string | null; email: string | null; phone: string | null; created_at: string}[]>([]);
   const [activeCategory, setActiveCategory] = useState('');
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState(false);
@@ -87,6 +89,7 @@ const Admin = () => {
     loadFlavors();
     loadCategories();
     loadDrivers();
+    loadClients();
   }, [loading]);
 
   const loadProducts = async () => {
@@ -194,6 +197,11 @@ const Admin = () => {
     toast.success('Entregador removido');
     loadDrivers();
   };
+  const loadClients = async () => {
+    const { data, error } = await supabase.from('profiles').select('user_id, display_name, email, phone, created_at').order('created_at', { ascending: false });
+    if (error) { toast.error('Erro ao carregar clientes'); return; }
+    setClients(data || []);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -244,6 +252,9 @@ const Admin = () => {
           </Button>
           <Button variant={activeTab === 'drivers' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('drivers')}>
             <Truck className="h-4 w-4 mr-1" /> Entregadores
+          </Button>
+          <Button variant={activeTab === 'clients' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('clients')}>
+            <Users className="h-4 w-4 mr-1" /> Clientes
           </Button>
           <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
             📋 Pedidos
@@ -406,6 +417,39 @@ const Admin = () => {
                 </div>
               ))}
               {drivers.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum entregador cadastrado.</p>}
+            </div>
+          </>
+        )}
+
+        {/* Clients Tab */}
+        {activeTab === 'clients' && (
+          <>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-bold">Clientes Cadastrados ({clients.length})</h2>
+            </div>
+            <div className="space-y-2">
+              {clients.map((client, idx) => (
+                <motion.div
+                  key={client.user_id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="bg-card rounded-lg p-4 border flex items-center gap-3"
+                >
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm truncate">{client.display_name || 'Sem nome'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{client.email || '—'}</p>
+                    {client.phone && <p className="text-xs text-muted-foreground">{client.phone}</p>}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground shrink-0">
+                    {new Date(client.created_at).toLocaleDateString('pt-BR')}
+                  </span>
+                </motion.div>
+              ))}
+              {clients.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum cliente cadastrado.</p>}
             </div>
           </>
         )}
