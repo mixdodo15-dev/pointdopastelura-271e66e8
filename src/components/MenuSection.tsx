@@ -56,7 +56,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   if (category === 'bebidas') {
     const grouped: Record<string, MenuItem[]> = {};
     items.forEach(item => {
-      const sub = item.subcategory || 'Outros';
+      const sub = item.subcategory || '';
       if (!grouped[sub]) grouped[sub] = [];
       grouped[sub].push(item);
     });
@@ -64,8 +64,8 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     return (
       <div className="space-y-6">
         {Object.entries(grouped).map(([sub, subItems]) => (
-          <div key={sub}>
-            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3 px-1">{sub}</h3>
+          <div key={sub || '_none'}>
+            {sub && <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3 px-1">{sub}</h3>}
             <div className="grid gap-3">
               {subItems.map((item, idx) => (
                 <AnimatedCard key={item.id} index={idx}>
