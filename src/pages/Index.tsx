@@ -20,11 +20,15 @@ const Index = () => {
   const [cartSheetOpen, setCartSheetOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Auto-open cart after registration redirect
+  // Auto-open cart after registration redirect (wait for auth session)
   useEffect(() => {
     if (searchParams.get('checkout') === 'true') {
-      setCartSheetOpen(true);
       setSearchParams({}, { replace: true });
+      // Wait for auth session to be ready before opening cart
+      const timer = setTimeout(() => {
+        setCartSheetOpen(true);
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [searchParams, setSearchParams]);
 
