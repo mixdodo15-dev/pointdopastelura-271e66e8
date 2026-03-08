@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import BottomNav from '@/components/BottomNav';
@@ -20,16 +21,40 @@ const Index = () => {
   const [cartSheetOpen, setCartSheetOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Auto-open cart after registration redirect (wait for auth session)
+  // Auto-open cart after registration redirect, only when auth is ready
   useEffect(() => {
-    if (searchParams.get('checkout') === 'true') {
-      setSearchParams({}, { replace: true });
-      // Wait for auth session to be ready before opening cart
-      const timer = setTimeout(() => {
+    if (searchParams.get('checkout') !== 'true') return;
+
+    setSearchParams({}, { replace: true });
+
+    let isMounted = true;
+    let authSubscription: { unsubscribe: () => void } | null = null;
+
+    const openWhenReady = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!isMounted) return;
+
+      if (session?.user) {
         setCartSheetOpen(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
+        return;
+      }
+
+      const { data } = supabase.auth.onAuthStateChange((event, nextSession) => {
+        if (event === 'SIGNED_IN' && nextSession?.user) {
+          setCartSheetOpen(true);
+          authSubscription?.unsubscribe();
+        }
+      });
+
+      authSubscription = data.subscription;
+    };
+
+    void openWhenReady();
+
+    return () => {
+      isMounted = false;
+      authSubscription?.unsubscribe();
+    };
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {

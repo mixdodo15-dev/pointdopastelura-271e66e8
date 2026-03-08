@@ -52,7 +52,19 @@ const Cadastro = () => {
       });
       if (error) throw error;
 
-      const user = data.user;
+      let session = data.session;
+
+      // Fallback: garante login automático mesmo se a sessão não vier imediatamente no signUp
+      if (!session) {
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: form.email,
+          password: form.password,
+        });
+        if (signInError) throw signInError;
+        session = signInData.session;
+      }
+
+      const user = session?.user ?? data.user;
       if (user) {
         // Update profile with name and phone
         await supabase.from('profiles').update({
