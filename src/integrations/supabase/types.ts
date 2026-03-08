@@ -148,6 +148,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           delivery_address: string
+          driver_id: string | null
           id: string
           notes: string | null
           payment_method: string
@@ -161,6 +162,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           delivery_address: string
+          driver_id?: string | null
           id?: string
           notes?: string | null
           payment_method: string
@@ -174,6 +176,7 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           delivery_address?: string
+          driver_id?: string | null
           id?: string
           notes?: string | null
           payment_method?: string
@@ -291,7 +294,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "driver"
       order_status:
         | "received"
         | "accepted"
@@ -426,7 +429,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "driver"],
       order_status: [
         "received",
         "accepted",
