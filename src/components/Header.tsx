@@ -1,4 +1,5 @@
 import { ShoppingCart, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,8 @@ import { useState, useCallback } from 'react';
 import CheckoutModal from './CheckoutModal';
 import ExitIntentPopup from './ExitIntentPopup';
 import { useBackButtonControl } from '@/hooks/useBackButtonControl';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
@@ -17,6 +20,7 @@ interface HeaderProps {
 
 const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }: HeaderProps = {}) => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
+  const navigate = useNavigate();
   const [internalCartOpen, setInternalCartOpen] = useState(false);
   const cartOpen = externalCartOpen ?? internalCartOpen;
   const setCartOpen = externalSetCartOpen ?? setInternalCartOpen;
@@ -55,10 +59,29 @@ const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }
     setCartOpen(false);
   };
 
-  const handleExitFinalize = () => {
+  const handleExitFinalize = async () => {
     setExitPopupOpen(false);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      setCartOpen(false);
+      navigate('/cliente-login');
+      return;
+    }
     setCartOpen(false);
     setCheckoutOpen(true);
+  };
+
+  const handleFinalize = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      setCartOpen(false);
+      navigate('/cliente-login');
+      return;
+    }
+    setCheckoutOpen(true);
+    setCartOpen(false);
   };
 
   return (
@@ -131,7 +154,7 @@ const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }
                     </div>
                     <Button
                       className="w-full rounded-xl text-base font-bold py-6 bg-primary hover:bg-primary/90 text-white shadow-lg"
-                      onClick={() => { setCheckoutOpen(true); setCartOpen(false); }}
+                      onClick={handleFinalize}
                     >
                       Finalizar Pedido
                     </Button>
