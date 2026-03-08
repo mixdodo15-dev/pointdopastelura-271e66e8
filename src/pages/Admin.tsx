@@ -152,6 +152,49 @@ const Admin = () => {
     toast.success('Categoria excluída');
   };
 
+  const loadDrivers = async () => {
+    const { data, error } = await supabase.from('user_roles').select('id, user_id').eq('role', 'driver');
+    if (error) { toast.error('Erro ao carregar entregadores'); return; }
+    if (!data || data.length === 0) { setDrivers([]); return; }
+    const userIds = data.map(d => d.user_id);
+    const { data: profiles } = await supabase.from('profiles').select('user_id, email').in('user_id', userIds);
+    const merged = data.map(d => ({
+      id: d.id,
+      user_id: d.user_id,
+      email: profiles?.find(p => p.user_id === d.user_id)?.email || 'Email não encontrado',
+    }));
+    setDrivers(merged);
+  };
+
+  const addDriver = async () => {
+    if (!newDriverEmail.trim()) return;
+    setAddingDriver(true);
+    const { data: profile, error: pErr } = await supabase.from('profiles').select('user_id').eq('email', newDriverEmail.trim()).maybeSingle();
+    if (pErr || !profile) {
+      toast.error('Usuário não encontrado. O entregador precisa estar cadastrado.');
+      setAddingDriver(false);
+      return;
+    }
+    const { error } = await supabase.from('user_roles').insert({ user_id: profile.user_id, role: 'driver' as any });
+    if (error) {
+      if (error.code === '23505') toast.error('Este usuário já é entregador');
+      else toast.error('Erro ao adicionar entregador');
+      setAddingDriver(false);
+      return;
+    }
+    toast.success('Entregador adicionado!');
+    setNewDriverEmail('');
+    setAddingDriver(false);
+    loadDrivers();
+  };
+
+  const removeDriver = async (roleId: string) => {
+    const { error } = await supabase.from('user_roles').delete().eq('id', roleId);
+    if (error) { toast.error('Erro ao remover'); return; }
+    toast.success('Entregador removido');
+    loadDrivers();
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/login');
