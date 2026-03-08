@@ -36,7 +36,7 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[hsl(0,0%,90%)] shadow-[0_-2px_10px_rgba(0,0,0,0.06)] md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.06)] md:hidden">
       <div className="flex items-center justify-around h-16 max-w-md mx-auto">
         {tabs.map(({ id, label, icon: Icon }) => {
           const isActive = active === id;

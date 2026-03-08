@@ -106,7 +106,7 @@ const HeroSection = () => {
           </div>
 
           {/* Minimum order */}
-          <p className="text-center text-xs font-bold text-[hsl(0,100%,38%)]">
+          <p className="text-center text-xs font-bold text-primary">
             Pedido mínimo: R$ 10,00
           </p>
         </div>

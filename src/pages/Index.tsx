@@ -65,7 +65,7 @@ const Index = () => {
 
   return (
     <CartProvider>
-      <div className="min-h-screen bg-[hsl(0,0%,96%)] pb-24">
+      <div className="min-h-screen bg-background pb-24">
         <HeroSection />
         <Header cartOpen={cartSheetOpen} setCartOpen={setCartSheetOpen} />
 
