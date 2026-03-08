@@ -26,7 +26,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
     <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm">
       <div
         ref={containerRef}
-        className="relative flex overflow-x-auto gap-1.5 px-2 py-2.5 max-w-3xl mx-auto scrollbar-hide"
+        className="relative flex overflow-x-auto gap-1.5 px-2 py-2.5 max-w-3xl mx-auto scrollbar-hide overscroll-x-contain"
       >
         {categories.map((cat, idx) => {
           const isActive = activeCategory === cat.slug;
