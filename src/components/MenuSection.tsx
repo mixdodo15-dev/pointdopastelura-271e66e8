@@ -86,14 +86,14 @@ const MenuSection = ({ category }: MenuSectionProps) => {
         <div className="grid gap-4">
           {items.map((item, idx) => (
             <AnimatedCard key={item.id} index={idx}>
-              <div className="group bg-card rounded-[14px] shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-border/50 hover:border-primary hover:scale-[1.02]">
+              <div className="bg-card rounded-[14px] shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-300 overflow-hidden border-2 border-border/50 hover:border-primary">
                 <div className="flex items-center gap-3 p-3">
                   {/* Product image */}
                   {item.imageUrl && (
                     <img
                       src={item.imageUrl}
                       alt={item.name}
-                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0 transition-transform duration-300 group-hover:scale-110"
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0"
                     />
                   )}
                   {/* Content */}
