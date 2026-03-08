@@ -203,6 +203,21 @@ const Admin = () => {
     setClients(data || []);
   };
 
+  const deleteClient = async (userId: string, name: string) => {
+    if (!confirm(`Tem certeza que deseja remover o cliente "${name || 'Sem nome'}"? Esta ação é irreversível.`)) return;
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { user_id: userId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success('Cliente removido com sucesso');
+      loadClients();
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao remover cliente');
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/login');
