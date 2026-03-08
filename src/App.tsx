@@ -33,6 +33,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/minha-conta" element={<MinhaConta />} />
           <Route path="/meus-pedidos" element={<MeusPedidos />} />
+          <Route path="/entregador" element={<Entregador />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
