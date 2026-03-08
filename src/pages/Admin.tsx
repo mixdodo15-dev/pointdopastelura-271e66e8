@@ -49,7 +49,10 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [flavors, setFlavors] = useState<Flavor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers'>('products');
+  const [drivers, setDrivers] = useState<{id: string; user_id: string; email: string}[]>([]);
+  const [newDriverEmail, setNewDriverEmail] = useState('');
+  const [addingDriver, setAddingDriver] = useState(false);
   const [activeCategory, setActiveCategory] = useState('');
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState(false);
