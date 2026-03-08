@@ -1,4 +1,5 @@
 import { ShoppingCart, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,8 @@ import { useState, useCallback } from 'react';
 import CheckoutModal from './CheckoutModal';
 import ExitIntentPopup from './ExitIntentPopup';
 import { useBackButtonControl } from '@/hooks/useBackButtonControl';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
