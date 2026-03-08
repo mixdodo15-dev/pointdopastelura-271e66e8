@@ -1,9 +1,12 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 import CheckoutModal from './CheckoutModal';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import ExitIntentPopup from './ExitIntentPopup';
 import { useBackButtonControl } from '@/hooks/useBackButtonControl';
 
