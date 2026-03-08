@@ -147,7 +147,7 @@ const CartDrawer = () => {
                 </div>
                 <Button
                   className="w-full rounded-full text-base font-bold py-6"
-                  onClick={() => { setCheckoutOpen(true); setCartOpen(false); }}
+                  onClick={handleFinalize}
                 >
                   Finalizar Pedido
                 </Button>
