@@ -86,6 +86,7 @@ const Admin = () => {
     loadProducts();
     loadFlavors();
     loadCategories();
+    loadDrivers();
   }, [loading]);
 
   const loadProducts = async () => {
