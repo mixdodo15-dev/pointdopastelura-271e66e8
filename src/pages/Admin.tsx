@@ -377,6 +377,38 @@ const Admin = () => {
             </div>
           </>
         )}
+
+        {/* Drivers Tab */}
+        {activeTab === 'drivers' && (
+          <>
+            <h2 className="text-lg font-bold mb-3">Gerenciar Entregadores</h2>
+            <div className="flex gap-2 mb-4">
+              <Input
+                placeholder="Email do usuário cadastrado"
+                value={newDriverEmail}
+                onChange={e => setNewDriverEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addDriver()}
+              />
+              <Button onClick={addDriver} disabled={addingDriver} className="shrink-0">
+                <Plus className="h-4 w-4 mr-1" /> Adicionar
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {drivers.map(driver => (
+                <div key={driver.id} className="bg-card rounded-lg p-4 border flex items-center gap-3">
+                  <Truck className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{driver.email}</p>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => removeDriver(driver.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+              {drivers.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum entregador cadastrado.</p>}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Product Modal */}
