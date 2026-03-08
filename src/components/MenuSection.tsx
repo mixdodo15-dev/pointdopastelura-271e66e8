@@ -272,7 +272,7 @@ const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => 
     <div className="flex items-center gap-2 flex-1 min-w-0">
       <ProductImage src={item.imageUrl} alt={item.name} small />
       <div className="min-w-0">
-        <h3 className="font-bold text-xs text-foreground">{item.name}</h3>
+        <h3 className="font-bold text-xs text-foreground uppercase" style={{ textShadow: '1px 1px 3px hsl(var(--primary) / 0.6)' }}>{item.name}</h3>
         {item.description && <p className="text-[10px] text-muted-foreground">{item.description}</p>}
       </div>
     </div>
