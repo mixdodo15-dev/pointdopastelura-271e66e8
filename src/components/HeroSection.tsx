@@ -58,7 +58,7 @@ const HeroSection = () => {
         <div className="bg-card rounded-[20px] shadow-lg p-5 space-y-4">
           <div className="text-center">
             <h2
-              className="text-xl font-black text-[hsl(0,0%,10%)] tracking-tight"
+              className="text-xl font-black text-foreground tracking-tight"
               style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900 }}
             >
               POINT DO PASTEL
