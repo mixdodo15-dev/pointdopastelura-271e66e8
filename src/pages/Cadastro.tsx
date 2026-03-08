@@ -86,7 +86,8 @@ const Cadastro = () => {
       }
 
       toast.success('Conta criada com sucesso! Bem-vindo(a)!');
-      navigate('/?checkout=true');
+      localStorage.setItem('open_cart_after_signup', 'true');
+      navigate('/');
     } catch (error: any) {
       toast.error(error.message || 'Erro ao criar conta');
     } finally {

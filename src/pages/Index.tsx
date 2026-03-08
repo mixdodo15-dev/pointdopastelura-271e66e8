@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import BottomNav from '@/components/BottomNav';
@@ -19,43 +17,19 @@ const Index = () => {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrollingTo = useRef(false);
   const [cartSheetOpen, setCartSheetOpen] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Auto-open cart after registration redirect, only when auth is ready
+  // Auto-open cart after registration
   useEffect(() => {
-    if (searchParams.get('checkout') !== 'true') return;
-
-    setSearchParams({}, { replace: true });
-
-    let isMounted = true;
-    let authSubscription: { unsubscribe: () => void } | null = null;
-
-    const openWhenReady = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!isMounted) return;
-
-      if (session?.user) {
+    const shouldOpen = localStorage.getItem('open_cart_after_signup');
+    if (shouldOpen === 'true') {
+      localStorage.removeItem('open_cart_after_signup');
+      // Small delay to ensure page and auth are ready
+      const timer = setTimeout(() => {
         setCartSheetOpen(true);
-        return;
-      }
-
-      const { data } = supabase.auth.onAuthStateChange((event, nextSession) => {
-        if (event === 'SIGNED_IN' && nextSession?.user) {
-          setCartSheetOpen(true);
-          authSubscription?.unsubscribe();
-        }
-      });
-
-      authSubscription = data.subscription;
-    };
-
-    void openWhenReady();
-
-    return () => {
-      isMounted = false;
-      authSubscription?.unsubscribe();
-    };
-  }, [searchParams, setSearchParams]);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategory) {
