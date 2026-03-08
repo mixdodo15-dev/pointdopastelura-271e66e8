@@ -226,23 +226,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     <div className="grid gap-3">
       {items.map((item, idx) => (
         <AnimatedCard key={item.id} index={idx}>
-          <div className="bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden">
-            {item.imageUrl && (
-              <img src={item.imageUrl} alt={item.name} className="w-full h-40 object-cover" />
-            )}
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-1">
-                <h3 className="font-bold text-lg text-foreground">{item.name}</h3>
-                <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
-              </div>
-              {item.description && (
-                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-              )}
-              <Button size="sm" className="rounded-full w-full mt-3" onClick={() => handleAdd(item)}>
-                <Plus className="h-4 w-4 mr-1" /> Adicionar
-              </Button>
-            </div>
-          </div>
+          <ItemCard item={item} onAdd={handleAdd} />
         </AnimatedCard>
       ))}
     </div>
