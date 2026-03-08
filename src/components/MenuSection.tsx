@@ -226,7 +226,34 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     <div className="grid gap-3">
       {items.map((item, idx) => (
         <AnimatedCard key={item.id} index={idx}>
-          <ItemCard item={item} onAdd={handleAdd} />
+          <div className="bg-card rounded-[14px] shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-border/50">
+            <div className="flex items-center gap-3 p-3">
+              {item.imageUrl && (
+                <img src={item.imageUrl} alt={item.name} className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-sm text-foreground leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  {item.name}
+                </h3>
+                {item.description && (
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
+                )}
+                <span className="text-base font-extrabold text-primary mt-1 block" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  {formatPrice(item.price)}
+                </span>
+              </div>
+            </div>
+            <div className="px-3 pb-3">
+              <button
+                onClick={() => handleAdd(item)}
+                className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground text-xs font-bold py-2.5 rounded-full transition-all duration-200 shadow-sm"
+                style={{ fontFamily: "'Poppins', sans-serif" }}
+              >
+                <ShoppingCart className="h-3.5 w-3.5" />
+                PEDIR AGORA
+              </button>
+            </div>
+          </div>
         </AnimatedCard>
       ))}
     </div>
