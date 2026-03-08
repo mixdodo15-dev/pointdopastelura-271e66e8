@@ -195,6 +195,9 @@ const Admin = () => {
           <Button variant={activeTab === 'categories' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('categories')}>
             <LayoutGrid className="h-4 w-4 mr-1" /> Categorias
           </Button>
+          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
+            📋 Pedidos
+          </Button>
         </div>
 
         {/* Products Tab */}

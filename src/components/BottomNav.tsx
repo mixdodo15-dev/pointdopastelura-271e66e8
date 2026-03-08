@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UtensilsCrossed, ShoppingCart, User } from 'lucide-react';
+import { UtensilsCrossed, ShoppingCart, User, ClipboardList } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 
 const tabs = [
   { id: 'cardapio', label: 'Cardápio', icon: UtensilsCrossed },
   { id: 'carrinho', label: 'Carrinho', icon: ShoppingCart },
+  { id: 'pedidos', label: 'Pedidos', icon: ClipboardList },
   { id: 'conta', label: 'Conta', icon: User },
 ] as const;
 
@@ -25,6 +26,9 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
     }
     if (id === 'cardapio') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (id === 'pedidos') {
+      navigate('/meus-pedidos');
     }
     if (id === 'conta') {
       navigate('/cliente-login');
