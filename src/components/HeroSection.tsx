@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import heroBg from '@/assets/hero-pastel.jpg';
 import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
+import ThemeToggle from './ThemeToggle';
 
 const HeroSection = () => {
   const { isOpen, label, subtitle } = useRestaurantStatus();
@@ -25,10 +26,11 @@ const HeroSection = () => {
 
         {/* Top icons */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
+          <ThemeToggle />
           <button className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors">
             <Search className="h-5 w-5 text-white" />
           </button>
-          <button className="p-2 rounded-full bg-[hsl(0,100%,38%)] hover:bg-[hsl(0,100%,30%)] transition-colors shadow-lg">
+          <button className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg">
             <User className="h-5 w-5 text-white" />
           </button>
         </div>
@@ -53,10 +55,10 @@ const HeroSection = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.5 }}
       >
-        <div className="bg-white rounded-[20px] shadow-lg p-5 space-y-4">
+        <div className="bg-card rounded-[20px] shadow-lg p-5 space-y-4">
           <div className="text-center">
             <h2
-              className="text-xl font-black text-[hsl(0,0%,10%)] tracking-tight"
+              className="text-xl font-black text-foreground tracking-tight"
               style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900 }}
             >
               POINT DO PASTEL
@@ -82,29 +84,29 @@ const HeroSection = () => {
           {/* Delivery options */}
           <div className="flex items-center justify-center gap-3">
             <motion.div
-              className="flex items-center gap-2 bg-[hsl(0,0%,96%)] rounded-xl px-4 py-2"
+              className="flex items-center gap-2 bg-secondary rounded-xl px-4 py-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <ShoppingBag className="h-4 w-4 text-[hsl(0,100%,38%)]" />
-              <span className="text-xs font-bold text-[hsl(0,0%,10%)]">Retirada</span>
-              <Clock className="h-3 w-3 text-[hsl(0,0%,45%)]" />
-              <span className="text-[11px] font-medium text-[hsl(0,0%,45%)]">30 min</span>
+              <ShoppingBag className="h-4 w-4 text-primary" />
+              <span className="text-xs font-bold text-foreground">Retirada</span>
+              <Clock className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[11px] font-medium text-muted-foreground">30 min</span>
             </motion.div>
             <motion.div
-              className="flex items-center gap-2 bg-[hsl(0,0%,96%)] rounded-xl px-4 py-2"
+              className="flex items-center gap-2 bg-secondary rounded-xl px-4 py-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Bike className="h-4 w-4 text-[hsl(0,100%,38%)]" />
-              <span className="text-xs font-bold text-[hsl(0,0%,10%)]">Delivery</span>
-              <Clock className="h-3 w-3 text-[hsl(0,0%,45%)]" />
-              <span className="text-[11px] font-medium text-[hsl(0,0%,45%)]">60 min</span>
+              <Bike className="h-4 w-4 text-primary" />
+              <span className="text-xs font-bold text-foreground">Delivery</span>
+              <Clock className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[11px] font-medium text-muted-foreground">60 min</span>
             </motion.div>
           </div>
 
           {/* Minimum order */}
-          <p className="text-center text-xs font-bold text-[hsl(0,100%,38%)]">
+          <p className="text-center text-xs font-bold text-primary">
             Pedido mínimo: R$ 10,00
           </p>
         </div>
