@@ -59,10 +59,29 @@ const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }
     setCartOpen(false);
   };
 
-  const handleExitFinalize = () => {
+  const handleExitFinalize = async () => {
     setExitPopupOpen(false);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      setCartOpen(false);
+      navigate('/cliente-login');
+      return;
+    }
     setCartOpen(false);
     setCheckoutOpen(true);
+  };
+
+  const handleFinalize = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.info('Faça login ou cadastre-se para finalizar seu pedido.');
+      setCartOpen(false);
+      navigate('/cliente-login');
+      return;
+    }
+    setCheckoutOpen(true);
+    setCartOpen(false);
   };
 
   return (
