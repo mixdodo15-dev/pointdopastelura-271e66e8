@@ -187,11 +187,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
       msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
       msg += `💰 *TOTAL: ${formatPrice(totalPrice + deliveryFee)}*`;
-      const encoded = encodeURIComponent(msg);
-      window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
       clearCart();
       onClose();
-      toast.success('Pedido enviado para o WhatsApp!');
+      setShowSuccess(true);
+      const encoded = encodeURIComponent(msg);
+      window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
     } finally {
       setSending(false);
     }
