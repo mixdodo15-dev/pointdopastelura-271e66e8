@@ -55,12 +55,30 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
   const [deliveryMode, setDeliveryMode] = useState<'delivery' | 'pickup'>('delivery');
+  const [beverages, setBeverages] = useState<BeverageProduct[]>([]);
 
   useEffect(() => {
     if (open) {
       loadNeighborhoods();
+      loadBeverages();
     }
   }, [open]);
+
+  const loadBeverages = async () => {
+    const { data } = await supabase
+      .from('products')
+      .select('id, name, price, image_url')
+      .eq('category', 'bebidas')
+      .eq('active', true)
+      .order('sort_order')
+      .limit(6);
+    if (data) setBeverages(data as BeverageProduct[]);
+  };
+
+  const handleAddBeverage = (bev: BeverageProduct) => {
+    addItem({ id: bev.id, name: bev.name, price: Number(bev.price) });
+    toast.success(`${bev.name} adicionado!`);
+  };
 
   const loadNeighborhoods = async () => {
     const { data, error } = await supabase
