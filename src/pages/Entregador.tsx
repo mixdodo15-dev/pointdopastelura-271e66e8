@@ -114,7 +114,9 @@ const Entregador = () => {
 
   const myOrders = orders.filter(o => o.driver_id === userId);
   const myActiveOrders = myOrders.filter(o => o.status === 'out_for_delivery');
-  const myDelivered = myOrders.filter(o => o.status === 'delivered');
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const myDelivered = myOrders.filter(o => o.status === 'delivered' && new Date(o.updated_at) >= todayStart);
 
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
