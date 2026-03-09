@@ -146,7 +146,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         msg += `• ${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}\n`;
       });
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
-      msg += `💰 *TOTAL: ${formatPrice(totalPrice)}*`;
+      msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
+      msg += `💰 *TOTAL: ${formatPrice(totalPrice + deliveryFee)}*`;
       const encoded = encodeURIComponent(msg);
       window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
       clearCart();
