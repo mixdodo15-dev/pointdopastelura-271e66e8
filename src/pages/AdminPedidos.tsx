@@ -2,8 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, CheckCircle2, ChefHat, Truck, XCircle, DollarSign, Clock } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, ChefHat, Truck, XCircle, DollarSign, Clock, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Order {
   id: string;
@@ -43,6 +53,9 @@ const AdminPedidos = () => {
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('active');
+  const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -96,6 +109,32 @@ const AdminPedidos = () => {
     }
   };
 
+  const deleteOrder = async (orderId: string) => {
+    setDeleting(true);
+    await supabase.from('order_items').delete().eq('order_id', orderId);
+    const { error } = await supabase.from('orders').delete().eq('id', orderId);
+    setDeleting(false);
+    setDeleteOrderId(null);
+    if (error) {
+      toast.error('Erro ao excluir pedido');
+    } else {
+      toast.success('Pedido excluído!');
+      fetchOrders();
+    }
+  };
+
+  const clearAllOrders = async () => {
+    setDeleting(true);
+    for (const order of orders) {
+      await supabase.from('order_items').delete().eq('order_id', order.id);
+      await supabase.from('orders').delete().eq('id', order.id);
+    }
+    setDeleting(false);
+    setShowClearDialog(false);
+    toast.success('Todos os pedidos foram excluídos!');
+    fetchOrders();
+  };
+
   const toggleOrder = (orderId: string) => {
     if (expandedOrder === orderId) {
       setExpandedOrder(null);
@@ -128,11 +167,19 @@ const AdminPedidos = () => {
   return (
     <div className="min-h-screen bg-[hsl(0,0%,96%)]">
       {/* Header */}
-      <div className="bg-foreground text-background px-4 py-4 flex items-center gap-3 sticky top-0 z-40">
-        <Button variant="ghost" size="icon" className="text-background hover:bg-background/10" onClick={() => navigate('/admin')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-lg font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }}>Pedidos</h1>
+      <div className="bg-foreground text-background px-4 py-4 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="text-background hover:bg-background/10" onClick={() => navigate('/admin')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }}>Pedidos</h1>
+        </div>
+        {orders.length > 0 && (
+          <Button variant="ghost" size="sm" className="text-red-300 hover:bg-red-500/20 text-xs" onClick={() => setShowClearDialog(true)}>
+            <Trash2 className="h-4 w-4 mr-1" />
+            Limpar Tudo
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
@@ -224,7 +271,7 @@ const AdminPedidos = () => {
                       </div>
                     )}
 
-                    {/* Status buttons */}
+                    {/* Status buttons + Delete */}
                     <div className="flex flex-wrap gap-2">
                       {STATUS_OPTIONS.map(s => (
                         <button
@@ -241,6 +288,15 @@ const AdminPedidos = () => {
                         </button>
                       ))}
                     </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full mt-2"
+                      onClick={() => setDeleteOrderId(order.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Excluir Pedido
+                    </Button>
                   </div>
                 )}
               </div>
@@ -248,6 +304,56 @@ const AdminPedidos = () => {
           })
         )}
       </div>
+
+      {/* Delete single order dialog */}
+      <AlertDialog open={!!deleteOrderId} onOpenChange={() => setDeleteOrderId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Excluir Pedido
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteOrderId && deleteOrder(deleteOrderId)}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear all orders dialog */}
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Limpar Todos os Pedidos
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir TODOS os {orders.length} pedidos? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={clearAllOrders}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Excluindo...' : 'Limpar Tudo'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
