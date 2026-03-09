@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
