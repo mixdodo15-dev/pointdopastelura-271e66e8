@@ -310,6 +310,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 
