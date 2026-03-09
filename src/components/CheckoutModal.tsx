@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import OrderSuccessAnimation from './OrderSuccessAnimation';
 
 interface CheckoutModalProps {
   open: boolean;
