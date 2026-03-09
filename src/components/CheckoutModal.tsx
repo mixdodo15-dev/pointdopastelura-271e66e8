@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import OrderSuccessAnimation from './OrderSuccessAnimation';
 
 interface CheckoutModalProps {
   open: boolean;
@@ -43,6 +44,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [notes, setNotes] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(7);
   const [sending, setSending] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
 
@@ -160,7 +162,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setNotes('');
       setDeliveryFee(7);
       onClose();
-      toast.success('Pedido enviado com sucesso!');
+      setShowSuccess(true);
 
       // Navigate to order tracking if user is logged in
       if (user) {
@@ -194,6 +196,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   };
 
   return (
+    <>
+    <OrderSuccessAnimation show={showSuccess} onComplete={() => setShowSuccess(false)} />
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-2xl border-0 shadow-2xl">
         <div className="bg-primary px-6 pt-6 pb-5 rounded-t-2xl">
@@ -306,6 +310,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 
