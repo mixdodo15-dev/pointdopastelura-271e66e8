@@ -109,6 +109,32 @@ const AdminPedidos = () => {
     }
   };
 
+  const deleteOrder = async (orderId: string) => {
+    setDeleting(true);
+    await supabase.from('order_items').delete().eq('order_id', orderId);
+    const { error } = await supabase.from('orders').delete().eq('id', orderId);
+    setDeleting(false);
+    setDeleteOrderId(null);
+    if (error) {
+      toast.error('Erro ao excluir pedido');
+    } else {
+      toast.success('Pedido excluído!');
+      fetchOrders();
+    }
+  };
+
+  const clearAllOrders = async () => {
+    setDeleting(true);
+    for (const order of orders) {
+      await supabase.from('order_items').delete().eq('order_id', order.id);
+      await supabase.from('orders').delete().eq('id', order.id);
+    }
+    setDeleting(false);
+    setShowClearDialog(false);
+    toast.success('Todos os pedidos foram excluídos!');
+    fetchOrders();
+  };
+
   const toggleOrder = (orderId: string) => {
     if (expandedOrder === orderId) {
       setExpandedOrder(null);
