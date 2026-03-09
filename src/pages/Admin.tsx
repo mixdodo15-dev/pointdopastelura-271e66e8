@@ -100,7 +100,28 @@ const Admin = () => {
     loadCategories();
     loadDrivers();
     loadClients();
+    loadNeighborhoods();
   }, [loading]);
+
+  const loadNeighborhoods = async () => {
+    const { data, error } = await supabase.from('neighborhoods').select('*').order('name');
+    if (error) { toast.error('Erro ao carregar bairros'); return; }
+    setNeighborhoods((data as Neighborhood[]) || []);
+  };
+
+  const toggleNeighborhoodActive = async (neighborhood: Neighborhood) => {
+    const { error } = await supabase.from('neighborhoods').update({ active: !neighborhood.active }).eq('id', neighborhood.id);
+    if (error) { toast.error('Erro ao atualizar'); return; }
+    setNeighborhoods(prev => prev.map(n => n.id === neighborhood.id ? { ...n, active: !n.active } : n));
+    toast.success(neighborhood.active ? 'Bairro desativado' : 'Bairro ativado');
+  };
+
+  const deleteNeighborhood = async (id: string) => {
+    const { error } = await supabase.from('neighborhoods').delete().eq('id', id);
+    if (error) { toast.error('Erro ao excluir'); return; }
+    setNeighborhoods(prev => prev.filter(n => n.id !== id));
+    toast.success('Bairro excluído');
+  };
 
   const loadProducts = async () => {
     const { data, error } = await supabase.from('products').select('*').order('sort_order');
