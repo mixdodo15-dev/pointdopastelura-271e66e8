@@ -105,6 +105,13 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       const encoded = encodeURIComponent(msg);
       window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
 
+      // Save order ID to localStorage for guest tracking if user is not logged in
+      if (!user) {
+        const guestOrders = JSON.parse(localStorage.getItem('guest-orders') || '[]');
+        guestOrders.push(order.id);
+        localStorage.setItem('guest-orders', JSON.stringify(guestOrders));
+      }
+
       clearCart();
       setName('');
       setPhone('');

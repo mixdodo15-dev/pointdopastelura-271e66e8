@@ -88,8 +88,9 @@ const MeusPedidos = () => {
   useEffect(() => {
     const channel = supabase
       .channel('my-orders')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-        fetchOrders();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        fetchOrders(user);
       })
       .subscribe();
 
