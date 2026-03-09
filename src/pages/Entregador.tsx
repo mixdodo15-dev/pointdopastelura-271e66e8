@@ -196,7 +196,7 @@ const Entregador = () => {
                 onExpand={() => fetchItems(order.id)}
                 action={
                   <Button
-                    className="w-full rounded-xl py-5 text-sm font-bold gap-2 bg-purple-700 hover:bg-purple-800"
+                    className="w-full rounded-xl py-5 text-sm font-bold gap-2 bg-primary hover:bg-primary/90"
                     onClick={() => acceptDelivery(order.id)}
                   >
                     <Truck className="h-4 w-4" /> Aceitar Entrega
@@ -228,6 +228,25 @@ const Entregador = () => {
                     <CheckCircle2 className="h-4 w-4" /> Marcar como Entregue
                   </Button>
                 }
+              />
+            ))
+          )
+        )}
+
+        {tab === 'delivered' && (
+          myDelivered.length === 0 ? (
+            <div className="text-center py-12">
+              <CheckCircle2 className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">Nenhuma entrega concluída hoje</p>
+            </div>
+          ) : (
+            myDelivered.map(order => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                items={orderItems[order.id]}
+                onExpand={() => fetchItems(order.id)}
+                showDeliveredTime
               />
             ))
           )
