@@ -44,6 +44,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [notes, setNotes] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(7);
   const [sending, setSending] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
 
