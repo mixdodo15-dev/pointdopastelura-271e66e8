@@ -47,6 +47,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
+  const [deliveryMode, setDeliveryMode] = useState<'delivery' | 'pickup'>('delivery');
 
   useEffect(() => {
     if (open) {
