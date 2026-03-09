@@ -155,19 +155,27 @@ const Entregador = () => {
       <div className="max-w-lg mx-auto px-4 flex gap-2 mb-4">
         <button
           onClick={() => setTab('available')}
-          className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
-            tab === 'available' ? 'bg-purple-700 text-white' : 'bg-card text-muted-foreground border border-border'
+          className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+            tab === 'available' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground border border-border'
           }`}
         >
           Disponíveis ({availableOrders.length})
         </button>
         <button
           onClick={() => setTab('mine')}
-          className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
-            tab === 'mine' ? 'bg-purple-700 text-white' : 'bg-card text-muted-foreground border border-border'
+          className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+            tab === 'mine' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground border border-border'
           }`}
         >
-          Minhas Entregas ({myActiveOrders.length})
+          Ativas ({myActiveOrders.length})
+        </button>
+        <button
+          onClick={() => setTab('delivered')}
+          className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+            tab === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground border border-border'
+          }`}
+        >
+          Entregues ({myDelivered.length})
         </button>
       </div>
 
