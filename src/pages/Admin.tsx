@@ -916,4 +916,79 @@ const CategoryModal = ({
   );
 };
 
+// Neighborhood Modal
+const NeighborhoodModal = ({
+  open, neighborhood, onClose, onSave,
+}: {
+  open: boolean;
+  neighborhood: Neighborhood | null;
+  onClose: () => void;
+  onSave: () => void;
+}) => {
+  const [name, setName] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState('7.00');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (neighborhood) {
+      setName(neighborhood.name);
+      setDeliveryFee(String(neighborhood.delivery_fee));
+    } else {
+      setName(''); setDeliveryFee('7.00');
+    }
+  }, [neighborhood, open]);
+
+  const handleSave = async () => {
+    if (!name.trim()) { toast.error('Preencha o nome do bairro'); return; }
+    setSaving(true);
+    const data = {
+      name: name.trim(),
+      delivery_fee: parseFloat(deliveryFee) || 7.00,
+    };
+    if (neighborhood) {
+      const { error } = await supabase.from('neighborhoods').update(data).eq('id', neighborhood.id);
+      if (error) { toast.error('Erro ao salvar'); setSaving(false); return; }
+      toast.success('Bairro atualizado');
+    } else {
+      const { error } = await supabase.from('neighborhoods').insert(data);
+      if (error) { toast.error('Erro ao criar'); setSaving(false); return; }
+      toast.success('Bairro criado');
+    }
+    setSaving(false);
+    onSave();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+        <div className="bg-primary px-6 pt-6 pb-4 rounded-t-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary-foreground text-lg font-extrabold flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              {neighborhood ? 'Editar Bairro' : 'Novo Bairro'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Nome do Bairro *</Label>
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Centro" className="h-11 rounded-xl bg-secondary border-0" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Taxa de Entrega (R$) *</Label>
+            <Input type="number" step="0.50" min="0" value={deliveryFee} onChange={e => setDeliveryFee(e.target.value)} placeholder="7.00" className="h-11 rounded-xl bg-secondary border-0" />
+            <p className="text-xs text-muted-foreground">Valor cobrado para entregas neste bairro</p>
+          </div>
+        </div>
+
+        <div className="px-6 pb-6 flex gap-3">
+          <Button variant="outline" className="flex-1 rounded-xl py-5" onClick={onClose}>Cancelar</Button>
+          <Button className="flex-1 rounded-xl py-5 font-bold" onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export default Admin;
