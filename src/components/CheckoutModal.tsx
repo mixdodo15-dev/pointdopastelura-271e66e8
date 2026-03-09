@@ -54,6 +54,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       // Get current user (may be null for anonymous orders)
       const { data: { user } } = await supabase.auth.getUser();
 
+      const grandTotal = totalPrice + deliveryFee;
+
       // Save order to database
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -64,7 +66,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
           delivery_address: sanitizedAddress,
           payment_method: payment,
           notes: sanitizedNotes || null,
-          total_price: totalPrice,
+          total_price: grandTotal,
+          delivery_fee: deliveryFee,
           status: 'received' as const,
         })
         .select()
