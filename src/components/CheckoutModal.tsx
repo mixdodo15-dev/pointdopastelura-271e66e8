@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
-import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2 } from 'lucide-react';
+import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,6 +34,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [address, setAddress] = useState('');
   const [payment, setPayment] = useState('');
   const [notes, setNotes] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState(7);
   const [sending, setSending] = useState(false);
 
   const handleSend = async () => {
@@ -53,6 +54,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       // Get current user (may be null for anonymous orders)
       const { data: { user } } = await supabase.auth.getUser();
 
+      const grandTotal = totalPrice + deliveryFee;
+
       // Save order to database
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -63,7 +66,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
           delivery_address: sanitizedAddress,
           payment_method: payment,
           notes: sanitizedNotes || null,
-          total_price: totalPrice,
+          total_price: grandTotal,
+          delivery_fee: deliveryFee,
           status: 'received' as const,
         })
         .select()
@@ -100,7 +104,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       });
 
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
-      msg += `💰 *TOTAL: ${formatPrice(totalPrice)}*`;
+      msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
+      msg += `💰 *TOTAL: ${formatPrice(grandTotal)}*`;
 
       const encoded = encodeURIComponent(msg);
       window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
@@ -118,6 +123,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setAddress('');
       setPayment('');
       setNotes('');
+      setDeliveryFee(7);
       onClose();
       toast.success('Pedido enviado com sucesso!');
 
@@ -140,7 +146,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         msg += `• ${item.quantity}x ${item.name} — ${formatPrice(item.price * item.quantity)}\n`;
       });
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
-      msg += `💰 *TOTAL: ${formatPrice(totalPrice)}*`;
+      msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
+      msg += `💰 *TOTAL: ${formatPrice(totalPrice + deliveryFee)}*`;
       const encoded = encodeURIComponent(msg);
       window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
       clearCart();
@@ -164,14 +171,20 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
               Preencha seus dados para enviar via WhatsApp
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 bg-primary-foreground/15 rounded-xl px-4 py-3">
+          <div className="mt-4 bg-primary-foreground/15 rounded-xl px-4 py-3 space-y-1.5">
             <div className="flex justify-between items-center">
-              <span className="text-primary-foreground/90 text-sm font-medium">
-                {items.length} {items.length === 1 ? 'item' : 'itens'} no pedido
+              <span className="text-primary-foreground/80 text-sm">
+                {items.length} {items.length === 1 ? 'item' : 'itens'}
               </span>
-              <span className="text-primary-foreground font-extrabold text-lg">
-                {formatPrice(totalPrice)}
-              </span>
+              <span className="text-primary-foreground/80 text-sm">{formatPrice(totalPrice)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-primary-foreground/80 text-sm">Taxa de entrega</span>
+              <span className="text-primary-foreground/80 text-sm">{formatPrice(deliveryFee)}</span>
+            </div>
+            <div className="flex justify-between items-center border-t border-primary-foreground/20 pt-1.5">
+              <span className="text-primary-foreground font-bold text-sm">Total</span>
+              <span className="text-primary-foreground font-extrabold text-lg">{formatPrice(totalPrice + deliveryFee)}</span>
             </div>
           </div>
         </div>
@@ -218,6 +231,25 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="delivery-fee" className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Bike className="h-4 w-4 text-primary" /> Taxa de entrega
+            </Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">R$</span>
+              <Input
+                id="delivery-fee"
+                type="number"
+                min={0}
+                step={0.5}
+                value={deliveryFee}
+                onChange={e => setDeliveryFee(Math.max(0, parseFloat(e.target.value) || 0))}
+                className="h-12 rounded-xl bg-secondary border-0 text-foreground pl-9 focus-visible:ring-primary"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">Mínimo R$ 7,00 — ajuste conforme a distância</p>
           </div>
 
           <div className="space-y-2">
