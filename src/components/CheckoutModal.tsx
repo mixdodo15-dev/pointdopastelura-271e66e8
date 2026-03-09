@@ -196,6 +196,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   };
 
   return (
+    <>
+    <OrderSuccessAnimation show={showSuccess} onComplete={() => setShowSuccess(false)} />
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-2xl border-0 shadow-2xl">
         <div className="bg-primary px-6 pt-6 pb-5 rounded-t-2xl">
