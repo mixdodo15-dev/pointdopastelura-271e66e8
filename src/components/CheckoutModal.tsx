@@ -145,7 +145,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       let msg = `🧾 *PEDIDO #${order.id.slice(0, 8).toUpperCase()} - Point Do Pastel*\n\n`;
       msg += `👤 *Cliente:* ${sanitizedName}\n`;
       msg += `📞 *Telefone:* ${sanitizedPhone}\n`;
-      msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
+      if (deliveryMode === 'pickup') {
+        msg += `🏪 *Retirada no local*\n`;
+      } else {
+        msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
+      }
       msg += `💳 *Pagamento:* ${payment}\n`;
       if (sanitizedNotes) msg += `📝 *Obs:* ${sanitizedNotes}\n`;
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
@@ -156,7 +160,9 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       });
 
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
-      msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
+      if (deliveryMode === 'delivery') {
+        msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
+      }
       msg += `💰 *TOTAL: ${formatPrice(grandTotal)}*`;
 
       // Clear cart and reset form BEFORE opening WhatsApp
