@@ -261,11 +261,13 @@ const OrderCard = ({
   items,
   onExpand,
   action,
+  showDeliveredTime,
 }: {
   order: Order;
   items?: OrderItem[];
   onExpand: () => void;
-  action: React.ReactNode;
+  action?: React.ReactNode;
+  showDeliveredTime?: boolean;
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -285,15 +287,21 @@ const OrderCard = ({
           <span className="flex items-center gap-1"><User className="h-3 w-3" /> {order.customer_name}</span>
           <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {formatTime(order.created_at)}</span>
         </div>
+        {showDeliveredTime && (
+          <div className="mt-2 flex items-center gap-1 text-xs text-green-600 font-semibold">
+            <CheckCircle2 className="h-3 w-3" />
+            Entregue às {formatTime(order.updated_at)}
+          </div>
+        )}
       </button>
 
       {expanded && (
         <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
           {/* Address */}
-          <div className="bg-purple-50 rounded-xl p-3 flex items-start gap-2">
-            <MapPin className="h-4 w-4 text-purple-700 mt-0.5 shrink-0" />
+          <div className="bg-primary/10 rounded-xl p-3 flex items-start gap-2">
+            <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-purple-700">Endereço de Entrega</p>
+              <p className="text-xs font-semibold text-primary">Endereço de Entrega</p>
               <p className="text-sm font-medium text-foreground mt-0.5">{order.delivery_address}</p>
             </div>
           </div>
