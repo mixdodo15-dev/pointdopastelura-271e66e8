@@ -104,7 +104,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       });
 
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
-      msg += `💰 *TOTAL: ${formatPrice(totalPrice)}*`;
+      msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
+      msg += `💰 *TOTAL: ${formatPrice(grandTotal)}*`;
 
       const encoded = encodeURIComponent(msg);
       window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
