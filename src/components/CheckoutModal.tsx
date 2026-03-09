@@ -42,7 +42,7 @@ const paymentOptions = [
 ];
 
 const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, clearCart, addItem } = useCart();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
