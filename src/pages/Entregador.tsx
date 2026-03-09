@@ -16,6 +16,7 @@ interface Order {
   status: string;
   driver_id: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 interface OrderItem {
