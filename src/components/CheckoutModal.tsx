@@ -249,7 +249,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 className="h-12 rounded-xl bg-secondary border-0 text-foreground pl-9 focus-visible:ring-primary"
               />
             </div>
-            <p className="text-xs text-muted-foreground">Mínimo R$ 7,00 — ajuste conforme a distância</p>
+            <p className="text-xs text-muted-foreground">Mínimo R$ 7,00 — Podendo ter alteração por bairro</p>
           </div>
 
           <div className="space-y-2">
