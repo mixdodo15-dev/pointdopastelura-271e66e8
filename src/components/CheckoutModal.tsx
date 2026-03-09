@@ -162,7 +162,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setNotes('');
       setDeliveryFee(7);
       onClose();
-      toast.success('Pedido enviado com sucesso!');
+      setShowSuccess(true);
 
       // Navigate to order tracking if user is logged in
       if (user) {
