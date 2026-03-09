@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
 import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike } from 'lucide-react';
@@ -13,6 +14,12 @@ import { useNavigate } from 'react-router-dom';
 interface CheckoutModalProps {
   open: boolean;
   onClose: () => void;
+}
+
+interface Neighborhood {
+  id: string;
+  name: string;
+  delivery_fee: number;
 }
 
 const PHONE = '5534984050892';
@@ -36,6 +43,33 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [notes, setNotes] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(7);
   const [sending, setSending] = useState(false);
+  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
+
+  useEffect(() => {
+    if (open) {
+      loadNeighborhoods();
+    }
+  }, [open]);
+
+  const loadNeighborhoods = async () => {
+    const { data, error } = await supabase
+      .from('neighborhoods')
+      .select('id, name, delivery_fee')
+      .eq('active', true)
+      .order('name');
+    if (!error && data) {
+      setNeighborhoods(data as Neighborhood[]);
+    }
+  };
+
+  const handleNeighborhoodChange = (neighborhoodId: string) => {
+    setSelectedNeighborhood(neighborhoodId);
+    const neighborhood = neighborhoods.find(n => n.id === neighborhoodId);
+    if (neighborhood) {
+      setDeliveryFee(Number(neighborhood.delivery_fee));
+    }
+  };
 
   const handleSend = async () => {
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
@@ -235,12 +269,23 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
           <div className="space-y-2">
             <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-              <Bike className="h-4 w-4 text-primary" /> Taxa de entrega
+              <Bike className="h-4 w-4 text-primary" /> Bairro / Taxa de entrega
             </Label>
-            <div className="h-12 rounded-xl bg-secondary flex items-center px-4">
-              <span className="text-foreground font-semibold">R$ 7,00</span>
-            </div>
-            <p className="text-xs text-muted-foreground">Podendo ter alteração por bairro</p>
+            <Select value={selectedNeighborhood} onValueChange={handleNeighborhoodChange}>
+              <SelectTrigger className="h-12 rounded-xl bg-secondary border-0 text-foreground">
+                <SelectValue placeholder="Selecione seu bairro" />
+              </SelectTrigger>
+              <SelectContent>
+                {neighborhoods.map(n => (
+                  <SelectItem key={n.id} value={n.id}>
+                    {n.name} — R$ {Number(n.delivery_fee).toFixed(2).replace('.', ',')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {neighborhoods.length === 0 && (
+              <p className="text-xs text-muted-foreground">Nenhum bairro cadastrado. Taxa padrão: R$ 7,00</p>
+            )}
           </div>
 
           <div className="space-y-2">
