@@ -35,7 +35,7 @@ const Entregador = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'available' | 'mine'>('available');
+  const [tab, setTab] = useState<'available' | 'mine' | 'delivered'>('available');
 
   useEffect(() => {
     const checkAuth = async () => {
