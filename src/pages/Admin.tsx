@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -42,6 +42,13 @@ interface Category {
   active: boolean;
 }
 
+interface Neighborhood {
+  id: string;
+  name: string;
+  delivery_fee: number;
+  active: boolean;
+}
+
 const formatPrice = (price: number) => `R$ ${Number(price).toFixed(2).replace('.', ',')}`;
 
 const Admin = () => {
@@ -50,7 +57,10 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [flavors, setFlavors] = useState<Flavor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients' | 'neighborhoods'>('products');
+  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
+  const [editNeighborhood, setEditNeighborhood] = useState<Neighborhood | null>(null);
+  const [newNeighborhood, setNewNeighborhood] = useState(false);
   const [drivers, setDrivers] = useState<{id: string; user_id: string; email: string}[]>([]);
   const [newDriverEmail, setNewDriverEmail] = useState('');
   const [addingDriver, setAddingDriver] = useState(false);
@@ -90,7 +100,28 @@ const Admin = () => {
     loadCategories();
     loadDrivers();
     loadClients();
+    loadNeighborhoods();
   }, [loading]);
+
+  const loadNeighborhoods = async () => {
+    const { data, error } = await supabase.from('neighborhoods').select('*').order('name');
+    if (error) { toast.error('Erro ao carregar bairros'); return; }
+    setNeighborhoods((data as Neighborhood[]) || []);
+  };
+
+  const toggleNeighborhoodActive = async (neighborhood: Neighborhood) => {
+    const { error } = await supabase.from('neighborhoods').update({ active: !neighborhood.active }).eq('id', neighborhood.id);
+    if (error) { toast.error('Erro ao atualizar'); return; }
+    setNeighborhoods(prev => prev.map(n => n.id === neighborhood.id ? { ...n, active: !n.active } : n));
+    toast.success(neighborhood.active ? 'Bairro desativado' : 'Bairro ativado');
+  };
+
+  const deleteNeighborhood = async (id: string) => {
+    const { error } = await supabase.from('neighborhoods').delete().eq('id', id);
+    if (error) { toast.error('Erro ao excluir'); return; }
+    setNeighborhoods(prev => prev.filter(n => n.id !== id));
+    toast.success('Bairro excluído');
+  };
 
   const loadProducts = async () => {
     const { data, error } = await supabase.from('products').select('*').order('sort_order');
@@ -270,6 +301,9 @@ const Admin = () => {
           </Button>
           <Button variant={activeTab === 'clients' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('clients')}>
             <Users className="h-4 w-4 mr-1" /> Clientes
+          </Button>
+          <Button variant={activeTab === 'neighborhoods' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('neighborhoods')}>
+            <MapPin className="h-4 w-4 mr-1" /> Bairros
           </Button>
           <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
             📋 Pedidos
@@ -473,6 +507,39 @@ const Admin = () => {
             </div>
           </>
         )}
+
+        {/* Neighborhoods Tab */}
+        {activeTab === 'neighborhoods' && (
+          <>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-bold">Bairros e Taxas de Entrega</h2>
+              <Button size="sm" className="rounded-full" onClick={() => setNewNeighborhood(true)}>
+                <Plus className="h-4 w-4 mr-1" /> Novo Bairro
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {neighborhoods.map(neighborhood => (
+                <div key={neighborhood.id} className={cn("bg-card rounded-lg p-4 border flex items-center gap-3 transition-opacity", !neighborhood.active && "opacity-50")}>
+                  <MapPin className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{neighborhood.name}</p>
+                    <p className="text-xs text-muted-foreground">Taxa: R$ {Number(neighborhood.delivery_fee).toFixed(2).replace('.', ',')}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Switch checked={neighborhood.active} onCheckedChange={() => toggleNeighborhoodActive(neighborhood)} />
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditNeighborhood(neighborhood)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteNeighborhood(neighborhood.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              {neighborhoods.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum bairro cadastrado.</p>}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Product Modal */}
@@ -499,6 +566,14 @@ const Admin = () => {
         category={editCategory}
         onClose={() => { setEditCategory(null); setNewCategory(false); }}
         onSave={() => { loadCategories(); setEditCategory(null); setNewCategory(false); }}
+      />
+
+      {/* Neighborhood Modal */}
+      <NeighborhoodModal
+        open={!!editNeighborhood || newNeighborhood}
+        neighborhood={editNeighborhood}
+        onClose={() => { setEditNeighborhood(null); setNewNeighborhood(false); }}
+        onSave={() => { loadNeighborhoods(); setEditNeighborhood(null); setNewNeighborhood(false); }}
       />
     </div>
   );
@@ -829,6 +904,81 @@ const CategoryModal = ({
               <Label className="text-sm font-semibold">Ordem</Label>
               <Input type="number" value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="0" className="h-11 rounded-xl bg-secondary border-0" />
             </div>
+          </div>
+        </div>
+
+        <div className="px-6 pb-6 flex gap-3">
+          <Button variant="outline" className="flex-1 rounded-xl py-5" onClick={onClose}>Cancelar</Button>
+          <Button className="flex-1 rounded-xl py-5 font-bold" onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Neighborhood Modal
+const NeighborhoodModal = ({
+  open, neighborhood, onClose, onSave,
+}: {
+  open: boolean;
+  neighborhood: Neighborhood | null;
+  onClose: () => void;
+  onSave: () => void;
+}) => {
+  const [name, setName] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState('7.00');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (neighborhood) {
+      setName(neighborhood.name);
+      setDeliveryFee(String(neighborhood.delivery_fee));
+    } else {
+      setName(''); setDeliveryFee('7.00');
+    }
+  }, [neighborhood, open]);
+
+  const handleSave = async () => {
+    if (!name.trim()) { toast.error('Preencha o nome do bairro'); return; }
+    setSaving(true);
+    const data = {
+      name: name.trim(),
+      delivery_fee: parseFloat(deliveryFee) || 7.00,
+    };
+    if (neighborhood) {
+      const { error } = await supabase.from('neighborhoods').update(data).eq('id', neighborhood.id);
+      if (error) { toast.error('Erro ao salvar'); setSaving(false); return; }
+      toast.success('Bairro atualizado');
+    } else {
+      const { error } = await supabase.from('neighborhoods').insert(data);
+      if (error) { toast.error('Erro ao criar'); setSaving(false); return; }
+      toast.success('Bairro criado');
+    }
+    setSaving(false);
+    onSave();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+        <div className="bg-primary px-6 pt-6 pb-4 rounded-t-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary-foreground text-lg font-extrabold flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              {neighborhood ? 'Editar Bairro' : 'Novo Bairro'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Nome do Bairro *</Label>
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Centro" className="h-11 rounded-xl bg-secondary border-0" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Taxa de Entrega (R$) *</Label>
+            <Input type="number" step="0.50" min="0" value={deliveryFee} onChange={e => setDeliveryFee(e.target.value)} placeholder="7.00" className="h-11 rounded-xl bg-secondary border-0" />
+            <p className="text-xs text-muted-foreground">Valor cobrado para entregas neste bairro</p>
           </div>
         </div>
 
