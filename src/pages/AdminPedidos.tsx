@@ -167,11 +167,19 @@ const AdminPedidos = () => {
   return (
     <div className="min-h-screen bg-[hsl(0,0%,96%)]">
       {/* Header */}
-      <div className="bg-foreground text-background px-4 py-4 flex items-center gap-3 sticky top-0 z-40">
-        <Button variant="ghost" size="icon" className="text-background hover:bg-background/10" onClick={() => navigate('/admin')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-lg font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }}>Pedidos</h1>
+      <div className="bg-foreground text-background px-4 py-4 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="text-background hover:bg-background/10" onClick={() => navigate('/admin')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }}>Pedidos</h1>
+        </div>
+        {orders.length > 0 && (
+          <Button variant="ghost" size="sm" className="text-red-300 hover:bg-red-500/20 text-xs" onClick={() => setShowClearDialog(true)}>
+            <Trash2 className="h-4 w-4 mr-1" />
+            Limpar Tudo
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
