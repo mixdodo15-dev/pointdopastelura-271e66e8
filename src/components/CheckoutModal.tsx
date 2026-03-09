@@ -74,6 +74,17 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     }
   };
 
+  const handleDeliveryModeChange = (mode: 'delivery' | 'pickup') => {
+    setDeliveryMode(mode);
+    if (mode === 'pickup') {
+      setDeliveryFee(0);
+      setSelectedNeighborhood('');
+      setAddress('');
+    } else {
+      setDeliveryFee(7);
+    }
+  };
+
   const handleSend = async () => {
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
     if (!phone.trim()) { toast.error('Informe seu telefone.'); return; }
