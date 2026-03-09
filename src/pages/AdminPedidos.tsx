@@ -271,7 +271,7 @@ const AdminPedidos = () => {
                       </div>
                     )}
 
-                    {/* Status buttons */}
+                    {/* Status buttons + Delete */}
                     <div className="flex flex-wrap gap-2">
                       {STATUS_OPTIONS.map(s => (
                         <button
@@ -288,6 +288,15 @@ const AdminPedidos = () => {
                         </button>
                       ))}
                     </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full mt-2"
+                      onClick={() => setDeleteOrderId(order.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Excluir Pedido
+                    </Button>
                   </div>
                 )}
               </div>
@@ -295,6 +304,56 @@ const AdminPedidos = () => {
           })
         )}
       </div>
+
+      {/* Delete single order dialog */}
+      <AlertDialog open={!!deleteOrderId} onOpenChange={() => setDeleteOrderId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Excluir Pedido
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteOrderId && deleteOrder(deleteOrderId)}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear all orders dialog */}
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Limpar Todos os Pedidos
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir TODOS os {orders.length} pedidos? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={clearAllOrders}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Excluindo...' : 'Limpar Tudo'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
