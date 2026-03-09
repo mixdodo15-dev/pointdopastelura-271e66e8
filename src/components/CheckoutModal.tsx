@@ -123,6 +123,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setAddress('');
       setPayment('');
       setNotes('');
+      setDeliveryFee(7);
       onClose();
       toast.success('Pedido enviado com sucesso!');
 
