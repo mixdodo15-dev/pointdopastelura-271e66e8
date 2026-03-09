@@ -59,15 +59,8 @@ const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }
     setCartOpen(false);
   };
 
-  const handleExitFinalize = async () => {
+  const handleExitFinalize = () => {
     setExitPopupOpen(false);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast.info('Crie sua conta para finalizar seu pedido!');
-      setCartOpen(false);
-      navigate('/cadastro');
-      return;
-    }
     setCartOpen(false);
     setCheckoutOpen(true);
   };
