@@ -42,6 +42,13 @@ interface Category {
   active: boolean;
 }
 
+interface Neighborhood {
+  id: string;
+  name: string;
+  delivery_fee: number;
+  active: boolean;
+}
+
 const formatPrice = (price: number) => `R$ ${Number(price).toFixed(2).replace('.', ',')}`;
 
 const Admin = () => {
