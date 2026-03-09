@@ -233,6 +233,25 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="delivery-fee" className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Bike className="h-4 w-4 text-primary" /> Taxa de entrega
+            </Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">R$</span>
+              <Input
+                id="delivery-fee"
+                type="number"
+                min={0}
+                step={0.5}
+                value={deliveryFee}
+                onChange={e => setDeliveryFee(Math.max(0, parseFloat(e.target.value) || 0))}
+                className="h-12 rounded-xl bg-secondary border-0 text-foreground pl-9 focus-visible:ring-primary"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">Mínimo R$ 7,00 — ajuste conforme a distância</p>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="notes" className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
               <StickyNote className="h-4 w-4" /> Observações (opcional)
             </Label>
