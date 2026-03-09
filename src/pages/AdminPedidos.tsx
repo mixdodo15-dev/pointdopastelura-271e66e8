@@ -2,8 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, CheckCircle2, ChefHat, Truck, XCircle, DollarSign, Clock } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, ChefHat, Truck, XCircle, DollarSign, Clock, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Order {
   id: string;
@@ -43,6 +53,9 @@ const AdminPedidos = () => {
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('active');
+  const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const checkAdmin = async () => {
