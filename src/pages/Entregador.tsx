@@ -126,7 +126,7 @@ const Entregador = () => {
   return (
     <div className="min-h-screen bg-[hsl(0,0%,96%)]">
       {/* Header */}
-      <div className="bg-purple-700 text-white px-4 py-4 flex items-center justify-between sticky top-0 z-40">
+      <div className="bg-primary text-primary-foreground px-4 py-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <Truck className="h-6 w-6" />
           <div>
@@ -134,7 +134,7 @@ const Entregador = () => {
             <p className="text-xs opacity-80">Point do Pastel</p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="text-white hover:bg-white/10" onClick={handleLogout}>
+        <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
         </Button>
       </div>
@@ -142,7 +142,7 @@ const Entregador = () => {
       {/* Stats */}
       <div className="max-w-lg mx-auto px-4 py-4 grid grid-cols-2 gap-3">
         <div className="bg-card rounded-2xl p-4 shadow-sm border border-border text-center">
-          <p className="text-2xl font-extrabold text-purple-700">{myActiveOrders.length}</p>
+          <p className="text-2xl font-extrabold text-primary">{myActiveOrders.length}</p>
           <p className="text-xs text-muted-foreground font-semibold">Em Entrega</p>
         </div>
         <div className="bg-card rounded-2xl p-4 shadow-sm border border-border text-center">
