@@ -380,6 +380,33 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
             <Textarea id="notes" placeholder="Alguma observação sobre o pedido?" value={notes} onChange={e => setNotes(e.target.value)}
               maxLength={500} rows={2} className="rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary resize-none" />
           </div>
+
+          {/* Beverage Suggestion */}
+          {beverages.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                <GlassWater className="h-4 w-4 text-primary" /> Que tal uma bebida?
+              </Label>
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                {beverages.map(bev => (
+                  <button
+                    key={bev.id}
+                    onClick={() => handleAddBeverage(bev)}
+                    className="flex-shrink-0 flex flex-col items-center gap-1 bg-secondary hover:bg-secondary/80 rounded-xl p-2.5 transition-all duration-200 hover:scale-[1.03] min-w-[90px]"
+                  >
+                    {bev.image_url && (
+                      <img src={bev.image_url} alt={bev.name} className="h-10 w-10 rounded-lg object-cover" />
+                    )}
+                    <span className="text-[10px] font-semibold text-foreground text-center leading-tight line-clamp-2">{bev.name}</span>
+                    <span className="text-[10px] font-extrabold text-primary">{formatPrice(Number(bev.price))}</span>
+                    <span className="flex items-center gap-0.5 text-[9px] font-bold text-primary">
+                      <Plus className="h-3 w-3" /> Adicionar
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="px-6 pb-6">
