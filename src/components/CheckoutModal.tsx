@@ -113,13 +113,15 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
           user_id: user?.id || null,
           customer_name: sanitizedName,
           customer_phone: sanitizedPhone,
-          delivery_address: sanitizedAddress,
+          delivery_address: deliveryMode === 'pickup' ? 'RETIRADA NO LOCAL' : sanitizedAddress,
           payment_method: payment,
           notes: sanitizedNotes || null,
           total_price: grandTotal,
           delivery_fee: deliveryFee,
           status: 'received' as const,
         })
+        .select()
+        .single();
         .select()
         .single();
 
