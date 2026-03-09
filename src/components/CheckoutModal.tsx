@@ -269,12 +269,23 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
           <div className="space-y-2">
             <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-              <Bike className="h-4 w-4 text-primary" /> Taxa de entrega
+              <Bike className="h-4 w-4 text-primary" /> Bairro / Taxa de entrega
             </Label>
-            <div className="h-12 rounded-xl bg-secondary flex items-center px-4">
-              <span className="text-foreground font-semibold">R$ 7,00</span>
-            </div>
-            <p className="text-xs text-muted-foreground">Podendo ter alteração por bairro</p>
+            <Select value={selectedNeighborhood} onValueChange={handleNeighborhoodChange}>
+              <SelectTrigger className="h-12 rounded-xl bg-secondary border-0 text-foreground">
+                <SelectValue placeholder="Selecione seu bairro" />
+              </SelectTrigger>
+              <SelectContent>
+                {neighborhoods.map(n => (
+                  <SelectItem key={n.id} value={n.id}>
+                    {n.name} — R$ {Number(n.delivery_fee).toFixed(2).replace('.', ',')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {neighborhoods.length === 0 && (
+              <p className="text-xs text-muted-foreground">Nenhum bairro cadastrado. Taxa padrão: R$ 7,00</p>
+            )}
           </div>
 
           <div className="space-y-2">
