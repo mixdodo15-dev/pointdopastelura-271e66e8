@@ -45,11 +45,8 @@ const MeusPedidos = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/cliente-login');
-        return;
-      }
-      fetchOrders();
+      // Allow both logged in and guest users
+      fetchOrders(user);
     };
     checkAuth();
   }, [navigate]);
