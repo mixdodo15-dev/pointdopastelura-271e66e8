@@ -507,6 +507,39 @@ const Admin = () => {
             </div>
           </>
         )}
+
+        {/* Neighborhoods Tab */}
+        {activeTab === 'neighborhoods' && (
+          <>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-bold">Bairros e Taxas de Entrega</h2>
+              <Button size="sm" className="rounded-full" onClick={() => setNewNeighborhood(true)}>
+                <Plus className="h-4 w-4 mr-1" /> Novo Bairro
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {neighborhoods.map(neighborhood => (
+                <div key={neighborhood.id} className={cn("bg-card rounded-lg p-4 border flex items-center gap-3 transition-opacity", !neighborhood.active && "opacity-50")}>
+                  <MapPin className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{neighborhood.name}</p>
+                    <p className="text-xs text-muted-foreground">Taxa: R$ {Number(neighborhood.delivery_fee).toFixed(2).replace('.', ',')}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Switch checked={neighborhood.active} onCheckedChange={() => toggleNeighborhoodActive(neighborhood)} />
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditNeighborhood(neighborhood)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteNeighborhood(neighborhood.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              {neighborhoods.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum bairro cadastrado.</p>}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Product Modal */}
