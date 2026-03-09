@@ -170,14 +170,20 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
               Preencha seus dados para enviar via WhatsApp
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 bg-primary-foreground/15 rounded-xl px-4 py-3">
+          <div className="mt-4 bg-primary-foreground/15 rounded-xl px-4 py-3 space-y-1.5">
             <div className="flex justify-between items-center">
-              <span className="text-primary-foreground/90 text-sm font-medium">
-                {items.length} {items.length === 1 ? 'item' : 'itens'} no pedido
+              <span className="text-primary-foreground/80 text-sm">
+                {items.length} {items.length === 1 ? 'item' : 'itens'}
               </span>
-              <span className="text-primary-foreground font-extrabold text-lg">
-                {formatPrice(totalPrice)}
-              </span>
+              <span className="text-primary-foreground/80 text-sm">{formatPrice(totalPrice)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-primary-foreground/80 text-sm">Taxa de entrega</span>
+              <span className="text-primary-foreground/80 text-sm">{formatPrice(deliveryFee)}</span>
+            </div>
+            <div className="flex justify-between items-center border-t border-primary-foreground/20 pt-1.5">
+              <span className="text-primary-foreground font-bold text-sm">Total</span>
+              <span className="text-primary-foreground font-extrabold text-lg">{formatPrice(totalPrice + deliveryFee)}</span>
             </div>
           </div>
         </div>
