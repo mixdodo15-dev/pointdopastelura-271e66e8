@@ -302,6 +302,9 @@ const Admin = () => {
           <Button variant={activeTab === 'clients' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('clients')}>
             <Users className="h-4 w-4 mr-1" /> Clientes
           </Button>
+          <Button variant={activeTab === 'neighborhoods' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('neighborhoods')}>
+            <MapPin className="h-4 w-4 mr-1" /> Bairros
+          </Button>
           <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
             📋 Pedidos
           </Button>
