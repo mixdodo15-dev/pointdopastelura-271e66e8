@@ -16,6 +16,7 @@ interface Order {
   status: string;
   driver_id: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 interface OrderItem {
@@ -34,7 +35,7 @@ const Entregador = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'available' | 'mine'>('available');
+  const [tab, setTab] = useState<'available' | 'mine' | 'delivered'>('available');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -114,7 +115,9 @@ const Entregador = () => {
 
   const myOrders = orders.filter(o => o.driver_id === userId);
   const myActiveOrders = myOrders.filter(o => o.status === 'out_for_delivery');
-  const myDelivered = myOrders.filter(o => o.status === 'delivered');
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const myDelivered = myOrders.filter(o => o.status === 'delivered' && new Date(o.updated_at) >= todayStart);
 
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
@@ -123,7 +126,7 @@ const Entregador = () => {
   return (
     <div className="min-h-screen bg-[hsl(0,0%,96%)]">
       {/* Header */}
-      <div className="bg-purple-700 text-white px-4 py-4 flex items-center justify-between sticky top-0 z-40">
+      <div className="bg-primary text-primary-foreground px-4 py-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <Truck className="h-6 w-6" />
           <div>
@@ -131,7 +134,7 @@ const Entregador = () => {
             <p className="text-xs opacity-80">Point do Pastel</p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="text-white hover:bg-white/10" onClick={handleLogout}>
+        <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
         </Button>
       </div>
@@ -139,7 +142,7 @@ const Entregador = () => {
       {/* Stats */}
       <div className="max-w-lg mx-auto px-4 py-4 grid grid-cols-2 gap-3">
         <div className="bg-card rounded-2xl p-4 shadow-sm border border-border text-center">
-          <p className="text-2xl font-extrabold text-purple-700">{myActiveOrders.length}</p>
+          <p className="text-2xl font-extrabold text-primary">{myActiveOrders.length}</p>
           <p className="text-xs text-muted-foreground font-semibold">Em Entrega</p>
         </div>
         <div className="bg-card rounded-2xl p-4 shadow-sm border border-border text-center">
@@ -152,19 +155,27 @@ const Entregador = () => {
       <div className="max-w-lg mx-auto px-4 flex gap-2 mb-4">
         <button
           onClick={() => setTab('available')}
-          className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
-            tab === 'available' ? 'bg-purple-700 text-white' : 'bg-card text-muted-foreground border border-border'
+          className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+            tab === 'available' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground border border-border'
           }`}
         >
           Disponíveis ({availableOrders.length})
         </button>
         <button
           onClick={() => setTab('mine')}
-          className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
-            tab === 'mine' ? 'bg-purple-700 text-white' : 'bg-card text-muted-foreground border border-border'
+          className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+            tab === 'mine' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground border border-border'
           }`}
         >
-          Minhas Entregas ({myActiveOrders.length})
+          Ativas ({myActiveOrders.length})
+        </button>
+        <button
+          onClick={() => setTab('delivered')}
+          className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+            tab === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground border border-border'
+          }`}
+        >
+          Entregues ({myDelivered.length})
         </button>
       </div>
 
@@ -185,7 +196,7 @@ const Entregador = () => {
                 onExpand={() => fetchItems(order.id)}
                 action={
                   <Button
-                    className="w-full rounded-xl py-5 text-sm font-bold gap-2 bg-purple-700 hover:bg-purple-800"
+                    className="w-full rounded-xl py-5 text-sm font-bold gap-2 bg-primary hover:bg-primary/90"
                     onClick={() => acceptDelivery(order.id)}
                   >
                     <Truck className="h-4 w-4" /> Aceitar Entrega
@@ -221,6 +232,25 @@ const Entregador = () => {
             ))
           )
         )}
+
+        {tab === 'delivered' && (
+          myDelivered.length === 0 ? (
+            <div className="text-center py-12">
+              <CheckCircle2 className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">Nenhuma entrega concluída hoje</p>
+            </div>
+          ) : (
+            myDelivered.map(order => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                items={orderItems[order.id]}
+                onExpand={() => fetchItems(order.id)}
+                showDeliveredTime
+              />
+            ))
+          )
+        )}
       </div>
     </div>
   );
@@ -231,11 +261,13 @@ const OrderCard = ({
   items,
   onExpand,
   action,
+  showDeliveredTime,
 }: {
   order: Order;
   items?: OrderItem[];
   onExpand: () => void;
-  action: React.ReactNode;
+  action?: React.ReactNode;
+  showDeliveredTime?: boolean;
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -255,15 +287,21 @@ const OrderCard = ({
           <span className="flex items-center gap-1"><User className="h-3 w-3" /> {order.customer_name}</span>
           <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {formatTime(order.created_at)}</span>
         </div>
+        {showDeliveredTime && (
+          <div className="mt-2 flex items-center gap-1 text-xs text-green-600 font-semibold">
+            <CheckCircle2 className="h-3 w-3" />
+            Entregue às {formatTime(order.updated_at)}
+          </div>
+        )}
       </button>
 
       {expanded && (
         <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
           {/* Address */}
-          <div className="bg-purple-50 rounded-xl p-3 flex items-start gap-2">
-            <MapPin className="h-4 w-4 text-purple-700 mt-0.5 shrink-0" />
+          <div className="bg-primary/10 rounded-xl p-3 flex items-start gap-2">
+            <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-purple-700">Endereço de Entrega</p>
+              <p className="text-xs font-semibold text-primary">Endereço de Entrega</p>
               <p className="text-sm font-medium text-foreground mt-0.5">{order.delivery_address}</p>
             </div>
           </div>
