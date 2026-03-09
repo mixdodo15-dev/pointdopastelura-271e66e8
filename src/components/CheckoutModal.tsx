@@ -75,6 +75,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
     if (!phone.trim()) { toast.error('Informe seu telefone.'); return; }
     if (!address.trim()) { toast.error('Informe seu endereço.'); return; }
+    if (!selectedNeighborhood && neighborhoods.length > 0) { toast.error('Selecione seu bairro.'); return; }
     if (!payment) { toast.error('Selecione o método de pagamento.'); return; }
 
     setSending(true);
