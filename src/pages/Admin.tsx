@@ -572,8 +572,8 @@ const Admin = () => {
       <NeighborhoodModal
         open={!!editNeighborhood || newNeighborhood}
         neighborhood={editNeighborhood}
-        onClose={() => { setEditCategory(null); setNewCategory(false); }}
-        onSave={() => { loadCategories(); setEditCategory(null); setNewCategory(false); }}
+        onClose={() => { setEditNeighborhood(null); setNewNeighborhood(false); }}
+        onSave={() => { loadNeighborhoods(); setEditNeighborhood(null); setNewNeighborhood(false); }}
       />
     </div>
   );
