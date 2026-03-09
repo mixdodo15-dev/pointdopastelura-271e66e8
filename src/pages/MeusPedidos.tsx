@@ -45,20 +45,35 @@ const MeusPedidos = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/cliente-login');
-        return;
-      }
-      fetchOrders();
+      // Allow both logged in and guest users
+      fetchOrders(user);
     };
     checkAuth();
   }, [navigate]);
 
-  const fetchOrders = async () => {
-    const { data, error } = await supabase
+  const fetchOrders = async (user: any = null) => {
+    let query = supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (user) {
+      // Fetch orders for authenticated users
+      query = query.eq('user_id', user.id);
+    } else {
+      // Fetch orders for guest users using localStorage
+      const guestOrderIds = JSON.parse(localStorage.getItem('guest-orders') || '[]');
+      if (guestOrderIds.length > 0) {
+        query = query.in('id', guestOrderIds).is('user_id', null);
+      } else {
+        // No guest orders found
+        setOrders([]);
+        setLoading(false);
+        return;
+      }
+    }
+
+    const { data, error } = await query;
 
     if (!error && data) {
       setOrders(data as Order[]);
@@ -73,8 +88,9 @@ const MeusPedidos = () => {
   useEffect(() => {
     const channel = supabase
       .channel('my-orders')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-        fetchOrders();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        fetchOrders(user);
       })
       .subscribe();
 
