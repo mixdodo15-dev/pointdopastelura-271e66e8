@@ -144,6 +144,18 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
       msg += `💰 *TOTAL: ${formatPrice(grandTotal)}*`;
 
+      // Clear cart and reset form BEFORE opening WhatsApp
+      clearCart();
+      setName('');
+      setPhone('');
+      setAddress('');
+      setPayment('');
+      setNotes('');
+      setDeliveryFee(7);
+      setSelectedNeighborhood('');
+      onClose();
+      setShowSuccess(true);
+
       const encoded = encodeURIComponent(msg);
       window.open(`https://wa.me/${PHONE}?text=${encoded}`, '_blank');
 
@@ -153,16 +165,6 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         guestOrders.push(order.id);
         localStorage.setItem('guest-orders', JSON.stringify(guestOrders));
       }
-
-      clearCart();
-      setName('');
-      setPhone('');
-      setAddress('');
-      setPayment('');
-      setNotes('');
-      setDeliveryFee(7);
-      onClose();
-      setShowSuccess(true);
 
       // Navigate to order tracking if user is logged in
       if (user) {
