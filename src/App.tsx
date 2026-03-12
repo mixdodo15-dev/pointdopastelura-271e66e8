@@ -14,6 +14,11 @@ import MinhaConta from "./pages/MinhaConta";
 import MeusPedidos from "./pages/MeusPedidos";
 import AdminPedidos from "./pages/AdminPedidos";
 import Entregador from "./pages/Entregador";
+import AdminPdv from "./pages/AdminPdv";
+import AdminKitchen from "./pages/AdminKitchen";
+import AdminComandas from "./pages/AdminComandas";
+import AdminCaixa from "./pages/AdminCaixa";
+import AdminRelatorios from "./pages/AdminRelatorios";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +33,11 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/pedidos" element={<AdminPedidos />} />
+          <Route path="/admin/pdv" element={<AdminPdv />} />
+          <Route path="/admin/kitchen" element={<AdminKitchen />} />
+          <Route path="/admin/comandas" element={<AdminComandas />} />
+          <Route path="/admin/caixa" element={<AdminCaixa />} />
+          <Route path="/admin/relatorios" element={<AdminRelatorios />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/cliente-login" element={<ClienteLogin />} />
           <Route path="/reset-password" element={<ResetPassword />} />

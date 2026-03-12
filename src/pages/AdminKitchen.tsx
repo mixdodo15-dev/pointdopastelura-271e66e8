@@ -117,7 +117,7 @@ const AdminKitchen = () => {
 
     const { error } = await supabase
       .from('orders')
-      .update({ status: nextStatus })
+      .update({ status: nextStatus as any })
       .eq('id', orderId);
 
     if (error) {
