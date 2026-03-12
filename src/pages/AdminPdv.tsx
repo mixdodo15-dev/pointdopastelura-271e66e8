@@ -11,6 +11,9 @@ import CheckoutPanel from '@/components/pdv/CheckoutPanel';
 import CategoryFilter from '@/components/pdv/CategoryFilter';
 import SearchProduct from '@/components/pdv/SearchProduct';
 import OrderTypeSelector from '@/components/pdv/OrderTypeSelector';
+import PdvFlavorModal from '@/components/pdv/PdvFlavorModal';
+import PdvAdicionaisModal from '@/components/pdv/PdvAdicionaisModal';
+import PdvChocolateModal from '@/components/pdv/PdvChocolateModal';
 
 interface Product {
   id: string;
@@ -19,6 +22,7 @@ interface Product {
   category: string;
   image_url: string | null;
   active: boolean;
+  max_flavors: number | null;
 }
 
 interface Category {
@@ -37,6 +41,11 @@ const AdminPdv = () => {
   const [search, setSearch] = useState('');
   const store = usePdvStore();
 
+  // Modal states
+  const [flavorModal, setFlavorModal] = useState<{ open: boolean; product: Product | null }>({ open: false, product: null });
+  const [adicionaisModal, setAdicionaisModal] = useState<{ open: boolean; product: Product | null }>({ open: false, product: null });
+  const [chocolateModal, setChocolateModal] = useState<{ open: boolean; product: Product | null }>({ open: false, product: null });
+
   // Auth check
   useEffect(() => {
     const check = async () => {
@@ -53,7 +62,7 @@ const AdminPdv = () => {
     if (loading) return;
     const loadData = async () => {
       const [prodRes, catRes] = await Promise.all([
-        supabase.from('products').select('id, name, price, category, image_url, active').eq('active', true).order('sort_order'),
+        supabase.from('products').select('id, name, price, category, image_url, active, max_flavors').eq('active', true).order('sort_order'),
         supabase.from('categories').select('id, slug, label, icon').eq('active', true).order('sort_order'),
       ]);
       if (prodRes.data) setProducts(prodRes.data);
@@ -66,17 +75,56 @@ const AdminPdv = () => {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { store.clearCart(); toast.info('Carrinho limpo'); }
-      if (e.key === 'F4') { e.preventDefault(); /* trigger dinheiro checkout via event */ }
-      if (e.key === 'F6') { e.preventDefault(); }
-      if (e.key === 'F8') { e.preventDefault(); }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [store]);
 
   const handleAddProduct = useCallback((p: Product) => {
+    // Monte Seu Pastel (has max_flavors and category 'monte')
+    if (p.category === 'monte' && p.max_flavors && p.max_flavors > 0) {
+      setFlavorModal({ open: true, product: p });
+      return;
+    }
+
+    // Pastel Especial → show adicionais
+    if (p.category === 'especiais') {
+      setAdicionaisModal({ open: true, product: p });
+      return;
+    }
+
+    // Pastel Doce Especial → chocolate flavor selection
+    if (p.category === 'doces' && p.name.toLowerCase().includes('especial')) {
+      setChocolateModal({ open: true, product: p });
+      return;
+    }
+
+    // Direct add for other products
     store.addItem({ id: p.id, name: p.name, price: p.price, imageUrl: p.image_url || undefined });
   }, [store]);
+
+  const handleFlavorConfirm = (flavors: string[]) => {
+    const p = flavorModal.product;
+    if (!p) return;
+    const displayName = `${p.name} (${flavors.join(', ')})`;
+    store.addItem({ id: p.id, name: displayName, price: p.price, imageUrl: p.image_url || undefined, flavors });
+    setFlavorModal({ open: false, product: null });
+  };
+
+  const handleAdicionaisConfirm = (adicionais: { name: string; price: number }[]) => {
+    const p = adicionaisModal.product;
+    if (!p) return;
+    const extras = adicionais.length > 0 ? ` + ${adicionais.map(a => a.name).join(', ')}` : '';
+    store.addItem({ id: p.id, name: `${p.name}${extras}`, price: p.price, imageUrl: p.image_url || undefined, adicionais });
+    setAdicionaisModal({ open: false, product: null });
+  };
+
+  const handleChocolateConfirm = (flavor: string) => {
+    const p = chocolateModal.product;
+    if (!p) return;
+    store.addItem({ id: p.id, name: `${p.name} (${flavor})`, price: p.price, imageUrl: p.image_url || undefined, flavors: [flavor] });
+    setChocolateModal({ open: false, product: null });
+  };
 
   const filtered = products.filter(p => {
     const matchCat = !activeCategory || p.category === activeCategory;
@@ -87,36 +135,39 @@ const AdminPdv = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Carregando PDV...</p>
+        <div className="text-center">
+          <div className="h-12 w-12 rounded-full border-4 border-[hsl(var(--pdv-red))] border-t-transparent animate-spin mx-auto mb-3" />
+          <p className="text-muted-foreground font-bold">Carregando PDV...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Header */}
-      <header className="bg-card border-b border-border px-4 py-2 flex items-center justify-between shrink-0">
+      {/* Header - Red themed */}
+      <header className="bg-[hsl(var(--pdv-red))] px-4 py-2.5 flex items-center justify-between shrink-0 shadow-lg">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('/admin')}>
-            <ArrowLeft className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-white hover:bg-white/20" onClick={() => navigate('/admin')}>
+            <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">
-            <Monitor className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-extrabold text-foreground">PDV</h1>
+            <Monitor className="h-6 w-6 text-[hsl(var(--pdv-accent))]" />
+            <h1 className="text-xl font-extrabold text-white tracking-tight">PDV</h1>
+            <span className="text-xs bg-[hsl(var(--pdv-accent))] text-black font-extrabold px-2 py-0.5 rounded-full">CAIXA</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>ESC limpar</span>
-          <span>•</span>
-          <span>F2 buscar</span>
+        <div className="flex items-center gap-3 text-xs text-white/80 font-bold">
+          <span className="bg-white/20 px-2 py-1 rounded-lg">ESC limpar</span>
+          <span className="bg-white/20 px-2 py-1 rounded-lg">F2 buscar</span>
         </div>
       </header>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Products area - 65% */}
-        <div className="flex-1 lg:w-[65%] flex flex-col p-4 gap-3 overflow-hidden">
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1 lg:w-[65%] flex flex-col p-3 gap-2 overflow-hidden">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1">
               <SearchProduct value={search} onChange={setSearch} />
             </div>
@@ -138,9 +189,9 @@ const AdminPdv = () => {
         </div>
 
         {/* Cart - 25% */}
-        <div className="lg:w-[25%] border-t lg:border-t-0 lg:border-l border-border bg-card p-4 flex flex-col overflow-hidden">
-          <h2 className="text-sm font-extrabold text-foreground mb-3 flex items-center gap-2">
-            🛒 Carrinho <span className="text-xs text-muted-foreground">({store.items.length})</span>
+        <div className="lg:w-[25%] border-t lg:border-t-0 lg:border-l-2 border-[hsl(var(--pdv-accent))]/30 bg-card p-3 flex flex-col overflow-hidden">
+          <h2 className="text-sm font-extrabold text-[hsl(var(--pdv-red))] mb-2 flex items-center gap-2">
+            🛒 Carrinho <span className="text-xs bg-[hsl(var(--pdv-accent))] text-black px-2 py-0.5 rounded-full">{store.items.length}</span>
           </h2>
           <div className="flex-1 overflow-hidden">
             <CartPanel />
@@ -148,10 +199,42 @@ const AdminPdv = () => {
         </div>
 
         {/* Checkout - 10% */}
-        <div className="lg:w-[10%] lg:min-w-[200px] border-t lg:border-t-0 lg:border-l border-border bg-secondary/30 p-4 flex flex-col overflow-y-auto">
+        <div className="lg:w-[10%] lg:min-w-[220px] border-t lg:border-t-0 lg:border-l-2 border-[hsl(var(--pdv-red))]/20 bg-secondary/30 p-3 flex flex-col overflow-y-auto">
           <CheckoutPanel />
         </div>
       </div>
+
+      {/* Modals */}
+      {flavorModal.product && (
+        <PdvFlavorModal
+          open={flavorModal.open}
+          onClose={() => setFlavorModal({ open: false, product: null })}
+          maxFlavors={flavorModal.product.max_flavors || 1}
+          itemName={flavorModal.product.name}
+          price={flavorModal.product.price}
+          onConfirm={handleFlavorConfirm}
+        />
+      )}
+
+      {adicionaisModal.product && (
+        <PdvAdicionaisModal
+          open={adicionaisModal.open}
+          onClose={() => setAdicionaisModal({ open: false, product: null })}
+          itemName={adicionaisModal.product.name}
+          price={adicionaisModal.product.price}
+          onConfirm={handleAdicionaisConfirm}
+        />
+      )}
+
+      {chocolateModal.product && (
+        <PdvChocolateModal
+          open={chocolateModal.open}
+          onClose={() => setChocolateModal({ open: false, product: null })}
+          itemName={chocolateModal.product.name}
+          price={chocolateModal.product.price}
+          onConfirm={handleChocolateConfirm}
+        />
+      )}
     </div>
   );
 };

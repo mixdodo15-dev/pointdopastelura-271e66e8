@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { usePdvStore } from '@/store/pdvStore';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { DollarSign, CreditCard, Smartphone, Percent, Printer } from 'lucide-react';
+import { DollarSign, CreditCard, Smartphone, Percent, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { printOrder } from '@/utils/printOrder';
 
@@ -14,7 +14,7 @@ const payments: { value: PaymentMethod; label: string; icon: React.ReactNode }[]
   { value: 'dinheiro', label: 'Dinheiro', icon: <DollarSign className="h-4 w-4" /> },
   { value: 'cartao', label: 'Cartão', icon: <CreditCard className="h-4 w-4" /> },
   { value: 'pix', label: 'PIX', icon: <Smartphone className="h-4 w-4" /> },
-  { value: 'misto', label: 'Misto', icon: <DollarSign className="h-4 w-4" /> },
+  { value: 'misto', label: 'Misto', icon: <Layers className="h-4 w-4" /> },
 ];
 
 const CheckoutPanel = () => {
@@ -32,19 +32,13 @@ const CheckoutPanel = () => {
   };
 
   const handleCheckout = async () => {
-    if (store.items.length === 0) {
-      toast.error('Carrinho vazio');
-      return;
-    }
-    if (store.orderType === 'mesa' && !store.tableNumber.trim()) {
-      toast.error('Informe o número da mesa');
-      return;
-    }
+    if (store.items.length === 0) { toast.error('Carrinho vazio'); return; }
+    if (store.orderType === 'mesa' && !store.tableNumber.trim()) { toast.error('Informe o número da mesa'); return; }
 
     setSubmitting(true);
     try {
       const { data: user } = await supabase.auth.getUser();
-      
+
       const orderData = {
         customer_name: store.customerName || 'PDV',
         customer_phone: '',
@@ -59,19 +53,16 @@ const CheckoutPanel = () => {
         notes: store.discount > 0 ? `Desconto: R$ ${store.discount.toFixed(2)}` : null,
       };
 
-      const { data: order, error } = await supabase
-        .from('orders')
-        .insert(orderData)
-        .select('id')
-        .single();
-
+      const { data: order, error } = await supabase.from('orders').insert(orderData).select('id').single();
       if (error) throw error;
 
       const itemsInsert = store.items.map(i => ({
         order_id: order.id,
-        product_name: i.name,
+        product_name: i.adicionais && i.adicionais.length > 0
+          ? `${i.name} [+${i.adicionais.map(a => a.name).join(', ')}]`
+          : i.name,
         quantity: i.quantity,
-        unit_price: i.price,
+        unit_price: i.price + (i.adicionais?.reduce((s, a) => s + a.price, 0) || 0),
       }));
 
       const { error: itemsErr } = await supabase.from('order_items').insert(itemsInsert);
@@ -79,7 +70,6 @@ const CheckoutPanel = () => {
 
       console.log('[PDV:checkout]', { orderId: order.id, items: store.items, total: store.total, payment });
 
-      // Auto-print
       printOrder({
         orderId: order.id,
         items: store.items,
@@ -107,17 +97,17 @@ const CheckoutPanel = () => {
   return (
     <div className="flex flex-col h-full gap-3">
       <div>
-        <label className="text-xs font-bold text-muted-foreground mb-1 block">Pagamento</label>
+        <label className="text-xs font-extrabold text-[hsl(var(--pdv-red))] mb-1 block">💳 Pagamento</label>
         <div className="grid grid-cols-2 gap-1.5">
           {payments.map(p => (
             <button
               key={p.value}
               onClick={() => setPayment(p.value)}
               className={cn(
-                "flex items-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold border transition-all duration-200",
+                "flex items-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-extrabold border-2 transition-all duration-200",
                 payment === p.value
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card text-foreground border-border hover:border-primary"
+                  ? "bg-[hsl(var(--pdv-red))] text-white border-[hsl(var(--pdv-red))] shadow-md"
+                  : "bg-card text-foreground border-border hover:border-[hsl(var(--pdv-accent))]"
               )}
             >
               {p.icon}
@@ -128,40 +118,45 @@ const CheckoutPanel = () => {
       </div>
 
       <div>
-        <label className="text-xs font-bold text-muted-foreground mb-1 block">Desconto (R$)</label>
+        <label className="text-xs font-extrabold text-muted-foreground mb-1 block">Desconto (R$)</label>
         <div className="flex gap-1.5">
           <Input
             placeholder="0,00"
             value={discountInput}
             onChange={e => setDiscountInput(e.target.value)}
-            className="rounded-xl bg-card text-sm"
+            className="rounded-xl bg-card text-sm border-2"
           />
-          <Button size="icon" variant="outline" className="rounded-xl shrink-0" onClick={handleDiscount} aria-label="Aplicar desconto">
+          <Button size="icon" variant="outline" className="rounded-xl shrink-0 border-2 hover:bg-[hsl(var(--pdv-accent))] hover:text-black" onClick={handleDiscount} aria-label="Aplicar desconto">
             <Percent className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
       <div>
-        <label className="text-xs font-bold text-muted-foreground mb-1 block">Cliente</label>
+        <label className="text-xs font-extrabold text-muted-foreground mb-1 block">👤 Cliente</label>
         <Input
           placeholder="Nome (opcional)"
           value={store.customerName}
           onChange={e => store.setCustomerName(e.target.value)}
-          className="rounded-xl bg-card text-sm"
+          className="rounded-xl bg-card text-sm border-2"
         />
       </div>
 
       <div className="mt-auto space-y-2">
         <Button
-          className="w-full rounded-xl h-12 text-base font-extrabold"
+          className="w-full rounded-xl h-14 text-base font-extrabold bg-[hsl(var(--pdv-red))] hover:bg-[hsl(var(--pdv-red))]/90 text-white shadow-lg shadow-[hsl(var(--pdv-red))]/20"
           disabled={submitting || store.items.length === 0}
           onClick={handleCheckout}
         >
-          {submitting ? 'Registrando...' : `Finalizar • R$ ${store.total.toFixed(2).replace('.', ',')}`}
+          {submitting ? 'Registrando...' : `✅ Finalizar • R$ ${store.total.toFixed(2).replace('.', ',')}`}
         </Button>
-        <Button variant="outline" className="w-full rounded-xl" onClick={() => store.clearCart()} disabled={store.items.length === 0}>
-          Limpar Carrinho
+        <Button
+          variant="outline"
+          className="w-full rounded-xl border-2 font-bold"
+          onClick={() => store.clearCart()}
+          disabled={store.items.length === 0}
+        >
+          🗑️ Limpar Carrinho
         </Button>
       </div>
     </div>
