@@ -7,6 +7,8 @@ export interface PdvItem {
   quantity: number;
   notes?: string;
   imageUrl?: string;
+  flavors?: string[];
+  adicionais?: { name: string; price: number }[];
 }
 
 export type OrderType = 'balcao' | 'mesa' | 'retirada' | 'delivery';
@@ -36,8 +38,13 @@ interface PdvState {
   clearCart: () => void;
 }
 
+const calcItemTotal = (item: PdvItem) => {
+  const adicionaisTotal = item.adicionais?.reduce((s, a) => s + a.price, 0) || 0;
+  return (item.price + adicionaisTotal) * item.quantity;
+};
+
 const recalc = (items: PdvItem[], discount: number, deliveryFee: number) => {
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const subtotal = items.reduce((s, i) => s + calcItemTotal(i), 0);
   const total = Math.max(0, subtotal - discount + deliveryFee);
   return { subtotal, total };
 };
@@ -53,10 +60,15 @@ export const usePdvStore = create<PdvState>((set) => ({
   total: 0,
 
   addItem: (item) => set((s) => {
-    const existing = s.items.find(i => i.id === item.id);
+    // Create unique ID based on flavors and adicionais
+    const flavorKey = item.flavors?.sort().join(',') || '';
+    const adicionaisKey = item.adicionais?.map(a => a.name).sort().join(',') || '';
+    const uniqueId = `${item.id}-${flavorKey}-${adicionaisKey}`;
+    
+    const existing = s.items.find(i => i.id === uniqueId);
     const newItems = existing
-      ? s.items.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)
-      : [...s.items, { ...item, quantity: 1 }];
+      ? s.items.map(i => i.id === uniqueId ? { ...i, quantity: i.quantity + 1 } : i)
+      : [...s.items, { ...item, id: uniqueId, quantity: 1 }];
     console.log('[PDV:addItem]', item);
     return { items: newItems, ...recalc(newItems, s.discount, s.deliveryFee) };
   }),

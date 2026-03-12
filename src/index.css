@@ -48,6 +48,10 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --pdv-red: 0 85% 45%;
+    --pdv-accent: 45 100% 50%;
+    --pdv-white: 0 0% 100%;
   }
 
   .dark {
@@ -87,6 +91,10 @@
     --sidebar-accent-foreground: 0 0% 90%;
     --sidebar-border: 0 0% 18%;
     --sidebar-ring: 2 100% 59%;
+
+    --pdv-red: 0 85% 50%;
+    --pdv-accent: 45 100% 55%;
+    --pdv-white: 0 0% 95%;
   }
 }
 
