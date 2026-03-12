@@ -53,6 +53,45 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_register: {
+        Row: {
+          closed_at: string | null
+          closing_amount: number | null
+          created_at: string
+          difference: number | null
+          id: string
+          opened_at: string
+          opening_amount: number
+          status: string
+          total_sales: number | null
+          user_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          closing_amount?: number | null
+          created_at?: string
+          difference?: number | null
+          id?: string
+          opened_at?: string
+          opening_amount?: number
+          status?: string
+          total_sales?: number | null
+          user_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          closing_amount?: number | null
+          created_at?: string
+          difference?: number | null
+          id?: string
+          opened_at?: string
+          opening_amount?: number
+          status?: string
+          total_sales?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           active: boolean
@@ -176,8 +215,10 @@ export type Database = {
           driver_id: string | null
           id: string
           notes: string | null
+          order_source: string | null
           payment_method: string
           status: Database["public"]["Enums"]["order_status"]
+          table_number: string | null
           total_price: number
           updated_at: string
           user_id: string | null
@@ -191,8 +232,10 @@ export type Database = {
           driver_id?: string | null
           id?: string
           notes?: string | null
+          order_source?: string | null
           payment_method: string
           status?: Database["public"]["Enums"]["order_status"]
+          table_number?: string | null
           total_price: number
           updated_at?: string
           user_id?: string | null
@@ -206,8 +249,10 @@ export type Database = {
           driver_id?: string | null
           id?: string
           notes?: string | null
+          order_source?: string | null
           payment_method?: string
           status?: Database["public"]["Enums"]["order_status"]
+          table_number?: string | null
           total_price?: number
           updated_at?: string
           user_id?: string | null
@@ -225,6 +270,7 @@ export type Database = {
           is_top_week: boolean
           max_flavors: number | null
           name: string
+          prep_time: number | null
           price: number
           sort_order: number
           subcategory: string | null
@@ -240,6 +286,7 @@ export type Database = {
           is_top_week?: boolean
           max_flavors?: number | null
           name: string
+          prep_time?: number | null
           price: number
           sort_order?: number
           subcategory?: string | null
@@ -255,6 +302,7 @@ export type Database = {
           is_top_week?: boolean
           max_flavors?: number | null
           name?: string
+          prep_time?: number | null
           price?: number
           sort_order?: number
           subcategory?: string | null
