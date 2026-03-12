@@ -308,6 +308,21 @@ const Admin = () => {
           <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
             📋 Pedidos
           </Button>
+          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pdv')}>
+            🖥️ PDV
+          </Button>
+          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/kitchen')}>
+            👨‍🍳 Cozinha
+          </Button>
+          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/comandas')}>
+            🪑 Comandas
+          </Button>
+          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/caixa')}>
+            💰 Caixa
+          </Button>
+          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/relatorios')}>
+            📊 Relatórios
+          </Button>
         </div>
 
         {/* Products Tab */}
