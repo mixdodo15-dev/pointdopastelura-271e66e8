@@ -171,8 +171,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setAddress('');
       setPayment('');
       setNotes('');
+      setNeedsChange(false);
+      setChangeFor('');
       setDeliveryFee(0);
       setSelectedNeighborhood('');
+      setDeliveryMode('delivery');
       setDeliveryMode('delivery');
       onClose();
       setShowSuccess(true);
