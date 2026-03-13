@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { type MenuItem, SWEET_SPECIAL_FLAVORS } from '@/data/menu';
 import { useProducts } from '@/hooks/useProducts';
+import { useHappyHour } from '@/hooks/useHappyHour';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Star, ShoppingCart } from 'lucide-react';
+import { Plus, Star, ShoppingCart, Clock } from 'lucide-react';
 import FlavorModal from './FlavorModal';
 import AdicionaisModal from './AdicionaisModal';
 import AnimatedCard from './AnimatedCard';
@@ -20,17 +21,50 @@ const CARD_CLASS = "bg-card rounded-xl p-5 shadow-sm border-2 border-transparent
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
 
+const PriceTag = ({ original, discounted, hasDiscount }: { original: number; discounted: number; hasDiscount: boolean }) => {
+  if (!hasDiscount) return <span className="text-base font-extrabold text-primary">{formatPrice(original)}</span>;
+  return (
+    <span className="flex items-center gap-1.5 flex-wrap">
+      <span className="text-xs line-through text-muted-foreground">{formatPrice(original)}</span>
+      <span className="text-base font-extrabold text-primary">{formatPrice(discounted)}</span>
+      <span className="text-[10px] bg-accent text-accent-foreground px-1.5 py-0.5 rounded-full font-bold animate-pulse">🕐 HAPPY HOUR</span>
+    </span>
+  );
+};
+
+const PriceTagSmall = ({ original, discounted, hasDiscount }: { original: number; discounted: number; hasDiscount: boolean }) => {
+  if (!hasDiscount) return <span className="text-xs font-extrabold text-primary">{formatPrice(original)}</span>;
+  return (
+    <span className="flex items-center gap-1 flex-wrap">
+      <span className="text-[10px] line-through text-muted-foreground">{formatPrice(original)}</span>
+      <span className="text-xs font-extrabold text-primary">{formatPrice(discounted)}</span>
+    </span>
+  );
+};
+
+const PriceTagLg = ({ original, discounted, hasDiscount }: { original: number; discounted: number; hasDiscount: boolean }) => {
+  if (!hasDiscount) return <span className="text-lg font-extrabold text-primary">{formatPrice(original)}</span>;
+  return (
+    <span className="flex items-center gap-1.5 flex-wrap">
+      <span className="text-xs line-through text-muted-foreground">{formatPrice(original)}</span>
+      <span className="text-lg font-extrabold text-primary">{formatPrice(discounted)}</span>
+    </span>
+  );
+};
+
 const MenuSection = ({ category }: MenuSectionProps) => {
   const { products, loading } = useProducts();
+  const { activeHH, getDiscountedPrice } = useHappyHour();
   const items = products.filter(i => i.category === category);
   const { addItem } = useCart();
   const [flavorModal, setFlavorModal] = useState<MenuItem | null>(null);
 
   const handleAdd = (item: MenuItem) => {
+    const { discounted } = getDiscountedPrice(item.price, item.category);
     if (item.maxFlavors) {
       setFlavorModal(item);
     } else {
-      addItem({ id: item.id, name: item.name, price: item.price });
+      addItem({ id: item.id, name: item.name, price: discounted });
       toast.success(`${item.name} adicionado!`);
     }
   };
@@ -38,10 +72,11 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   const handleFlavorConfirm = (flavors: string[]) => {
     if (!flavorModal) return;
     const flavorText = flavors.join(', ');
+    const { discounted } = getDiscountedPrice(flavorModal.price, flavorModal.category);
     addItem({
       id: flavorModal.id,
       name: `${flavorModal.name} (${flavorText})`,
-      price: flavorModal.price,
+      price: discounted,
       flavors,
     });
     toast.success(`${flavorModal.name} adicionado!`);
@@ -69,7 +104,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
             <div className="grid gap-3">
               {subItems.map((item, idx) => (
                 <AnimatedCard key={item.id} index={idx}>
-                  <ItemCard item={item} onAdd={handleAdd} />
+                  <ItemCard item={item} onAdd={handleAdd} getDiscountedPrice={getDiscountedPrice} />
                 </AnimatedCard>
               ))}
             </div>
@@ -107,12 +142,9 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                     {item.description && (
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
                     )}
-                    <span
-                      className="text-base font-extrabold text-primary mt-1 block"
-                      style={{ fontFamily: "'Poppins', sans-serif" }}
-                    >
-                      {formatPrice(item.price)}
-                    </span>
+                    <div className="mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                      <PriceTag {...getDiscountedPrice(item.price, item.category)} />
+                    </div>
                   </div>
                 </div>
                 {/* Button below */}
@@ -151,7 +183,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
       <div className="grid gap-4">
         {items.map((item, idx) => (
           <AnimatedCard key={item.id} index={idx}>
-            <EspecialCard item={item} onAdd={handleAdd} addItem={addItem} allProducts={products} />
+            <EspecialCard item={item} onAdd={handleAdd} addItem={addItem} allProducts={products} getDiscountedPrice={getDiscountedPrice} />
           </AnimatedCard>
         ))}
       </div>
@@ -165,7 +197,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
         <div className="grid gap-3">
           {items.map((item, idx) => (
             <AnimatedCard key={item.id} index={idx}>
-              <DoceCard item={item} onAdd={handleAdd} addItem={addItem} />
+              <DoceCard item={item} onAdd={handleAdd} addItem={addItem} getDiscountedPrice={getDiscountedPrice} />
             </AnimatedCard>
           ))}
         </div>
@@ -190,7 +222,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
       <div className="grid gap-4">
         {items.map((item, idx) => (
           <AnimatedCard key={item.id} index={idx}>
-            <BatataCard item={item} addItem={addItem} />
+            <BatataCard item={item} addItem={addItem} getDiscountedPrice={getDiscountedPrice} />
           </AnimatedCard>
         ))}
       </div>
@@ -210,7 +242,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                 <img src={item.imageUrl} alt={item.name} className="h-14 w-14 rounded-lg object-cover" />
               )}
               <span className="font-bold text-sm text-foreground">{item.name}</span>
-              <span className="text-primary font-extrabold">{formatPrice(item.price)}</span>
+              <PriceTag {...getDiscountedPrice(item.price, item.category)} />
               <Button size="sm" className="rounded-full w-full" onClick={() => handleAdd(item)}>
                 <Plus className="h-4 w-4 mr-1" /> Adicionar
               </Button>
@@ -238,9 +270,9 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                 {item.description && (
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
                 )}
-                <span className="text-base font-extrabold text-primary mt-1 block" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  {formatPrice(item.price)}
-                </span>
+                <div className="mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  <PriceTag {...getDiscountedPrice(item.price, item.category)} />
+                </div>
               </div>
             </div>
             <div className="px-3 pb-3">
@@ -267,7 +299,9 @@ const ProductImage = ({ src, alt, small }: { src?: string; alt: string; small?: 
   );
 };
 
-const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => void }) => (
+type GetDiscountedPrice = (price: number, category?: string) => { original: number; discounted: number; hasDiscount: boolean };
+
+const ItemCard = ({ item, onAdd, getDiscountedPrice }: { item: MenuItem; onAdd: (item: MenuItem) => void; getDiscountedPrice: GetDiscountedPrice }) => (
   <div className={CARD_CLASS + " flex items-center justify-between py-2 px-3"}>
     <div className="flex items-center gap-2 flex-1 min-w-0">
       <ProductImage src={item.imageUrl} alt={item.name} small />
@@ -277,7 +311,7 @@ const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => 
       </div>
     </div>
     <div className="flex items-center gap-2 shrink-0">
-      <span className="text-xs font-extrabold text-primary">R$ {item.price.toFixed(2).replace('.', ',')}</span>
+      <PriceTagSmall {...getDiscountedPrice(item.price, item.category)} />
       <Button size="icon" className="rounded-full h-7 w-7" onClick={() => onAdd(item)}>
         <Plus className="h-3 w-3" />
       </Button>
@@ -293,11 +327,13 @@ const EspecialCard = ({
   item,
   addItem,
   allProducts,
+  getDiscountedPrice,
 }: {
   item: MenuItem;
   onAdd: (item: MenuItem) => void;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
   allProducts: MenuItem[];
+  getDiscountedPrice: GetDiscountedPrice;
 }) => {
   const [cheese, setCheese] = useState<string>('');
   const [adicionaisOpen, setAdicionaisOpen] = useState(false);
@@ -319,7 +355,7 @@ const EspecialCard = ({
     addItem({
       id: `${item.id}-${cheese}-${extras.map(e => e.name).join(',')}`,
       name: `${item.name}${suffix}`,
-      price: item.price + extraPrice,
+      price: getDiscountedPrice(item.price, item.category).discounted + extraPrice,
     });
     toast.success(`${item.name} adicionado!`);
     setCheese('');
@@ -338,7 +374,7 @@ const EspecialCard = ({
                 <Star className="h-4 w-4 text-accent fill-accent" />
                 <h3 className="font-bold text-foreground">{item.name}</h3>
               </div>
-              <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
+              <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />
             </div>
             {item.description && (
               <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
@@ -393,10 +429,12 @@ const EspecialCard = ({
 const DoceCard = ({
   item,
   onAdd,
+  getDiscountedPrice,
 }: {
   item: MenuItem;
   onAdd: (item: MenuItem) => void;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
+  getDiscountedPrice: GetDiscountedPrice;
 }) => {
   const hasMaxFlavors = !!item.maxFlavors;
 
@@ -407,7 +445,7 @@ const DoceCard = ({
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
-            <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
+            <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />
           </div>
           {item.description && (
             <p className="text-xs text-primary font-semibold mt-1">{item.description}</p>
@@ -426,9 +464,11 @@ const BATATA_CHEESE_NAMES = ['Batata c/ Bacon e Cheddar'];
 const BatataCard = ({
   item,
   addItem,
+  getDiscountedPrice,
 }: {
   item: MenuItem;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
+  getDiscountedPrice: GetDiscountedPrice;
 }) => {
   const [cheese, setCheese] = useState<string>('');
   const needsCheese = BATATA_CHEESE_NAMES.some(n => item.name.toLowerCase().includes(n.toLowerCase()));
@@ -442,7 +482,7 @@ const BatataCard = ({
     addItem({
       id: `${item.id}-${cheese}`,
       name: `${item.name}${suffix}`,
-      price: item.price,
+      price: getDiscountedPrice(item.price, item.category).discounted,
     });
     toast.success(`${item.name} adicionado!`);
     setCheese('');
@@ -456,7 +496,7 @@ const BatataCard = ({
       <div className="p-5">
         <div className="flex items-center justify-between mb-1">
           <h3 className="font-bold text-lg text-foreground">🍟 {item.name}</h3>
-          <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+          <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />
         </div>
         {item.description && (
           <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
