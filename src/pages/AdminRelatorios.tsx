@@ -95,6 +95,26 @@ const AdminRelatorios = () => {
       });
       setDailyChart(Object.values(daily));
 
+      // Hourly sales (today)
+      const hourly: Record<number, { total: number; count: number }> = {};
+      for (let h = 0; h < 24; h++) {
+        hourly[h] = { total: 0, count: 0 };
+      }
+      todayOrders.forEach(o => {
+        const h = new Date(o.created_at).getHours();
+        hourly[h].total += Number(o.total_price);
+        hourly[h].count += 1;
+      });
+      const hourlyData: HourlySales[] = Object.entries(hourly).map(([h, v]) => ({
+        hour: `${String(h).padStart(2, '0')}h`,
+        total: v.total,
+        count: v.count,
+        avg: v.count > 0 ? v.total / v.count : 0,
+      }));
+      setHourlyChart(hourlyData);
+      const peak = hourlyData.reduce((best, cur) => cur.total > best.total ? cur : best, hourlyData[0]);
+      setPeakHour(peak.count > 0 ? peak.hour : '--');
+
       // Top products
       const { data: items } = await supabase
         .from('order_items')
