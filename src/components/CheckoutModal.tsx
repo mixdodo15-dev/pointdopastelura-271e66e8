@@ -42,6 +42,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [address, setAddress] = useState('');
   const [payment, setPayment] = useState('');
   const [notes, setNotes] = useState('');
+  const [needsChange, setNeedsChange] = useState(false);
+  const [changeFor, setChangeFor] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(7);
   const [sending, setSending] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -144,6 +146,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
       }
       msg += `💳 *Pagamento:* ${payment}\n`;
+      if (payment === 'Dinheiro' && needsChange && changeFor.trim()) {
+        msg += `💰 *Troco para:* ${changeFor.trim()}\n`;
+      } else if (payment === 'Dinheiro' && !needsChange) {
+        msg += `💰 *Troco:* Não precisa\n`;
+      }
       if (sanitizedNotes) msg += `📝 *Obs:* ${sanitizedNotes}\n`;
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
       msg += `📋 *Itens do pedido:*\n\n`;
@@ -164,8 +171,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setAddress('');
       setPayment('');
       setNotes('');
+      setNeedsChange(false);
+      setChangeFor('');
       setDeliveryFee(0);
       setSelectedNeighborhood('');
+      setDeliveryMode('delivery');
       setDeliveryMode('delivery');
       onClose();
       setShowSuccess(true);
@@ -193,6 +203,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
       }
       msg += `💳 *Pagamento:* ${payment}\n`;
+      if (payment === 'Dinheiro' && needsChange && changeFor.trim()) {
+        msg += `💰 *Troco para:* ${changeFor.trim()}\n`;
+      } else if (payment === 'Dinheiro' && !needsChange) {
+        msg += `💰 *Troco:* Não precisa\n`;
+      }
       if (sanitizedNotes) msg += `📝 *Obs:* ${sanitizedNotes}\n`;
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
       msg += `📋 *Itens do pedido:*\n\n`;
@@ -348,6 +363,44 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
               ))}
             </div>
           </div>
+
+          {payment === 'Dinheiro' && (
+            <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
+              <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                💰 Precisa de troco?
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => { setNeedsChange(false); setChangeFor(''); }}
+                  className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    !needsChange
+                      ? 'bg-primary text-primary-foreground shadow-lg scale-[1.03]'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
+                  }`}
+                >
+                  Não preciso
+                </button>
+                <button
+                  onClick={() => setNeedsChange(true)}
+                  className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    needsChange
+                      ? 'bg-primary text-primary-foreground shadow-lg scale-[1.03]'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
+                  }`}
+                >
+                  Sim, preciso
+                </button>
+              </div>
+              {needsChange && (
+                <Input
+                  placeholder="Troco para quanto? Ex: R$ 50,00"
+                  value={changeFor}
+                  onChange={e => setChangeFor(e.target.value)}
+                  className="h-12 rounded-xl bg-background border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary mt-2"
+                />
+              )}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
