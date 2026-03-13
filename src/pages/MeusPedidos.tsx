@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 
 interface Order {
   id: string;
+  order_number: number | null;
   customer_name: string;
   total_price: number;
   status: string;
