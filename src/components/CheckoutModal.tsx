@@ -461,6 +461,32 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
             </div>
           )}
 
+          {/* Coupon */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Ticket className="h-4 w-4 text-primary" /> Cupom de desconto
+            </Label>
+            {couponApplied ? (
+              <div className="flex items-center gap-2 bg-primary/10 rounded-xl px-4 py-3">
+                <Check className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-primary flex-1">{couponCode.toUpperCase()} — -{formatPrice(couponDiscount)}</span>
+                <button onClick={removeCoupon} className="text-xs text-destructive font-bold">Remover</button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Digite o código"
+                  value={couponCode}
+                  onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                  className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary font-mono font-bold flex-1"
+                />
+                <Button onClick={applyCoupon} disabled={applyingCoupon || !couponCode.trim()} className="h-12 rounded-xl px-5 font-bold">
+                  {applyingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
+                </Button>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
               <StickyNote className="h-4 w-4" /> Observações (opcional)
