@@ -243,16 +243,14 @@ const AdminPdv = () => {
           <h1 className="text-lg font-extrabold text-white tracking-tight">POINT DO PASTEL</h1>
         </div>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-hide">
           {navTabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => {
-                if (tab.id !== 'pdv') navigate(tab.route);
-              }}
+              onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all",
-                tab.id === 'pdv'
+                "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
+                activeTab === tab.id
                   ? "bg-white text-[hsl(var(--pdv-red))] shadow-md"
                   : "text-white/80 hover:bg-white/15 hover:text-white"
               )}
