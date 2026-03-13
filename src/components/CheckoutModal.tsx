@@ -42,6 +42,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [address, setAddress] = useState('');
   const [payment, setPayment] = useState('');
   const [notes, setNotes] = useState('');
+  const [needsChange, setNeedsChange] = useState(false);
+  const [changeFor, setChangeFor] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(7);
   const [sending, setSending] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
