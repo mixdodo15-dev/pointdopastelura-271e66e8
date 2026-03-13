@@ -154,7 +154,7 @@ const AdminKitchen = () => {
         <p className="text-xs text-muted-foreground">{orders.length} pedidos ativos</p>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 p-4 overflow-hidden">
         {STATUS_COLUMNS.map(col => {
           const colOrders = orders.filter(o => o.status === col.key);
           return (
