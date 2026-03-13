@@ -73,11 +73,48 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       return;
     }
     searchTimeout.current = setTimeout(async () => {
-      // Search in Uberlândia/MG (adjust UF/city as needed)
-      const results = await searchByStreet('MG', 'Uberlandia', value);
+      const results = await searchByStreet('MG', 'Uberaba', value);
       setStreetSuggestions(results.slice(0, 8));
       setShowSuggestions(results.length > 0);
     }, 400);
+  };
+
+  const handleCepChange = async (value: string) => {
+    const clean = value.replace(/\D/g, '');
+    const formatted = clean.length > 5 ? `${clean.slice(0, 5)}-${clean.slice(5, 8)}` : clean;
+    setCep(formatted);
+    if (clean.length === 8) {
+      const result = await fetchAddress(clean);
+      if (result) {
+        setStreet(result.logradouro);
+        setStreetInput(result.logradouro);
+        setNeighborhood(result.bairro);
+        setCity(`${result.localidade}/${result.uf}`);
+        // Calculate delivery fee
+        setCalculatingFee(true);
+        const addr = `${result.logradouro}, ${result.bairro}, ${result.localidade}, ${result.uf}, Brasil`;
+        const coords = await geocodeAddress(addr);
+        if (coords) {
+          const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
+          setDistanceKm(Math.round(dist * 10) / 10);
+          if (dist > deliverySettings.max_radius_km) {
+            setOutOfRange(true);
+            setDeliveryFee(0);
+            toast.error(`Fora da área de entrega (${dist.toFixed(1)} km)`);
+          } else {
+            setOutOfRange(false);
+            setDeliveryFee(Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100);
+          }
+        } else {
+          setDistanceKm(null);
+          setOutOfRange(false);
+          setDeliveryFee(deliverySettings.min_fee);
+        }
+        setCalculatingFee(false);
+      } else {
+        toast.error('CEP não encontrado.');
+      }
+    }
   };
 
   const selectStreetSuggestion = async (suggestion: typeof streetSuggestions[0]) => {
