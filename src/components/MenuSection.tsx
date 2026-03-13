@@ -222,7 +222,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
       <div className="grid gap-4">
         {items.map((item, idx) => (
           <AnimatedCard key={item.id} index={idx}>
-            <BatataCard item={item} addItem={addItem} />
+            <BatataCard item={item} addItem={addItem} getDiscountedPrice={getDiscountedPrice} />
           </AnimatedCard>
         ))}
       </div>
