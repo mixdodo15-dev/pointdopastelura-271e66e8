@@ -52,7 +52,7 @@ const AdminPdv = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState('');
-  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('pdv');
   const [darkMode, setDarkMode] = useState(false);
   const [payment, setPayment] = useState<PaymentMethod>('dinheiro');
   const [notes, setNotes] = useState('');
