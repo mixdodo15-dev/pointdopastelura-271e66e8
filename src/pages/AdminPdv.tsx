@@ -14,6 +14,8 @@ const AdminPedidos = lazy(() => import('@/pages/AdminPedidos'));
 const AdminKitchen = lazy(() => import('@/pages/AdminKitchen'));
 const AdminCaixa = lazy(() => import('@/pages/AdminCaixa'));
 const AdminRelatorios = lazy(() => import('@/pages/AdminRelatorios'));
+const FichaTecnica = lazy(() => import('@/components/pdv/FichaTecnica'));
+const Embalagens = lazy(() => import('@/components/pdv/Embalagens'));
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -293,20 +295,8 @@ const AdminPdv = () => {
               {activeTab === 'cozinha' && <AdminKitchen />}
               {activeTab === 'caixa' && <AdminCaixa />}
               {(activeTab === 'relatorios' || activeTab === 'mais-vendidos') && <AdminRelatorios />}
-              {activeTab === 'ficha-tecnica' && (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2 p-8">
-                  <FileText className="h-16 w-16 opacity-30" />
-                  <p className="text-lg font-bold">Ficha Técnica</p>
-                  <p className="text-sm">Em breve — módulo em desenvolvimento</p>
-                </div>
-              )}
-              {activeTab === 'embalagens' && (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2 p-8">
-                  <Package className="h-16 w-16 opacity-30" />
-                  <p className="text-lg font-bold">Embalagens</p>
-                  <p className="text-sm">Em breve — módulo em desenvolvimento</p>
-                </div>
-              )}
+              {activeTab === 'ficha-tecnica' && <FichaTecnica />}
+              {activeTab === 'embalagens' && <Embalagens />}
             </Suspense>
           </div>
         ) : (
