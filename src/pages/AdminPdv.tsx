@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -8,6 +8,12 @@ import {
   CheckCircle, Printer, MessageCircle, Minus, Plus, Trash2, Image as ImageIcon,
   TrendingUp, FileText, Package
 } from 'lucide-react';
+
+// Lazy load embedded sections
+const AdminPedidos = lazy(() => import('@/pages/AdminPedidos'));
+const AdminKitchen = lazy(() => import('@/pages/AdminKitchen'));
+const AdminCaixa = lazy(() => import('@/pages/AdminCaixa'));
+const AdminRelatorios = lazy(() => import('@/pages/AdminRelatorios'));
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
