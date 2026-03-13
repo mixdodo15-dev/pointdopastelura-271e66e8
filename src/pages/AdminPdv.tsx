@@ -14,6 +14,8 @@ const AdminPedidos = lazy(() => import('@/pages/AdminPedidos'));
 const AdminKitchen = lazy(() => import('@/pages/AdminKitchen'));
 const AdminCaixa = lazy(() => import('@/pages/AdminCaixa'));
 const AdminRelatorios = lazy(() => import('@/pages/AdminRelatorios'));
+const FichaTecnica = lazy(() => import('@/components/pdv/FichaTecnica'));
+const Embalagens = lazy(() => import('@/components/pdv/Embalagens'));
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
