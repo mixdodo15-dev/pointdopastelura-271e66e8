@@ -12,6 +12,7 @@ export const useProducts = () => {
         .from('products')
         .select('*')
         .eq('active', true)
+        .in('available_on', ['site', 'both'])
         .order('sort_order');
 
       if (!error && data) {

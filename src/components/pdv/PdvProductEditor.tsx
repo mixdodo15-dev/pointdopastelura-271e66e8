@@ -50,7 +50,7 @@ const PdvProductEditor = () => {
 
   const loadData = async () => {
     const [prodRes, catRes] = await Promise.all([
-      supabase.from('products').select('*').order('sort_order'),
+      supabase.from('products').select('*').in('available_on', ['pdv', 'both']).order('sort_order'),
       supabase.from('categories').select('*').eq('active', true).order('sort_order'),
     ]);
     if (prodRes.data) setProducts(prodRes.data as Product[]);
