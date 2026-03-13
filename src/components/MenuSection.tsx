@@ -23,15 +23,17 @@ const formatPrice = (price: number) =>
 
 const MenuSection = ({ category }: MenuSectionProps) => {
   const { products, loading } = useProducts();
+  const { activeHH, getDiscountedPrice } = useHappyHour();
   const items = products.filter(i => i.category === category);
   const { addItem } = useCart();
   const [flavorModal, setFlavorModal] = useState<MenuItem | null>(null);
 
   const handleAdd = (item: MenuItem) => {
+    const { discounted } = getDiscountedPrice(item.price, item.category);
     if (item.maxFlavors) {
       setFlavorModal(item);
     } else {
-      addItem({ id: item.id, name: item.name, price: item.price });
+      addItem({ id: item.id, name: item.name, price: discounted });
       toast.success(`${item.name} adicionado!`);
     }
   };
