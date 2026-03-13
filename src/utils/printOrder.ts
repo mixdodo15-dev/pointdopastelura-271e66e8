@@ -36,7 +36,7 @@ export const printOrder = (data: PrintData) => {
 <html><head><meta charset="utf-8">
 <style>
   @page { margin: 0; size: 80mm auto; }
-  body { font-family: 'Courier New', monospace; font-size: 12px; width: 80mm; margin: 0 auto; padding: 4mm; }
+  body { font-family: 'Arial Black', 'Helvetica Neue Black', 'Impact', sans-serif; font-weight: 900; font-size: 12px; width: 80mm; margin: 0 auto; padding: 4mm; }
   .center { text-align: center; }
   .bold { font-weight: bold; }
   .line { border-top: 1px dashed #000; margin: 4px 0; }
