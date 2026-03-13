@@ -197,7 +197,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
         <div className="grid gap-3">
           {items.map((item, idx) => (
             <AnimatedCard key={item.id} index={idx}>
-              <DoceCard item={item} onAdd={handleAdd} addItem={addItem} />
+              <DoceCard item={item} onAdd={handleAdd} addItem={addItem} getDiscountedPrice={getDiscountedPrice} />
             </AnimatedCard>
           ))}
         </div>
