@@ -195,7 +195,10 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
   const handleSend = async () => {
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
-    if (!phone.trim()) { toast.error('Informe seu telefone.'); return; }
+    const phoneClean = phone.replace(/\D/g, '');
+    if (!phoneClean) { setPhoneError('Informe seu telefone.'); toast.error('Informe seu telefone.'); return; }
+    if (phoneClean.length < 10 || phoneClean.length > 11) { setPhoneError('Telefone inválido. Use (DD) 9XXXX-XXXX'); toast.error('Telefone inválido.'); return; }
+    setPhoneError('');
     if (deliveryMode === 'delivery' && !street.trim()) { toast.error('Informe seu endereço (busque pelo CEP).'); return; }
     if (deliveryMode === 'delivery' && outOfRange) { toast.error('Endereço fora da área de entrega.'); return; }
     if (!payment) { toast.error('Selecione o método de pagamento.'); return; }
