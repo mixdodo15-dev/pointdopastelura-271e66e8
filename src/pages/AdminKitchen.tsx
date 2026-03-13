@@ -33,6 +33,7 @@ const NEXT_STATUS: Record<string, string> = {
   received: 'accepted',
   accepted: 'preparing',
   preparing: 'out_for_delivery',
+  out_for_delivery: 'delivered',
 };
 
 const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
