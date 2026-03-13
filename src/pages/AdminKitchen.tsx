@@ -26,6 +26,7 @@ const STATUS_COLUMNS = [
   { key: 'accepted', label: 'Aceito', color: 'border-blue-500', bg: 'bg-blue-500/10' },
   { key: 'preparing', label: 'Em Preparo', color: 'border-orange-500', bg: 'bg-orange-500/10' },
   { key: 'out_for_delivery', label: 'Saiu p/ Entrega', color: 'border-purple-500', bg: 'bg-purple-500/10' },
+  { key: 'delivered', label: 'Pronto/Entregue', color: 'border-green-500', bg: 'bg-green-500/10' },
 ];
 
 const NEXT_STATUS: Record<string, string> = {
