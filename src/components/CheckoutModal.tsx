@@ -210,6 +210,9 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       });
 
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
+      if (couponDiscount > 0) {
+        msg += `🎫 *Cupom (${couponCode.toUpperCase()}):* -${formatPrice(couponDiscount)}\n`;
+      }
       if (deliveryMode === 'delivery') {
         msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
       }
