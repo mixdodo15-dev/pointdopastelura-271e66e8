@@ -374,7 +374,7 @@ const EspecialCard = ({
                 <Star className="h-4 w-4 text-accent fill-accent" />
                 <h3 className="font-bold text-foreground">{item.name}</h3>
               </div>
-              <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
+              <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />
             </div>
             {item.description && (
               <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
