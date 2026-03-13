@@ -130,6 +130,18 @@ const AdminKitchen = () => {
       })) || [],
     }));
 
+    // Check for new orders and play alert
+    const currentIds = new Set(data.map(o => o.id));
+    const prevIds = previousOrderIdsRef.current;
+    if (prevIds.size > 0) {
+      const newOrders = [...currentIds].filter(id => !prevIds.has(id));
+      if (newOrders.length > 0) {
+        playAlertSound();
+        toast.info(`🔔 ${newOrders.length} novo(s) pedido(s)!`);
+      }
+    }
+    previousOrderIdsRef.current = currentIds;
+
     setOrders(enriched);
   };
 
@@ -140,8 +152,12 @@ const AdminKitchen = () => {
     // Realtime subscription
     const channel = supabase
       .channel('kds-orders')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-        console.log('[KDS:update]', 'order changed');
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, () => {
+        console.log('[KDS:update]', 'new order');
+        loadOrders();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, () => {
+        console.log('[KDS:update]', 'order updated');
         loadOrders();
       })
       .subscribe();
