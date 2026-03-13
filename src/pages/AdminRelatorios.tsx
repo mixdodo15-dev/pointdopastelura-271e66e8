@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, TrendingUp, Clock, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, BarChart3, TrendingUp, Clock, ShoppingBag, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const formatPrice = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
