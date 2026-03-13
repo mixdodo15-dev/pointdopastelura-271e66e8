@@ -1,6 +1,7 @@
-import { Search, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { ShoppingBag, Clock, Bike } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import heroBg from '@/assets/hero-pastel.jpg';
 import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
@@ -8,6 +9,7 @@ import ThemeToggle from './ThemeToggle';
 
 const HeroSection = () => {
   const { isOpen, label, subtitle } = useRestaurantStatus();
+  const navigate = useNavigate();
 
   return (
     <section className="relative w-full">
@@ -27,7 +29,11 @@ const HeroSection = () => {
         {/* Top icons */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
           <ThemeToggle />
-          <button className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg">
+          <button
+            onClick={() => navigate('/cliente-login')}
+            className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg"
+            aria-label="Login ou Cadastro"
+          >
             <User className="h-5 w-5 text-white" />
           </button>
         </div>
