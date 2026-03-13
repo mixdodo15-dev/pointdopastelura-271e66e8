@@ -84,7 +84,7 @@ const AdminPdv = () => {
     if (loading) return;
     const loadData = async () => {
       const [prodRes, catRes] = await Promise.all([
-        supabase.from('products').select('id, name, price, category, image_url, active, max_flavors, description').eq('active', true).in('available_on', ['pdv', 'both']).order('sort_order'),
+        supabase.from('products').select('id, name, price, category, image_url, active, max_flavors, description').eq('active', true).order('sort_order'),
         supabase.from('categories').select('id, slug, label, icon').eq('active', true).order('sort_order'),
       ]);
       if (prodRes.data) setProducts(prodRes.data);
