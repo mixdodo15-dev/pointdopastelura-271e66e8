@@ -464,9 +464,11 @@ const BATATA_CHEESE_NAMES = ['Batata c/ Bacon e Cheddar'];
 const BatataCard = ({
   item,
   addItem,
+  getDiscountedPrice,
 }: {
   item: MenuItem;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
+  getDiscountedPrice: GetDiscountedPrice;
 }) => {
   const [cheese, setCheese] = useState<string>('');
   const needsCheese = BATATA_CHEESE_NAMES.some(n => item.name.toLowerCase().includes(n.toLowerCase()));
