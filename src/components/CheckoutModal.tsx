@@ -318,31 +318,45 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 <MapPin className="h-4 w-4 text-primary" /> Endereço de entrega
               </Label>
 
-              {/* CEP */}
-              <div className="flex gap-2">
-                <Input placeholder="CEP: 00000-000" value={cep}
-                  onChange={e => setCep(formatCep(e.target.value))}
-                  onKeyDown={e => e.key === 'Enter' && handleCepSearch()}
-                  maxLength={9}
-                  className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary flex-1 font-mono" />
-                <Button onClick={handleCepSearch} disabled={cepLoading || cep.replace(/\D/g, '').length !== 8}
-                  className="h-12 rounded-xl px-4" variant="outline">
-                  {cepLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                </Button>
+              {/* Street search */}
+              <div className="relative">
+                <Input placeholder="Digite o nome da rua..."
+                  value={streetInput}
+                  onChange={e => handleStreetInputChange(e.target.value)}
+                  onFocus={() => streetSuggestions.length > 0 && setShowSuggestions(true)}
+                  className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+                />
+                {cepLoading && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+                {showSuggestions && streetSuggestions.length > 0 && (
+                  <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                    {streetSuggestions.map((s, i) => (
+                      <button key={`${s.cep}-${i}`}
+                        onClick={() => selectStreetSuggestion(s)}
+                        className="w-full text-left px-4 py-2.5 hover:bg-secondary transition-colors text-sm border-b last:border-0">
+                        <p className="font-semibold text-foreground">{s.logradouro}</p>
+                        <p className="text-xs text-muted-foreground">{s.bairro} — {s.localidade}/{s.uf} — CEP {s.cep}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Auto-filled fields */}
               {street && (
                 <>
-                  <Input placeholder="Rua" value={street} readOnly
-                    className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <Input placeholder="Número *" value={number} onChange={e => setNumber(e.target.value)} maxLength={10}
                       className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm" />
                     <Input placeholder="Complemento" value={complement} onChange={e => setComplement(e.target.value)} maxLength={50}
-                      className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm" />
+                      className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm col-span-2" />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input placeholder="CEP" value={cep} readOnly
+                      className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm font-mono" />
                     <Input placeholder="Bairro" value={neighborhood} readOnly
                       className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
                     <Input placeholder="Cidade" value={city} readOnly
