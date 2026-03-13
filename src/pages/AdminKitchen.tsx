@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -65,6 +65,33 @@ const AdminKitchen = () => {
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const previousOrderIdsRef = useRef<Set<string>>(new Set());
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const playAlertSound = useCallback(() => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext();
+      }
+      const ctx = audioContextRef.current;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      // Play a double beep
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch (e) {
+      console.warn('[KDS] Audio alert failed:', e);
+    }
+  }, []);
 
   useEffect(() => {
     const check = async () => {
@@ -103,6 +130,18 @@ const AdminKitchen = () => {
       })) || [],
     }));
 
+    // Check for new orders and play alert
+    const currentIds = new Set(data.map(o => o.id));
+    const prevIds = previousOrderIdsRef.current;
+    if (prevIds.size > 0) {
+      const newOrders = [...currentIds].filter(id => !prevIds.has(id));
+      if (newOrders.length > 0) {
+        playAlertSound();
+        toast.info(`🔔 ${newOrders.length} novo(s) pedido(s)!`);
+      }
+    }
+    previousOrderIdsRef.current = currentIds;
+
     setOrders(enriched);
   };
 
@@ -113,8 +152,12 @@ const AdminKitchen = () => {
     // Realtime subscription
     const channel = supabase
       .channel('kds-orders')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-        console.log('[KDS:update]', 'order changed');
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, () => {
+        console.log('[KDS:update]', 'new order');
+        loadOrders();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, () => {
+        console.log('[KDS:update]', 'order updated');
         loadOrders();
       })
       .subscribe();
