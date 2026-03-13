@@ -20,6 +20,13 @@ interface TopProduct {
   revenue: number;
 }
 
+interface HourlySales {
+  hour: string;
+  total: number;
+  count: number;
+  avg: number;
+}
+
 const AdminRelatorios = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
