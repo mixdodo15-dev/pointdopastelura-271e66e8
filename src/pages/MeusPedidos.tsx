@@ -168,7 +168,7 @@ const MeusPedidos = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <p className="font-bold text-sm text-foreground">
-                        Pedido #{order.id.slice(0, 8).toUpperCase()}
+                        Pedido Point-{String(order.order_number || 0).padStart(4, '0')}
                       </p>
                       <span className="text-primary font-extrabold text-sm">{formatPrice(order.total_price)}</span>
                     </div>
