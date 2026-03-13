@@ -164,6 +164,14 @@ const PdvProductEditor = () => {
                   {product.is_top_week && (
                     <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold shrink-0">TOP</span>
                   )}
+                  <span className={cn(
+                    "text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0",
+                    product.available_on === 'pdv' ? 'bg-blue-100 text-blue-700' :
+                    product.available_on === 'site' ? 'bg-green-100 text-green-700' :
+                    'bg-secondary text-muted-foreground'
+                  )}>
+                    {product.available_on === 'pdv' ? 'PDV' : product.available_on === 'site' ? 'Site' : 'Ambos'}
+                  </span>
                 </div>
                 {product.description && (
                   <p className="text-xs text-muted-foreground truncate">{product.description}</p>
