@@ -21,6 +21,37 @@ const CARD_CLASS = "bg-card rounded-xl p-5 shadow-sm border-2 border-transparent
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
 
+const PriceTag = ({ original, discounted, hasDiscount }: { original: number; discounted: number; hasDiscount: boolean }) => {
+  if (!hasDiscount) return <span className="text-base font-extrabold text-primary">{formatPrice(original)}</span>;
+  return (
+    <span className="flex items-center gap-1.5 flex-wrap">
+      <span className="text-xs line-through text-muted-foreground">{formatPrice(original)}</span>
+      <span className="text-base font-extrabold text-primary">{formatPrice(discounted)}</span>
+      <span className="text-[10px] bg-accent text-accent-foreground px-1.5 py-0.5 rounded-full font-bold animate-pulse">🕐 HAPPY HOUR</span>
+    </span>
+  );
+};
+
+const PriceTagSmall = ({ original, discounted, hasDiscount }: { original: number; discounted: number; hasDiscount: boolean }) => {
+  if (!hasDiscount) return <span className="text-xs font-extrabold text-primary">{formatPrice(original)}</span>;
+  return (
+    <span className="flex items-center gap-1 flex-wrap">
+      <span className="text-[10px] line-through text-muted-foreground">{formatPrice(original)}</span>
+      <span className="text-xs font-extrabold text-primary">{formatPrice(discounted)}</span>
+    </span>
+  );
+};
+
+const PriceTagLg = ({ original, discounted, hasDiscount }: { original: number; discounted: number; hasDiscount: boolean }) => {
+  if (!hasDiscount) return <span className="text-lg font-extrabold text-primary">{formatPrice(original)}</span>;
+  return (
+    <span className="flex items-center gap-1.5 flex-wrap">
+      <span className="text-xs line-through text-muted-foreground">{formatPrice(original)}</span>
+      <span className="text-lg font-extrabold text-primary">{formatPrice(discounted)}</span>
+    </span>
+  );
+};
+
 const MenuSection = ({ category }: MenuSectionProps) => {
   const { products, loading } = useProducts();
   const { activeHH, getDiscountedPrice } = useHappyHour();
