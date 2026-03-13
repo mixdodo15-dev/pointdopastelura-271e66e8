@@ -113,7 +113,7 @@ const AdminKitchen = () => {
   const loadOrders = async () => {
     const { data, error } = await supabase
       .from('orders')
-      .select('id, status, created_at, order_source, table_number, customer_name')
+      .select('id, status, created_at, order_source, table_number, customer_name, payment_method, total_price, delivery_fee, notes')
       .in('status', ['received', 'accepted', 'preparing', 'out_for_delivery', 'delivered'])
       .order('created_at', { ascending: true });
 
@@ -123,7 +123,7 @@ const AdminKitchen = () => {
     const orderIds = data.map(o => o.id);
     const { data: items } = await supabase
       .from('order_items')
-      .select('order_id, product_name, quantity')
+      .select('order_id, product_name, quantity, unit_price')
       .in('order_id', orderIds);
 
     const enriched: KitchenOrder[] = data.map(o => ({
@@ -132,6 +132,7 @@ const AdminKitchen = () => {
       items: items?.filter(i => i.order_id === o.id).map(i => ({
         product_name: i.product_name,
         quantity: i.quantity,
+        unit_price: i.unit_price,
       })) || [],
     }));
 
