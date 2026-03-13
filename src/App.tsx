@@ -1,57 +1,30 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
-import Cadastro from "./pages/Cadastro";
-import ClienteLogin from "./pages/ClienteLogin";
-import ResetPassword from "./pages/ResetPassword";
-import MinhaConta from "./pages/MinhaConta";
-import MeusPedidos from "./pages/MeusPedidos";
-import AdminPedidos from "./pages/AdminPedidos";
-import Entregador from "./pages/Entregador";
-import AdminPdv from "./pages/AdminPdv";
-import AdminKitchen from "./pages/AdminKitchen";
-import AdminComandas from "./pages/AdminComandas";
-import AdminCaixa from "./pages/AdminCaixa";
-import AdminRelatorios from "./pages/AdminRelatorios";
-import AdminMarketing from "./pages/AdminMarketing";
 
 const queryClient = new QueryClient();
 
+const DebugPage = () => {
+  useEffect(() => {
+    console.log("[APP_DEBUG] DebugPage mounted - React is working!");
+  }, []);
+  
+  return (
+    <div style={{ padding: 40, fontFamily: 'sans-serif', background: '#111', color: '#fff', minHeight: '100vh' }}>
+      <h1 style={{ fontSize: 24, marginBottom: 16 }}>🔧 Debug Mode - Isolando o Erro</h1>
+      <p style={{ color: '#4f4' }}>✅ Se você vê isso, React + React Query + React Router estão OK.</p>
+      <p style={{ marginTop: 12, color: '#aaa' }}>Próximo passo: habilitar componentes UI um a um.</p>
+    </div>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/pedidos" element={<AdminPedidos />} />
-          <Route path="/pdv" element={<AdminPdv />} />
-          <Route path="/admin/pdv" element={<AdminPdv />} />
-          <Route path="/admin/kitchen" element={<AdminKitchen />} />
-          <Route path="/admin/comandas" element={<AdminComandas />} />
-          <Route path="/admin/caixa" element={<AdminCaixa />} />
-          <Route path="/admin/relatorios" element={<AdminRelatorios />} />
-          <Route path="/admin/marketing" element={<AdminMarketing />} />
-          <Route path="/cadastro" element={<Cadastro />} />
-          <Route path="/cliente-login" element={<ClienteLogin />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/minha-conta" element={<MinhaConta />} />
-          <Route path="/meus-pedidos" element={<MeusPedidos />} />
-          <Route path="/entregador" element={<Entregador />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="*" element={<DebugPage />} />
+      </Routes>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
