@@ -25,6 +25,7 @@ interface OrderItem {
 
 interface KitchenOrder {
   id: string;
+  order_number: number | null;
   status: string;
   created_at: string;
   order_source: string | null;
