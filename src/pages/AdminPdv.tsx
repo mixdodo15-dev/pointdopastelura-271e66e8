@@ -16,6 +16,7 @@ const AdminCaixa = lazy(() => import('@/pages/AdminCaixa'));
 const AdminRelatorios = lazy(() => import('@/pages/AdminRelatorios'));
 const FichaTecnica = lazy(() => import('@/components/pdv/FichaTecnica'));
 const Embalagens = lazy(() => import('@/components/pdv/Embalagens'));
+const PdvProductEditor = lazy(() => import('@/components/pdv/PdvProductEditor'));
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -214,6 +215,7 @@ const AdminPdv = () => {
 
   const navTabs = [
     { id: 'pdv', label: 'PDV', icon: <ShoppingCart className="h-4 w-4" /> },
+    { id: 'editar-produtos', label: 'Produtos', icon: <Settings className="h-4 w-4" /> },
     { id: 'pedidos', label: 'Pedidos', icon: <ClipboardList className="h-4 w-4" /> },
     { id: 'cozinha', label: 'Cozinha', icon: <ChefHat className="h-4 w-4" /> },
     { id: 'caixa', label: 'Caixa', icon: <Wallet className="h-4 w-4" /> },
@@ -291,6 +293,7 @@ const AdminPdv = () => {
                 <div className="h-10 w-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
               </div>
             }>
+              {activeTab === 'editar-produtos' && <PdvProductEditor />}
               {activeTab === 'pedidos' && <AdminPedidos />}
               {activeTab === 'cozinha' && <AdminKitchen />}
               {activeTab === 'caixa' && <AdminCaixa />}
