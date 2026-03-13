@@ -209,6 +209,81 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          cashback_balance: number | null
+          cashback_percent: number | null
+          city: string | null
+          complement: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          is_favorite: boolean | null
+          last_order_at: string | null
+          loyalty_points: number | null
+          loyalty_tier: string | null
+          name: string
+          neighborhood: string | null
+          notes: string | null
+          number: string | null
+          phone: string
+          state: string | null
+          street: string | null
+          total_orders: number | null
+          total_spent: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cashback_balance?: number | null
+          cashback_percent?: number | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          last_order_at?: string | null
+          loyalty_points?: number | null
+          loyalty_tier?: string | null
+          name: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          phone: string
+          state?: string | null
+          street?: string | null
+          total_orders?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cashback_balance?: number | null
+          cashback_percent?: number | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          last_order_at?: string | null
+          loyalty_points?: number | null
+          loyalty_tier?: string | null
+          name?: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          phone?: string
+          state?: string | null
+          street?: string | null
+          total_orders?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       delivery_settings: {
         Row: {
           fee_per_km: number
