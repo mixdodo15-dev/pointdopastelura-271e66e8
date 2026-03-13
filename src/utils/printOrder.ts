@@ -50,7 +50,7 @@ export const printOrder = (data: PrintData) => {
 <div class="center">
   <h1>🥟 POINT DO PASTEL</h1>
   <p>${now}</p>
-  <p class="big">Pedido #${shortId}</p>
+  <p class="big">Pedido ${shortId}</p>
 </div>
 <div class="line"></div>
 <p class="bold">${ORDER_TYPE_LABELS[data.orderType] || data.orderType}${data.tableNumber ? ` - Mesa ${data.tableNumber}` : ''}</p>
