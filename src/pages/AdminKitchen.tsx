@@ -115,7 +115,7 @@ const AdminKitchen = () => {
   const loadOrders = async () => {
     const { data, error } = await supabase
       .from('orders')
-      .select('id, status, created_at, order_source, table_number, customer_name, payment_method, total_price, delivery_fee, notes')
+      .select('id, order_number, status, created_at, order_source, table_number, customer_name, payment_method, total_price, delivery_fee, notes')
       .in('status', ['received', 'accepted', 'preparing', 'out_for_delivery', 'delivered'])
       .order('created_at', { ascending: true });
 
