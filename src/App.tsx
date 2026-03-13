@@ -1,58 +1,69 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
-import Cadastro from "./pages/Cadastro";
-import ClienteLogin from "./pages/ClienteLogin";
-import ResetPassword from "./pages/ResetPassword";
-import MinhaConta from "./pages/MinhaConta";
-import MeusPedidos from "./pages/MeusPedidos";
-import AdminPedidos from "./pages/AdminPedidos";
-import Entregador from "./pages/Entregador";
-import AdminPdv from "./pages/AdminPdv";
-import AdminKitchen from "./pages/AdminKitchen";
-import AdminComandas from "./pages/AdminComandas";
-import AdminCaixa from "./pages/AdminCaixa";
-import AdminRelatorios from "./pages/AdminRelatorios";
-import AdminMarketing from "./pages/AdminMarketing";
+
+// Phase 1: Test minimal app without any Radix/UI providers
+const MinimalTest = () => {
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    console.log("[APP_DEBUG] MinimalTest mounted successfully");
+    setLoaded(true);
+  }, []);
+  return <div style={{ padding: 40, fontFamily: 'sans-serif' }}>
+    <h1>🔧 Debug Mode</h1>
+    <p>{loaded ? "✅ React is working!" : "Loading..."}</p>
+    <p>React version: {(window as any).__REACT_VERSION || "unknown"}</p>
+  </div>;
+};
+
+// Phase 2: Try importing one provider at a time
+let TooltipProvider: any = null;
+let Toaster: any = null;
+let Sonner: any = null;
+let Index: any = null;
+
+try {
+  TooltipProvider = require("@/components/ui/tooltip").TooltipProvider;
+  console.log("[APP_DEBUG] TooltipProvider loaded OK");
+} catch (e) {
+  console.error("[APP_DEBUG] TooltipProvider FAILED:", e);
+}
+
+try {
+  Toaster = require("@/components/ui/toaster").Toaster;
+  console.log("[APP_DEBUG] Toaster loaded OK");
+} catch (e) {
+  console.error("[APP_DEBUG] Toaster FAILED:", e);
+}
+
+try {
+  Sonner = require("@/components/ui/sonner").Toaster;
+  console.log("[APP_DEBUG] Sonner loaded OK");
+} catch (e) {
+  console.error("[APP_DEBUG] Sonner FAILED:", e);
+}
+
+try {
+  Index = require("./pages/Index").default;
+  console.log("[APP_DEBUG] Index loaded OK");
+} catch (e) {
+  console.error("[APP_DEBUG] Index FAILED:", e);
+}
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+const App = () => {
+  console.log("[APP_DEBUG] App render start");
+  
+  return (
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/pedidos" element={<AdminPedidos />} />
-          <Route path="/pdv" element={<AdminPdv />} />
-          <Route path="/admin/pdv" element={<AdminPdv />} />
-          <Route path="/admin/kitchen" element={<AdminKitchen />} />
-          <Route path="/admin/comandas" element={<AdminComandas />} />
-          <Route path="/admin/caixa" element={<AdminCaixa />} />
-          <Route path="/admin/relatorios" element={<AdminRelatorios />} />
-          <Route path="/admin/marketing" element={<AdminMarketing />} />
-          <Route path="/cadastro" element={<Cadastro />} />
-          <Route path="/cliente-login" element={<ClienteLogin />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/minha-conta" element={<MinhaConta />} />
-          <Route path="/meus-pedidos" element={<MeusPedidos />} />
-          <Route path="/entregador" element={<Entregador />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<MinimalTest />} />
         </Routes>
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+};
 
 export default App;
