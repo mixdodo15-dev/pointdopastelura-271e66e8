@@ -147,6 +147,32 @@ const AdminKitchen = () => {
     loadOrders();
   };
 
+  const deleteOrder = async (orderId: string) => {
+    setDeleting(true);
+    await supabase.from('order_items').delete().eq('order_id', orderId);
+    const { error } = await supabase.from('orders').delete().eq('id', orderId);
+    setDeleting(false);
+    setDeleteOrderId(null);
+    if (error) {
+      toast.error('Erro ao excluir pedido');
+    } else {
+      toast.success('Pedido excluído!');
+      loadOrders();
+    }
+  };
+
+  const clearAllKitchenOrders = async () => {
+    setDeleting(true);
+    for (const order of orders) {
+      await supabase.from('order_items').delete().eq('order_id', order.id);
+      await supabase.from('orders').delete().eq('id', order.id);
+    }
+    setDeleting(false);
+    setShowClearDialog(false);
+    toast.success('Todos os pedidos da cozinha foram excluídos!');
+    loadOrders();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -167,7 +193,15 @@ const AdminKitchen = () => {
             <h1 className="text-lg font-extrabold text-foreground">Cozinha (KDS)</h1>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">{orders.length} pedidos ativos</p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-muted-foreground">{orders.length} pedidos ativos</p>
+          {orders.length > 0 && (
+            <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 text-xs" onClick={() => setShowClearDialog(true)}>
+              <Trash2 className="h-4 w-4 mr-1" />
+              Limpar Tudo
+            </Button>
+          )}
+        </div>
       </header>
 
       <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4 p-4 overflow-hidden">
@@ -192,9 +226,17 @@ const AdminKitchen = () => {
                           <span className="font-extrabold text-foreground text-sm">#{order.id.slice(0, 6).toUpperCase()}</span>
                           <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-bold", source.color)}>{source.label}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          {getTimeDiff(order.created_at)}
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            {getTimeDiff(order.created_at)}
+                          </div>
+                          <button
+                            onClick={() => setDeleteOrderId(order.id)}
+                            className="text-muted-foreground hover:text-destructive transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       </div>
 
@@ -217,7 +259,7 @@ const AdminKitchen = () => {
                           className="w-full rounded-xl text-xs font-bold"
                           onClick={() => moveOrder(order.id, order.status)}
                         >
-                          {NEXT_STATUS[order.status] === 'out_for_delivery' ? '✅ Pronto' : 'Avançar'}
+                          {NEXT_STATUS[order.status] === 'out_for_delivery' ? '✅ Pronto' : NEXT_STATUS[order.status] === 'delivered' ? '✅ Entregue' : 'Avançar'}
                           <ArrowRight className="h-3 w-3 ml-1" />
                         </Button>
                       )}
@@ -229,6 +271,56 @@ const AdminKitchen = () => {
           );
         })}
       </div>
+
+      {/* Delete single order dialog */}
+      <AlertDialog open={!!deleteOrderId} onOpenChange={() => setDeleteOrderId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Excluir Pedido
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteOrderId && deleteOrder(deleteOrderId)}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear all kitchen orders dialog */}
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Limpar Todos os Pedidos da Cozinha
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir TODOS os {orders.length} pedidos da cozinha? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={clearAllKitchenOrders}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Excluindo...' : 'Limpar Tudo'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
