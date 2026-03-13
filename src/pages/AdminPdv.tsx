@@ -242,7 +242,7 @@ const AdminPdv = () => {
               className={cn(
                 "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all",
                 tab.id === 'pdv'
-                  ? "bg-white text-[hsl(270_60%_40%)] shadow-md"
+                  ? "bg-white text-[hsl(var(--pdv-red))] shadow-md"
                   : "text-white/80 hover:bg-white/15 hover:text-white"
               )}
             >
