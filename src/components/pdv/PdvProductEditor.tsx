@@ -22,6 +22,7 @@ interface Product {
   active: boolean;
   sort_order: number;
   is_top_week: boolean;
+  available_on: string;
 }
 
 interface Category {
