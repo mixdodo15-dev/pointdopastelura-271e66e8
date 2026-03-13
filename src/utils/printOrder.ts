@@ -1,5 +1,6 @@
 interface PrintData {
   orderId: string;
+  orderNumber?: number;
   items: { name: string; quantity: number; price: number }[];
   subtotal: number;
   discount: number;
