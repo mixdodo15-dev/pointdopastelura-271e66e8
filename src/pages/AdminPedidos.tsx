@@ -35,11 +35,11 @@ interface OrderItem {
 }
 
 const STATUS_OPTIONS = [
-  { value: 'received', label: 'Recebido', icon: Package, color: 'bg-blue-100 text-blue-700' },
+  { value: 'received', label: 'Novo', icon: Package, color: 'bg-blue-100 text-blue-700' },
   { value: 'accepted', label: 'Aceito', icon: CheckCircle2, color: 'bg-emerald-100 text-emerald-700' },
-  { value: 'preparing', label: 'Preparando', icon: ChefHat, color: 'bg-orange-100 text-orange-700' },
-  { value: 'out_for_delivery', label: 'Em Entrega', icon: Truck, color: 'bg-purple-100 text-purple-700' },
-  { value: 'delivered', label: 'Entregue', icon: CheckCircle2, color: 'bg-green-100 text-green-700' },
+  { value: 'preparing', label: 'Em Preparo', icon: ChefHat, color: 'bg-orange-100 text-orange-700' },
+  { value: 'out_for_delivery', label: 'Saiu p/ Entrega', icon: Truck, color: 'bg-purple-100 text-purple-700' },
+  { value: 'delivered', label: 'Pronto', icon: CheckCircle2, color: 'bg-green-100 text-green-700' },
   { value: 'cancelled', label: 'Cancelado', icon: XCircle, color: 'bg-red-100 text-red-700' },
 ];
 
