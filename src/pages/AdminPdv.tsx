@@ -226,7 +226,7 @@ const AdminPdv = () => {
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Purple Header */}
-      <header className="bg-[hsl(270_60%_40%)] px-4 py-2.5 flex items-center justify-between shrink-0 shadow-lg">
+      <header className="bg-[hsl(var(--pdv-red))] px-4 py-2.5 flex items-center justify-between shrink-0 shadow-lg">
         <div className="flex items-center gap-3">
           <span className="text-2xl">🥟</span>
           <h1 className="text-lg font-extrabold text-white tracking-tight">POINT DO PASTEL</h1>
@@ -242,7 +242,7 @@ const AdminPdv = () => {
               className={cn(
                 "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all",
                 tab.id === 'pdv'
-                  ? "bg-white text-[hsl(270_60%_40%)] shadow-md"
+                  ? "bg-white text-[hsl(var(--pdv-red))] shadow-md"
                   : "text-white/80 hover:bg-white/15 hover:text-white"
               )}
             >
@@ -353,7 +353,7 @@ const AdminPdv = () => {
         {/* Right - Nova Comanda */}
         <div className="w-[380px] shrink-0 border-l border-border flex flex-col overflow-hidden bg-card">
           {/* Comanda Header */}
-          <div className="bg-[hsl(145_70%_40%)] px-4 py-3 flex items-center gap-2">
+          <div className="bg-[hsl(var(--pdv-red))] px-4 py-3 flex items-center gap-2">
             <span className="text-lg">📋</span>
             <h2 className="text-lg font-extrabold text-white">Nova Comanda</h2>
           </div>
@@ -382,8 +382,8 @@ const AdminPdv = () => {
                   className={cn(
                     "flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold border transition-all flex-1 justify-center",
                     store.orderType === t.value
-                      ? "bg-[hsl(145_70%_40%)] text-white border-[hsl(145_70%_40%)] shadow-sm"
-                      : "bg-background text-foreground border-border hover:border-[hsl(145_70%_35%)]"
+                      ? "bg-[hsl(var(--pdv-accent))] text-black font-extrabold border-[hsl(var(--pdv-accent))] shadow-sm"
+                      : "bg-background text-foreground border-border hover:border-accent/50"
                   )}
                 >
                   {t.icon}
