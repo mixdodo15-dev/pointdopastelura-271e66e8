@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
-import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike, Store, Ticket, Check, Search } from 'lucide-react';
+import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike, Store, Ticket, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import OrderSuccessAnimation from './OrderSuccessAnimation';
@@ -32,13 +32,16 @@ const paymentOptions = [
 const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
-  const { fetchAddress, geocodeAddress, loading: cepLoading } = useViaCep();
+  const { fetchAddress, searchByStreet, geocodeAddress, loading: cepLoading } = useViaCep();
   const { settings: deliverySettings } = useDeliverySettings();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [cep, setCep] = useState('');
   const [street, setStreet] = useState('');
+  const [streetInput, setStreetInput] = useState('');
+  const [streetSuggestions, setStreetSuggestions] = useState<Array<{cep: string; logradouro: string; bairro: string; localidade: string; uf: string}>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [number, setNumber] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [city, setCity] = useState('');
@@ -59,25 +62,36 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [calculatingFee, setCalculatingFee] = useState(false);
 
-  const formatCep = (v: string) => {
-    const clean = v.replace(/\D/g, '').slice(0, 8);
-    if (clean.length > 5) return `${clean.slice(0, 5)}-${clean.slice(5)}`;
-    return clean;
-  };
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleCepSearch = async () => {
-    const result = await fetchAddress(cep);
-    if (!result) {
-      if (cep.replace(/\D/g, '').length === 8) toast.error('CEP não encontrado');
+  const handleStreetInputChange = (value: string) => {
+    setStreetInput(value);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    if (value.length < 3) {
+      setStreetSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
-    setStreet(result.logradouro || '');
-    setNeighborhood(result.bairro || '');
-    setCity(`${result.localidade}/${result.uf}`);
-    toast.success('Endereço preenchido!');
+    searchTimeout.current = setTimeout(async () => {
+      // Search in Uberlândia/MG (adjust UF/city as needed)
+      const results = await searchByStreet('MG', 'Uberlandia', value);
+      setStreetSuggestions(results.slice(0, 8));
+      setShowSuggestions(results.length > 0);
+    }, 400);
+  };
 
+  const selectStreetSuggestion = async (suggestion: typeof streetSuggestions[0]) => {
+    setStreet(suggestion.logradouro);
+    setStreetInput(suggestion.logradouro);
+    setNeighborhood(suggestion.bairro);
+    setCity(`${suggestion.localidade}/${suggestion.uf}`);
+    setCep(suggestion.cep);
+    setShowSuggestions(false);
+    setStreetSuggestions([]);
+
+    // Calculate delivery fee
     setCalculatingFee(true);
-    const addr = `${result.logradouro}, ${result.bairro}, ${result.localidade}, ${result.uf}, Brasil`;
+    const addr = `${suggestion.logradouro}, ${suggestion.bairro}, ${suggestion.localidade}, ${suggestion.uf}, Brasil`;
     const coords = await geocodeAddress(addr);
     if (coords) {
       const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
@@ -102,8 +116,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     setDeliveryMode(mode);
     if (mode === 'pickup') {
       setDeliveryFee(0);
-      setCep(''); setStreet(''); setNumber(''); setNeighborhood(''); setCity(''); setComplement('');
-      setDistanceKm(null); setOutOfRange(false);
+      setCep(''); setStreet(''); setStreetInput(''); setNumber(''); setNeighborhood(''); setCity(''); setComplement('');
+      setDistanceKm(null); setOutOfRange(false); setStreetSuggestions([]); setShowSuggestions(false);
     }
   };
 
@@ -134,10 +148,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const removeCoupon = () => { setCouponCode(''); setCouponDiscount(0); setCouponApplied(false); };
 
   const resetForm = () => {
-    setName(''); setPhone(''); setCep(''); setStreet(''); setNumber('');
+    setName(''); setPhone(''); setCep(''); setStreet(''); setStreetInput(''); setNumber('');
     setNeighborhood(''); setCity(''); setComplement(''); setPayment('');
     setNotes(''); setNeedsChange(false); setChangeFor(''); setDeliveryFee(0);
     setDistanceKm(null); setOutOfRange(false); setDeliveryMode('delivery'); removeCoupon();
+    setStreetSuggestions([]); setShowSuggestions(false);
   };
 
   const handleSend = async () => {
@@ -304,31 +319,45 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 <MapPin className="h-4 w-4 text-primary" /> Endereço de entrega
               </Label>
 
-              {/* CEP */}
-              <div className="flex gap-2">
-                <Input placeholder="CEP: 00000-000" value={cep}
-                  onChange={e => setCep(formatCep(e.target.value))}
-                  onKeyDown={e => e.key === 'Enter' && handleCepSearch()}
-                  maxLength={9}
-                  className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary flex-1 font-mono" />
-                <Button onClick={handleCepSearch} disabled={cepLoading || cep.replace(/\D/g, '').length !== 8}
-                  className="h-12 rounded-xl px-4" variant="outline">
-                  {cepLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                </Button>
+              {/* Street search */}
+              <div className="relative">
+                <Input placeholder="Digite o nome da rua..."
+                  value={streetInput}
+                  onChange={e => handleStreetInputChange(e.target.value)}
+                  onFocus={() => streetSuggestions.length > 0 && setShowSuggestions(true)}
+                  className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+                />
+                {cepLoading && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+                {showSuggestions && streetSuggestions.length > 0 && (
+                  <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                    {streetSuggestions.map((s, i) => (
+                      <button key={`${s.cep}-${i}`}
+                        onClick={() => selectStreetSuggestion(s)}
+                        className="w-full text-left px-4 py-2.5 hover:bg-secondary transition-colors text-sm border-b last:border-0">
+                        <p className="font-semibold text-foreground">{s.logradouro}</p>
+                        <p className="text-xs text-muted-foreground">{s.bairro} — {s.localidade}/{s.uf} — CEP {s.cep}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Auto-filled fields */}
               {street && (
                 <>
-                  <Input placeholder="Rua" value={street} readOnly
-                    className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <Input placeholder="Número *" value={number} onChange={e => setNumber(e.target.value)} maxLength={10}
                       className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm" />
                     <Input placeholder="Complemento" value={complement} onChange={e => setComplement(e.target.value)} maxLength={50}
-                      className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm" />
+                      className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm col-span-2" />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input placeholder="CEP" value={cep} readOnly
+                      className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm font-mono" />
                     <Input placeholder="Bairro" value={neighborhood} readOnly
                       className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
                     <Input placeholder="Cidade" value={city} readOnly
