@@ -344,13 +344,33 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
               className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary" />
           </div>
 
-          {/* Phone */}
+          {/* Phone (required) */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-              <Phone className="h-4 w-4 text-primary" /> Telefone
+              <Phone className="h-4 w-4 text-primary" /> Telefone <span className="text-destructive">*</span>
             </Label>
-            <Input placeholder="(00) 00000-0000" value={phone} onChange={e => setPhone(e.target.value)} maxLength={20} type="tel"
-              className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary" />
+            <Input
+              placeholder="(00) 00000-0000"
+              value={phone}
+              onChange={e => {
+                const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
+                let formatted = raw;
+                if (raw.length > 6) formatted = `(${raw.slice(0,2)}) ${raw.slice(2,7)}-${raw.slice(7)}`;
+                else if (raw.length > 2) formatted = `(${raw.slice(0,2)}) ${raw.slice(2)}`;
+                setPhone(formatted);
+                if (phoneError) setPhoneError('');
+              }}
+              maxLength={16}
+              type="tel"
+              className={`h-12 rounded-xl border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary ${
+                phoneError ? 'bg-destructive/10 ring-2 ring-destructive' : 'bg-secondary'
+              }`}
+            />
+            {phoneError && (
+              <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                ⚠️ {phoneError}
+              </p>
+            )}
           </div>
 
           {/* Address fields (delivery only) */}
