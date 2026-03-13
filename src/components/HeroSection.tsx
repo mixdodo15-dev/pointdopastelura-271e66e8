@@ -1,13 +1,25 @@
-import { Search, User } from 'lucide-react';
+import { Search, User, LogIn } from 'lucide-react';
 import { ShoppingBag, Clock, Bike } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import heroBg from '@/assets/hero-pastel.jpg';
 import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
+import { supabase } from '@/integrations/supabase/client';
 import ThemeToggle from './ThemeToggle';
 
 const HeroSection = () => {
   const { isOpen, label, subtitle } = useRestaurantStatus();
+
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setIsLoggedIn(!!session));
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <section className="relative w-full">
@@ -27,7 +39,10 @@ const HeroSection = () => {
         {/* Top icons */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
           <ThemeToggle />
-          <button className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg">
+          <button
+            onClick={() => navigate(isLoggedIn ? '/minha-conta' : '/cliente-login')}
+            className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg"
+          >
             <User className="h-5 w-5 text-white" />
           </button>
         </div>
@@ -106,6 +121,43 @@ const HeroSection = () => {
           <p className="text-center text-xs font-bold text-primary">
             Pedido mínimo: R$ 10,00
           </p>
+
+          {/* Login/Signup CTA */}
+          {!isLoggedIn && (
+            <motion.div
+              className="bg-primary/10 border border-primary/20 rounded-2xl p-4 space-y-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <p className="text-center text-sm font-bold text-foreground">
+                🔑 Faça login para acompanhar seus pedidos!
+              </p>
+              <p className="text-center text-[11px] text-muted-foreground">
+                Entre na sua conta ou cadastre-se em segundos para uma experiência completa.
+              </p>
+              <div className="flex gap-2">
+                <motion.button
+                  onClick={() => navigate('/cliente-login')}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-bold shadow-md"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <LogIn className="h-4 w-4" />
+                  Entrar
+                </motion.button>
+                <motion.button
+                  onClick={() => navigate('/cadastro')}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-secondary text-foreground rounded-xl py-2.5 text-sm font-bold border border-border"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <User className="h-4 w-4" />
+                  Cadastrar
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
         </div>
       </motion.div>
     </section>
