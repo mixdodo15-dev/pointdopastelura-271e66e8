@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,9 +8,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin, Monitor, ChefHat, UtensilsCrossed, Wallet, BarChart3, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+
+const LazyAdminPdv = lazy(() => import('./AdminPdv'));
+const LazyAdminKitchen = lazy(() => import('./AdminKitchen'));
+const LazyAdminComandas = lazy(() => import('./AdminComandas'));
+const LazyAdminCaixa = lazy(() => import('./AdminCaixa'));
+const LazyAdminRelatorios = lazy(() => import('./AdminRelatorios'));
+const LazyAdminPedidos = lazy(() => import('./AdminPedidos'));
 
 interface Product {
   id: string;
@@ -57,7 +64,7 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [flavors, setFlavors] = useState<Flavor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients' | 'neighborhoods'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients' | 'neighborhoods' | 'pedidos' | 'pdv' | 'kitchen' | 'comandas' | 'caixa' | 'relatorios'>('products');
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [editNeighborhood, setEditNeighborhood] = useState<Neighborhood | null>(null);
   const [newNeighborhood, setNewNeighborhood] = useState(false);
@@ -305,23 +312,23 @@ const Admin = () => {
           <Button variant={activeTab === 'neighborhoods' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('neighborhoods')}>
             <MapPin className="h-4 w-4 mr-1" /> Bairros
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
-            📋 Pedidos
+          <Button variant={activeTab === 'pedidos' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('pedidos')}>
+            <ClipboardList className="h-4 w-4 mr-1" /> Pedidos
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pdv')}>
-            🖥️ PDV
+          <Button variant={activeTab === 'pdv' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('pdv')}>
+            <Monitor className="h-4 w-4 mr-1" /> PDV
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/kitchen')}>
-            👨‍🍳 Cozinha
+          <Button variant={activeTab === 'kitchen' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('kitchen')}>
+            <ChefHat className="h-4 w-4 mr-1" /> Cozinha
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/comandas')}>
-            🪑 Comandas
+          <Button variant={activeTab === 'comandas' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('comandas')}>
+            <UtensilsCrossed className="h-4 w-4 mr-1" /> Comandas
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/caixa')}>
-            💰 Caixa
+          <Button variant={activeTab === 'caixa' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('caixa')}>
+            <Wallet className="h-4 w-4 mr-1" /> Caixa
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/relatorios')}>
-            📊 Relatórios
+          <Button variant={activeTab === 'relatorios' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('relatorios')}>
+            <BarChart3 className="h-4 w-4 mr-1" /> Relatórios
           </Button>
         </div>
 
@@ -554,6 +561,38 @@ const Admin = () => {
               {neighborhoods.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum bairro cadastrado.</p>}
             </div>
           </>
+        )}
+
+        {/* Embedded Pages */}
+        {activeTab === 'pedidos' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminPedidos />
+          </Suspense>
+        )}
+        {activeTab === 'pdv' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminPdv />
+          </Suspense>
+        )}
+        {activeTab === 'kitchen' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminKitchen />
+          </Suspense>
+        )}
+        {activeTab === 'comandas' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminComandas />
+          </Suspense>
+        )}
+        {activeTab === 'caixa' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminCaixa />
+          </Suspense>
+        )}
+        {activeTab === 'relatorios' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminRelatorios />
+          </Suspense>
         )}
       </div>
 
