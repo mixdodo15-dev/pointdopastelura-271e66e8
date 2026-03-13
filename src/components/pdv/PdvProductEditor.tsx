@@ -233,6 +233,7 @@ const ProductEditModal = ({
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [isTopWeek, setIsTopWeek] = useState(false);
+  const [availableOn, setAvailableOn] = useState('both');
 
   useEffect(() => {
     if (product) {
@@ -245,11 +246,13 @@ const ProductEditModal = ({
       setSortOrder(String(product.sort_order));
       setImageUrl(product.image_url || '');
       setIsTopWeek(product.is_top_week || false);
+      setAvailableOn(product.available_on || 'both');
     } else {
       setName(''); setDescription(''); setPrice('');
       setCategory(defaultCategory);
       setSubcategory(''); setMaxFlavors(''); setSortOrder('0'); setImageUrl('');
       setIsTopWeek(false);
+      setAvailableOn('pdv');
     }
   }, [product, defaultCategory, open]);
 
