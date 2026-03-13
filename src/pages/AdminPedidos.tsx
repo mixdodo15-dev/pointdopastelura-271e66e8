@@ -17,6 +17,7 @@ import {
 
 interface Order {
   id: string;
+  order_number: number | null;
   customer_name: string;
   customer_phone: string;
   delivery_address: string;
