@@ -242,7 +242,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                 <img src={item.imageUrl} alt={item.name} className="h-14 w-14 rounded-lg object-cover" />
               )}
               <span className="font-bold text-sm text-foreground">{item.name}</span>
-              <span className="text-primary font-extrabold">{formatPrice(item.price)}</span>
+              <PriceTag {...getDiscountedPrice(item.price, item.category)} />
               <Button size="sm" className="rounded-full w-full" onClick={() => handleAdd(item)}>
                 <Plus className="h-4 w-4 mr-1" /> Adicionar
               </Button>
