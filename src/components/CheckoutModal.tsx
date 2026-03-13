@@ -37,6 +37,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [cep, setCep] = useState('');
   const [street, setStreet] = useState('');
   const [streetInput, setStreetInput] = useState('');
@@ -185,7 +186,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const removeCoupon = () => { setCouponCode(''); setCouponDiscount(0); setCouponApplied(false); };
 
   const resetForm = () => {
-    setName(''); setPhone(''); setCep(''); setStreet(''); setStreetInput(''); setNumber('');
+    setName(''); setPhone(''); setPhoneError(''); setCep(''); setStreet(''); setStreetInput(''); setNumber('');
     setNeighborhood(''); setCity(''); setComplement(''); setPayment('');
     setNotes(''); setNeedsChange(false); setChangeFor(''); setDeliveryFee(0);
     setDistanceKm(null); setOutOfRange(false); setDeliveryMode('delivery'); removeCoupon();
@@ -194,7 +195,10 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
   const handleSend = async () => {
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
-    if (!phone.trim()) { toast.error('Informe seu telefone.'); return; }
+    const phoneClean = phone.replace(/\D/g, '');
+    if (!phoneClean) { setPhoneError('Informe seu telefone.'); toast.error('Informe seu telefone.'); return; }
+    if (phoneClean.length < 10 || phoneClean.length > 11) { setPhoneError('Telefone inválido. Use (DD) 9XXXX-XXXX'); toast.error('Telefone inválido.'); return; }
+    setPhoneError('');
     if (deliveryMode === 'delivery' && !street.trim()) { toast.error('Informe seu endereço (busque pelo CEP).'); return; }
     if (deliveryMode === 'delivery' && outOfRange) { toast.error('Endereço fora da área de entrega.'); return; }
     if (!payment) { toast.error('Selecione o método de pagamento.'); return; }
@@ -340,13 +344,33 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
               className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary" />
           </div>
 
-          {/* Phone */}
+          {/* Phone (required) */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-              <Phone className="h-4 w-4 text-primary" /> Telefone
+              <Phone className="h-4 w-4 text-primary" /> Telefone <span className="text-destructive">*</span>
             </Label>
-            <Input placeholder="(00) 00000-0000" value={phone} onChange={e => setPhone(e.target.value)} maxLength={20} type="tel"
-              className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary" />
+            <Input
+              placeholder="(00) 00000-0000"
+              value={phone}
+              onChange={e => {
+                const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
+                let formatted = raw;
+                if (raw.length > 6) formatted = `(${raw.slice(0,2)}) ${raw.slice(2,7)}-${raw.slice(7)}`;
+                else if (raw.length > 2) formatted = `(${raw.slice(0,2)}) ${raw.slice(2)}`;
+                setPhone(formatted);
+                if (phoneError) setPhoneError('');
+              }}
+              maxLength={16}
+              type="tel"
+              className={`h-12 rounded-xl border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary ${
+                phoneError ? 'bg-destructive/10 ring-2 ring-destructive' : 'bg-secondary'
+              }`}
+            />
+            {phoneError && (
+              <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                ⚠️ {phoneError}
+              </p>
+            )}
           </div>
 
           {/* Address fields (delivery only) */}
