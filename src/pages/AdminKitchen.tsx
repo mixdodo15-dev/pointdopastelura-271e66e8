@@ -19,6 +19,7 @@ import {
 interface OrderItem {
   product_name: string;
   quantity: number;
+  unit_price?: number;
 }
 
 interface KitchenOrder {
