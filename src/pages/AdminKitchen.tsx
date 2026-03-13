@@ -66,7 +66,7 @@ const AdminKitchen = () => {
     const { data, error } = await supabase
       .from('orders')
       .select('id, status, created_at, order_source, table_number, customer_name')
-      .in('status', ['received', 'accepted', 'preparing'])
+      .in('status', ['received', 'accepted', 'preparing', 'out_for_delivery'])
       .order('created_at', { ascending: true });
 
     if (error) { toast.error('Erro ao carregar pedidos'); return; }
