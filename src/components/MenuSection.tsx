@@ -496,7 +496,7 @@ const BatataCard = ({
       <div className="p-5">
         <div className="flex items-center justify-between mb-1">
           <h3 className="font-bold text-lg text-foreground">🍟 {item.name}</h3>
-          <span className="text-xl font-extrabold text-primary">{formatPrice(item.price)}</span>
+          <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />
         </div>
         {item.description && (
           <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
