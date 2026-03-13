@@ -142,12 +142,9 @@ const MenuSection = ({ category }: MenuSectionProps) => {
                     {item.description && (
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
                     )}
-                    <span
-                      className="text-base font-extrabold text-primary mt-1 block"
-                      style={{ fontFamily: "'Poppins', sans-serif" }}
-                    >
-                      {formatPrice(item.price)}
-                    </span>
+                    <div className="mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                      <PriceTag {...getDiscountedPrice(item.price, item.category)} />
+                    </div>
                   </div>
                 </div>
                 {/* Button below */}
