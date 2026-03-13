@@ -153,7 +153,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const grandTotal = totalPrice + deliveryFee;
+      const grandTotal = totalPrice - couponDiscount + deliveryFee;
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
