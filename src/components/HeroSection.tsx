@@ -9,6 +9,7 @@ import ThemeToggle from './ThemeToggle';
 
 const HeroSection = () => {
   const { isOpen, label, subtitle } = useRestaurantStatus();
+  const navigate = useNavigate();
 
   return (
     <section className="relative w-full">
