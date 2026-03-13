@@ -600,6 +600,11 @@ const Admin = () => {
             <LazyAdminRelatorios />
           </Suspense>
         )}
+        {activeTab === 'delivery' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminDeliverySettings />
+          </Suspense>
+        )}
       </div>
 
       {/* Product Modal */}
