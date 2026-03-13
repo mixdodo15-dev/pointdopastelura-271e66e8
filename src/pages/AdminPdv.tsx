@@ -353,7 +353,7 @@ const AdminPdv = () => {
         {/* Right - Nova Comanda */}
         <div className="w-[380px] shrink-0 border-l border-border flex flex-col overflow-hidden bg-card">
           {/* Comanda Header */}
-          <div className="bg-[hsl(145_70%_40%)] px-4 py-3 flex items-center gap-2">
+          <div className="bg-[hsl(var(--pdv-red))] px-4 py-3 flex items-center gap-2">
             <span className="text-lg">📋</span>
             <h2 className="text-lg font-extrabold text-white">Nova Comanda</h2>
           </div>
