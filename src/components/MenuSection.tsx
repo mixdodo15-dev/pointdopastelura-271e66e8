@@ -429,10 +429,12 @@ const EspecialCard = ({
 const DoceCard = ({
   item,
   onAdd,
+  getDiscountedPrice,
 }: {
   item: MenuItem;
   onAdd: (item: MenuItem) => void;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
+  getDiscountedPrice: GetDiscountedPrice;
 }) => {
   const hasMaxFlavors = !!item.maxFlavors;
 
