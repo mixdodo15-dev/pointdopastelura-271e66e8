@@ -50,6 +50,10 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
   const [deliveryMode, setDeliveryMode] = useState<'delivery' | 'pickup'>('delivery');
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   useEffect(() => {
     if (open) {
