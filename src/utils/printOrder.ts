@@ -29,7 +29,7 @@ const PAYMENT_LABELS: Record<string, string> = {
 export const printOrder = (data: PrintData) => {
   console.log('[Print:order]', data);
 
-  const shortId = data.orderId.slice(0, 8).toUpperCase();
+  const shortId = data.orderNumber ? `Point-${String(data.orderNumber).padStart(4, '0')}` : `Point-${data.orderId.slice(0, 4).toUpperCase()}`;
   const now = new Date().toLocaleString('pt-BR');
 
   let html = `
