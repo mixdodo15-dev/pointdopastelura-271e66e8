@@ -312,23 +312,23 @@ const Admin = () => {
           <Button variant={activeTab === 'neighborhoods' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('neighborhoods')}>
             <MapPin className="h-4 w-4 mr-1" /> Bairros
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pedidos')}>
-            📋 Pedidos
+          <Button variant={activeTab === 'pedidos' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('pedidos')}>
+            <ClipboardList className="h-4 w-4 mr-1" /> Pedidos
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/pdv')}>
-            🖥️ PDV
+          <Button variant={activeTab === 'pdv' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('pdv')}>
+            <Monitor className="h-4 w-4 mr-1" /> PDV
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/kitchen')}>
-            👨‍🍳 Cozinha
+          <Button variant={activeTab === 'kitchen' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('kitchen')}>
+            <ChefHat className="h-4 w-4 mr-1" /> Cozinha
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/comandas')}>
-            🪑 Comandas
+          <Button variant={activeTab === 'comandas' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('comandas')}>
+            <UtensilsCrossed className="h-4 w-4 mr-1" /> Comandas
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/caixa')}>
-            💰 Caixa
+          <Button variant={activeTab === 'caixa' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('caixa')}>
+            <Wallet className="h-4 w-4 mr-1" /> Caixa
           </Button>
-          <Button variant="outline" className="rounded-full border-primary text-primary" onClick={() => navigate('/admin/relatorios')}>
-            📊 Relatórios
+          <Button variant={activeTab === 'relatorios' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('relatorios')}>
+            <BarChart3 className="h-4 w-4 mr-1" /> Relatórios
           </Button>
         </div>
 
