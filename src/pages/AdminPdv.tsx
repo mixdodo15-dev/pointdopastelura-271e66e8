@@ -241,7 +241,7 @@ const AdminPdv = () => {
             <button
               key={tab.id}
               onClick={() => {
-                if (tab.id !== 'pdv') navigate(`/admin`);
+                if (tab.id !== 'pdv') navigate(tab.route);
               }}
               className={cn(
                 "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all",
