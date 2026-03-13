@@ -18,7 +18,7 @@ const LazyAdminComandas = lazy(() => import('./AdminComandas'));
 const LazyAdminCaixa = lazy(() => import('./AdminCaixa'));
 const LazyAdminRelatorios = lazy(() => import('./AdminRelatorios'));
 const LazyAdminPedidos = lazy(() => import('./AdminPedidos'));
-
+const LazyAdminDeliverySettings = lazy(() => import('@/components/admin/AdminDeliverySettings'));
 interface Product {
   id: string;
   name: string;
@@ -64,7 +64,7 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [flavors, setFlavors] = useState<Flavor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients' | 'neighborhoods' | 'pedidos' | 'pdv' | 'kitchen' | 'comandas' | 'caixa' | 'relatorios'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients' | 'neighborhoods' | 'pedidos' | 'pdv' | 'kitchen' | 'comandas' | 'caixa' | 'relatorios' | 'delivery'>('products');
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [editNeighborhood, setEditNeighborhood] = useState<Neighborhood | null>(null);
   const [newNeighborhood, setNewNeighborhood] = useState(false);
@@ -329,6 +329,9 @@ const Admin = () => {
           </Button>
           <Button variant={activeTab === 'relatorios' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('relatorios')}>
             <BarChart3 className="h-4 w-4 mr-1" /> Relatórios
+          </Button>
+          <Button variant={activeTab === 'delivery' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('delivery')}>
+            <Truck className="h-4 w-4 mr-1" /> Entrega
           </Button>
           <Button variant="outline" className="rounded-full" onClick={() => navigate('/admin/marketing')}>
             🎁 Marketing
@@ -595,6 +598,11 @@ const Admin = () => {
         {activeTab === 'relatorios' && (
           <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
             <LazyAdminRelatorios />
+          </Suspense>
+        )}
+        {activeTab === 'delivery' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminDeliverySettings />
           </Suspense>
         )}
       </div>
