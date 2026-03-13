@@ -30,6 +30,24 @@ export const useViaCep = () => {
     }
   };
 
+  /** Search addresses by street name + city using ViaCEP */
+  const searchByStreet = async (uf: string, city: string, street: string): Promise<ViaCepResult[]> => {
+    if (street.length < 3) return [];
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://viacep.com.br/ws/${encodeURIComponent(uf)}/${encodeURIComponent(city)}/${encodeURIComponent(street)}/json/`
+      );
+      const data = await res.json();
+      if (Array.isArray(data)) return data as ViaCepResult[];
+      return [];
+    } catch {
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /** Try to geocode an address to get lat/lng using Nominatim (free, no API key) */
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
     try {
@@ -47,5 +65,5 @@ export const useViaCep = () => {
     }
   };
 
-  return { fetchAddress, geocodeAddress, loading };
+  return { fetchAddress, searchByStreet, geocodeAddress, loading };
 };
