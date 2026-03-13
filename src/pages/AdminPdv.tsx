@@ -200,8 +200,8 @@ const AdminPdv = () => {
   };
 
   const filtered = products.filter(p => {
-    const matchCat = !activeCategory || p.category === activeCategory;
     const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase());
+    const matchCat = search ? true : (!activeCategory || p.category === activeCategory);
     return matchCat && matchSearch;
   });
 
