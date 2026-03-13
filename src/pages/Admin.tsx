@@ -501,40 +501,9 @@ const Admin = () => {
 
         {/* Clients Tab */}
         {activeTab === 'clients' && (
-          <>
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-bold">Clientes Cadastrados ({clients.length})</h2>
-            </div>
-            <div className="space-y-2">
-              {clients.map((client, idx) => (
-                <motion.div
-                  key={client.user_id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="bg-card rounded-lg p-4 border flex items-center gap-3"
-                >
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm truncate">{client.display_name || 'Sem nome'}</p>
-                    <p className="text-xs text-muted-foreground truncate">{client.email || '—'}</p>
-                    {client.phone && <p className="text-xs text-muted-foreground">{client.phone}</p>}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[10px] text-muted-foreground">
-                      {new Date(client.created_at).toLocaleDateString('pt-BR')}
-                    </span>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteClient(client.user_id, client.display_name || '')}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-              {clients.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum cliente cadastrado.</p>}
-            </div>
-          </>
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminClientes />
+          </Suspense>
         )}
 
         {/* Neighborhoods Tab */}
