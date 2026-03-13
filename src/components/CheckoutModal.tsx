@@ -116,8 +116,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     setDeliveryMode(mode);
     if (mode === 'pickup') {
       setDeliveryFee(0);
-      setCep(''); setStreet(''); setNumber(''); setNeighborhood(''); setCity(''); setComplement('');
-      setDistanceKm(null); setOutOfRange(false);
+      setCep(''); setStreet(''); setStreetInput(''); setNumber(''); setNeighborhood(''); setCity(''); setComplement('');
+      setDistanceKm(null); setOutOfRange(false); setStreetSuggestions([]); setShowSuggestions(false);
     }
   };
 
