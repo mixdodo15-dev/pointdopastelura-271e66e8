@@ -299,7 +299,9 @@ const ProductImage = ({ src, alt, small }: { src?: string; alt: string; small?: 
   );
 };
 
-const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => void }) => (
+type GetDiscountedPrice = (price: number, category?: string) => { original: number; discounted: number; hasDiscount: boolean };
+
+const ItemCard = ({ item, onAdd, getDiscountedPrice }: { item: MenuItem; onAdd: (item: MenuItem) => void; getDiscountedPrice: GetDiscountedPrice }) => (
   <div className={CARD_CLASS + " flex items-center justify-between py-2 px-3"}>
     <div className="flex items-center gap-2 flex-1 min-w-0">
       <ProductImage src={item.imageUrl} alt={item.name} small />
@@ -309,7 +311,7 @@ const ItemCard = ({ item, onAdd }: { item: MenuItem; onAdd: (item: MenuItem) => 
       </div>
     </div>
     <div className="flex items-center gap-2 shrink-0">
-      <span className="text-xs font-extrabold text-primary">R$ {item.price.toFixed(2).replace('.', ',')}</span>
+      <PriceTagSmall {...getDiscountedPrice(item.price, item.category)} />
       <Button size="icon" className="rounded-full h-7 w-7" onClick={() => onAdd(item)}>
         <Plus className="h-3 w-3" />
       </Button>
