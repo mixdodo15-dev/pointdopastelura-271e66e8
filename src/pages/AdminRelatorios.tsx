@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, TrendingUp, Clock, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, BarChart3, TrendingUp, Clock, ShoppingBag, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const formatPrice = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
@@ -20,6 +20,13 @@ interface TopProduct {
   revenue: number;
 }
 
+interface HourlySales {
+  hour: string;
+  total: number;
+  count: number;
+  avg: number;
+}
+
 const AdminRelatorios = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -30,6 +37,8 @@ const AdminRelatorios = () => {
   const [avgTicket, setAvgTicket] = useState(0);
   const [dailyChart, setDailyChart] = useState<DailySales[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const [hourlyChart, setHourlyChart] = useState<HourlySales[]>([]);
+  const [peakHour, setPeakHour] = useState('');
 
   useEffect(() => {
     const check = async () => {
@@ -85,6 +94,26 @@ const AdminRelatorios = () => {
         }
       });
       setDailyChart(Object.values(daily));
+
+      // Hourly sales (today)
+      const hourly: Record<number, { total: number; count: number }> = {};
+      for (let h = 0; h < 24; h++) {
+        hourly[h] = { total: 0, count: 0 };
+      }
+      todayOrders.forEach(o => {
+        const h = new Date(o.created_at).getHours();
+        hourly[h].total += Number(o.total_price);
+        hourly[h].count += 1;
+      });
+      const hourlyData: HourlySales[] = Object.entries(hourly).map(([h, v]) => ({
+        hour: `${String(h).padStart(2, '0')}h`,
+        total: v.total,
+        count: v.count,
+        avg: v.count > 0 ? v.total / v.count : 0,
+      }));
+      setHourlyChart(hourlyData);
+      const peak = hourlyData.reduce((best, cur) => cur.total > best.total ? cur : best, hourlyData[0]);
+      setPeakHour(peak.count > 0 ? peak.hour : '--');
 
       // Top products
       const { data: items } = await supabase
@@ -161,6 +190,82 @@ const AdminRelatorios = () => {
                 <Bar dataKey="total" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Hourly Sales Chart */}
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-extrabold flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" />
+              Vendas por Horário (Hoje)
+            </h2>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground">Pico:</span>
+              <span className="font-bold text-primary">{peakHour}</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="bg-secondary rounded-xl p-3 text-center">
+              <p className="text-xs text-muted-foreground">Transações Hoje</p>
+              <p className="text-lg font-extrabold text-foreground">{todayCount}</p>
+            </div>
+            <div className="bg-secondary rounded-xl p-3 text-center">
+              <p className="text-xs text-muted-foreground">Total Hoje</p>
+              <p className="text-lg font-extrabold text-foreground">{formatPrice(todaySales)}</p>
+            </div>
+            <div className="bg-secondary rounded-xl p-3 text-center">
+              <p className="text-xs text-muted-foreground">Média/Hora</p>
+              <p className="text-lg font-extrabold text-foreground">
+                {formatPrice(todayCount > 0 ? todaySales / 24 : 0)}
+              </p>
+            </div>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={hourlyChart.filter(h => {
+                const hr = parseInt(h.hour);
+                return hr >= 8 && hr <= 23;
+              })}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip
+                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                  formatter={(value: number, name: string) => {
+                    if (name === 'total') return [formatPrice(value), 'Vendas'];
+                    if (name === 'count') return [value, 'Pedidos'];
+                    return [formatPrice(value), 'Média'];
+                  }}
+                />
+                <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="total" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 max-h-48 overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border text-muted-foreground">
+                  <th className="text-left py-1.5 font-semibold">Horário</th>
+                  <th className="text-right py-1.5 font-semibold">Pedidos</th>
+                  <th className="text-right py-1.5 font-semibold">Total</th>
+                  <th className="text-right py-1.5 font-semibold">Média</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hourlyChart.filter(h => h.count > 0).map(h => (
+                  <tr key={h.hour} className="border-b border-border/50">
+                    <td className="py-1.5 font-bold text-foreground">{h.hour}</td>
+                    <td className="text-right text-foreground">{h.count}</td>
+                    <td className="text-right font-semibold text-foreground">{formatPrice(h.total)}</td>
+                    <td className="text-right text-muted-foreground">{formatPrice(h.avg)}</td>
+                  </tr>
+                ))}
+                {hourlyChart.filter(h => h.count > 0).length === 0 && (
+                  <tr><td colSpan={4} className="text-center py-4 text-muted-foreground">Sem vendas hoje</td></tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
