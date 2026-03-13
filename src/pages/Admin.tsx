@@ -57,7 +57,7 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [flavors, setFlavors] = useState<Flavor[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients' | 'neighborhoods'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'flavors' | 'categories' | 'drivers' | 'clients' | 'neighborhoods' | 'pedidos' | 'pdv' | 'kitchen' | 'comandas' | 'caixa' | 'relatorios'>('products');
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [editNeighborhood, setEditNeighborhood] = useState<Neighborhood | null>(null);
   const [newNeighborhood, setNewNeighborhood] = useState(false);
