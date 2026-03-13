@@ -274,7 +274,7 @@ const AdminKitchen = () => {
                     <div key={order.id} className="bg-card rounded-xl border border-border p-3 shadow-sm hover:shadow-md transition-all duration-200">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-foreground text-sm">#{order.id.slice(0, 6).toUpperCase()}</span>
+                          <span className="font-extrabold text-foreground text-sm">Point-{String(order.order_number || 0).padStart(4, '0')}</span>
                           <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-bold", source.color)}>{source.label}</span>
                         </div>
                         <div className="flex items-center gap-2">
