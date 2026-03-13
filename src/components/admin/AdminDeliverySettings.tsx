@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Save, MapPin, Truck, Ruler, DollarSign, Loader2 } from 'lucide-react';
-import { MapContainer, TileLayer, Circle, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -253,44 +252,66 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-const MapClickHandler = ({ onClick }: { onClick: (lat: number, lng: number) => void }) => {
-  useMapEvents({
-    click: (e) => {
-      onClick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-};
-
 const DeliveryMap = ({
-  lat, lng, radiusKm, onLocationChange,
+  lat,
+  lng,
+  radiusKm,
+  onLocationChange,
 }: {
-  lat: number; lng: number; radiusKm: number; onLocationChange: (lat: number, lng: number) => void;
+  lat: number;
+  lng: number;
+  radiusKm: number;
+  onLocationChange: (lat: number, lng: number) => void;
 }) => {
-  const position = useMemo((): [number, number] => [lat, lng], [lat, lng]);
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const leafletMapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+  const circleRef = useRef<L.Circle | null>(null);
 
-  return (
-    <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }} key={`${lat}-${lng}`}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <Marker position={position} />
-      <Circle
-        center={position}
-        radius={radiusKm * 1000}
-        pathOptions={{
-          color: 'hsl(0, 85%, 50%)',
-          fillColor: 'hsl(0, 85%, 50%)',
-          fillOpacity: 0.12,
-          weight: 2,
-        }}
-      />
-      <MapClickHandler onClick={(newLat, newLng) => {
-        onLocationChange(Math.round(newLat * 10000) / 10000, Math.round(newLng * 10000) / 10000);
-      }} />
-    </MapContainer>
-  );
+  useEffect(() => {
+    if (!mapRef.current || leafletMapRef.current) return;
+
+    const map = L.map(mapRef.current).setView([lat, lng], 13);
+    leafletMapRef.current = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map);
+
+    markerRef.current = L.marker([lat, lng]).addTo(map);
+    circleRef.current = L.circle([lat, lng], {
+      radius: radiusKm * 1000,
+      color: 'hsl(0, 85%, 50%)',
+      fillColor: 'hsl(0, 85%, 50%)',
+      fillOpacity: 0.12,
+      weight: 2,
+    }).addTo(map);
+
+    map.on('click', (e: L.LeafletMouseEvent) => {
+      const newLat = Math.round(e.latlng.lat * 10000) / 10000;
+      const newLng = Math.round(e.latlng.lng * 10000) / 10000;
+      onLocationChange(newLat, newLng);
+    });
+
+    return () => {
+      map.remove();
+      leafletMapRef.current = null;
+      markerRef.current = null;
+      circleRef.current = null;
+    };
+  }, [lat, lng, onLocationChange, radiusKm]);
+
+  useEffect(() => {
+    if (!leafletMapRef.current || !markerRef.current || !circleRef.current) return;
+
+    const nextLatLng: L.LatLngExpression = [lat, lng];
+    markerRef.current.setLatLng(nextLatLng);
+    circleRef.current.setLatLng(nextLatLng);
+    circleRef.current.setRadius(radiusKm * 1000);
+    leafletMapRef.current.panTo(nextLatLng, { animate: true });
+  }, [lat, lng, radiusKm]);
+
+  return <div ref={mapRef} className="h-full w-full" />;
 };
 
 export default AdminDeliverySettings;
