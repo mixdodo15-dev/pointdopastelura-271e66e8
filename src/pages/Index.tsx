@@ -81,6 +81,7 @@ const Index = () => {
     <CartProvider>
       <div className="min-h-screen bg-background pb-24">
         <HeroSection />
+        <AuthBanner />
         <Header cartOpen={cartSheetOpen} setCartOpen={setCartSheetOpen} />
 
         <TopDaSemana />
