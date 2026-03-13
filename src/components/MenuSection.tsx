@@ -482,7 +482,7 @@ const BatataCard = ({
     addItem({
       id: `${item.id}-${cheese}`,
       name: `${item.name}${suffix}`,
-      price: item.price,
+      price: getDiscountedPrice(item.price, item.category).discounted,
     });
     toast.success(`${item.name} adicionado!`);
     setCheese('');
