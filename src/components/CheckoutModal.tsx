@@ -356,9 +356,17 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 <MapPin className="h-4 w-4 text-primary" /> Endereço de entrega
               </Label>
 
+              {/* CEP input */}
+              <Input placeholder="CEP (ex: 38000-000)"
+                value={cep}
+                onChange={e => handleCepChange(e.target.value)}
+                maxLength={9}
+                className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary font-mono"
+              />
+
               {/* Street search */}
               <div className="relative">
-                <Input placeholder="Digite o nome da rua..."
+                <Input placeholder="Ou busque pelo nome da rua..."
                   value={streetInput}
                   onChange={e => handleStreetInputChange(e.target.value)}
                   onFocus={() => streetSuggestions.length > 0 && setShowSuggestions(true)}
