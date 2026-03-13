@@ -209,6 +209,36 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_settings: {
+        Row: {
+          fee_per_km: number
+          id: string
+          max_radius_km: number
+          min_fee: number
+          store_lat: number
+          store_lng: number
+          updated_at: string
+        }
+        Insert: {
+          fee_per_km?: number
+          id?: string
+          max_radius_km?: number
+          min_fee?: number
+          store_lat?: number
+          store_lng?: number
+          updated_at?: string
+        }
+        Update: {
+          fee_per_km?: number
+          id?: string
+          max_radius_km?: number
+          min_fee?: number
+          store_lat?: number
+          store_lng?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       flavors: {
         Row: {
           active: boolean
