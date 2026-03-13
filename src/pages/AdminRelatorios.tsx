@@ -37,6 +37,8 @@ const AdminRelatorios = () => {
   const [avgTicket, setAvgTicket] = useState(0);
   const [dailyChart, setDailyChart] = useState<DailySales[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const [hourlyChart, setHourlyChart] = useState<HourlySales[]>([]);
+  const [peakHour, setPeakHour] = useState('');
 
   useEffect(() => {
     const check = async () => {
