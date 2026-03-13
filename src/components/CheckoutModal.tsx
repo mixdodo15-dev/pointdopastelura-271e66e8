@@ -91,6 +91,52 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     }
   };
 
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setApplyingCoupon(true);
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('code', couponCode.trim().toUpperCase())
+      .eq('active', true)
+      .maybeSingle();
+
+    if (error || !data) {
+      toast.error('Cupom inválido ou expirado');
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      toast.error('Cupom expirado');
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.max_uses && data.used_count >= data.max_uses) {
+      toast.error('Cupom esgotado');
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.min_order_value && totalPrice < Number(data.min_order_value)) {
+      toast.error(`Pedido mínimo: ${formatPrice(Number(data.min_order_value))}`);
+      setApplyingCoupon(false);
+      return;
+    }
+    const discount = data.discount_type === 'percentage'
+      ? totalPrice * (Number(data.discount_value) / 100)
+      : Number(data.discount_value);
+    setCouponDiscount(Math.min(discount, totalPrice));
+    setCouponApplied(true);
+    await supabase.from('coupons').update({ used_count: data.used_count + 1 }).eq('id', data.id);
+    toast.success(`Cupom aplicado! Desconto: ${formatPrice(Math.min(discount, totalPrice))}`);
+    setApplyingCoupon(false);
+  };
+
+  const removeCoupon = () => {
+    setCouponCode('');
+    setCouponDiscount(0);
+    setCouponApplied(false);
+  };
+
   const handleSend = async () => {
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
     if (!phone.trim()) { toast.error('Informe seu telefone.'); return; }
