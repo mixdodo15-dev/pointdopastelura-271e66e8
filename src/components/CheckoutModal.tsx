@@ -32,13 +32,16 @@ const paymentOptions = [
 const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
-  const { fetchAddress, geocodeAddress, loading: cepLoading } = useViaCep();
+  const { fetchAddress, searchByStreet, geocodeAddress, loading: cepLoading } = useViaCep();
   const { settings: deliverySettings } = useDeliverySettings();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [cep, setCep] = useState('');
   const [street, setStreet] = useState('');
+  const [streetInput, setStreetInput] = useState('');
+  const [streetSuggestions, setStreetSuggestions] = useState<Array<{cep: string; logradouro: string; bairro: string; localidade: string; uf: string}>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [number, setNumber] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [city, setCity] = useState('');
@@ -59,25 +62,36 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [calculatingFee, setCalculatingFee] = useState(false);
 
-  const formatCep = (v: string) => {
-    const clean = v.replace(/\D/g, '').slice(0, 8);
-    if (clean.length > 5) return `${clean.slice(0, 5)}-${clean.slice(5)}`;
-    return clean;
-  };
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleCepSearch = async () => {
-    const result = await fetchAddress(cep);
-    if (!result) {
-      if (cep.replace(/\D/g, '').length === 8) toast.error('CEP não encontrado');
+  const handleStreetInputChange = (value: string) => {
+    setStreetInput(value);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    if (value.length < 3) {
+      setStreetSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
-    setStreet(result.logradouro || '');
-    setNeighborhood(result.bairro || '');
-    setCity(`${result.localidade}/${result.uf}`);
-    toast.success('Endereço preenchido!');
+    searchTimeout.current = setTimeout(async () => {
+      // Search in Uberlândia/MG (adjust UF/city as needed)
+      const results = await searchByStreet('MG', 'Uberlandia', value);
+      setStreetSuggestions(results.slice(0, 8));
+      setShowSuggestions(results.length > 0);
+    }, 400);
+  };
 
+  const selectStreetSuggestion = async (suggestion: typeof streetSuggestions[0]) => {
+    setStreet(suggestion.logradouro);
+    setStreetInput(suggestion.logradouro);
+    setNeighborhood(suggestion.bairro);
+    setCity(`${suggestion.localidade}/${suggestion.uf}`);
+    setCep(suggestion.cep);
+    setShowSuggestions(false);
+    setStreetSuggestions([]);
+
+    // Calculate delivery fee
     setCalculatingFee(true);
-    const addr = `${result.logradouro}, ${result.bairro}, ${result.localidade}, ${result.uf}, Brasil`;
+    const addr = `${suggestion.logradouro}, ${suggestion.bairro}, ${suggestion.localidade}, ${suggestion.uf}, Brasil`;
     const coords = await geocodeAddress(addr);
     if (coords) {
       const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
