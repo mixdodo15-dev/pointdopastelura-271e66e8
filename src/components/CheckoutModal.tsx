@@ -146,6 +146,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         msg += `📍 *Endereço:* ${sanitizedAddress}\n`;
       }
       msg += `💳 *Pagamento:* ${payment}\n`;
+      if (payment === 'Dinheiro' && needsChange && changeFor.trim()) {
+        msg += `💰 *Troco para:* ${changeFor.trim()}\n`;
+      } else if (payment === 'Dinheiro' && !needsChange) {
+        msg += `💰 *Troco:* Não precisa\n`;
+      }
       if (sanitizedNotes) msg += `📝 *Obs:* ${sanitizedNotes}\n`;
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
       msg += `📋 *Itens do pedido:*\n\n`;
