@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
-import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike, Store, Ticket, Check } from 'lucide-react';
+import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike, Store, Ticket, Check, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import OrderSuccessAnimation from './OrderSuccessAnimation';
+import { useViaCep } from '@/hooks/useViaCep';
+import { useDeliverySettings, calcDistanceKm, calcDeliveryFee } from '@/hooks/useDeliverySettings';
 
 interface CheckoutModalProps {
   open: boolean;
