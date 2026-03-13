@@ -351,6 +351,44 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
             </div>
           </div>
 
+          {payment === 'Dinheiro' && (
+            <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
+              <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                💰 Precisa de troco?
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => { setNeedsChange(false); setChangeFor(''); }}
+                  className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    !needsChange
+                      ? 'bg-primary text-primary-foreground shadow-lg scale-[1.03]'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
+                  }`}
+                >
+                  Não preciso
+                </button>
+                <button
+                  onClick={() => setNeedsChange(true)}
+                  className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    needsChange
+                      ? 'bg-primary text-primary-foreground shadow-lg scale-[1.03]'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
+                  }`}
+                >
+                  Sim, preciso
+                </button>
+              </div>
+              {needsChange && (
+                <Input
+                  placeholder="Troco para quanto? Ex: R$ 50,00"
+                  value={changeFor}
+                  onChange={e => setChangeFor(e.target.value)}
+                  className="h-12 rounded-xl bg-background border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary mt-2"
+                />
+              )}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
               <StickyNote className="h-4 w-4" /> Observações (opcional)
