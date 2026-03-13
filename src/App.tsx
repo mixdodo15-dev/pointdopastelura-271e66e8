@@ -1,91 +1,58 @@
-import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-// Error boundary to catch and log which component fails
-class ErrorBoundary extends React.Component<
-  { name: string; children: React.ReactNode },
-  { error: Error | null }
-> {
-  constructor(props: any) {
-    super(props);
-    this.state = { error: null };
-  }
-  static getDerivedStateFromError(error: Error) {
-    return { error };
-  }
-  componentDidCatch(error: Error) {
-    console.error(`[APP_DEBUG] ❌ ErrorBoundary caught in "${this.props.name}":`, error.message);
-  }
-  render() {
-    if (this.state.error) {
-      return (
-        <div style={{ padding: 8, background: '#fee', border: '1px solid #f00', borderRadius: 8, margin: 4, fontSize: 12 }}>
-          <b>❌ {this.props.name}</b>: {this.state.error.message}
-        </div>
-      );
-    }
-    console.log(`[APP_DEBUG] ✅ "${this.props.name}" rendered OK`);
-    return <>{this.props.children}</>;
-  }
-}
-
-// Lazy imports to isolate failures
-const TooltipProvider = React.lazy(() =>
-  import("@/components/ui/tooltip").then(m => {
-    console.log("[APP_DEBUG] tooltip module loaded");
-    return { default: m.TooltipProvider };
-  })
-);
-const Toaster = React.lazy(() =>
-  import("@/components/ui/toaster").then(m => {
-    console.log("[APP_DEBUG] toaster module loaded");
-    return { default: m.Toaster };
-  })
-);
-const Sonner = React.lazy(() =>
-  import("@/components/ui/sonner").then(m => {
-    console.log("[APP_DEBUG] sonner module loaded");
-    return { default: m.Toaster };
-  })
-);
-const Index = React.lazy(() =>
-  import("./pages/Index").then(m => {
-    console.log("[APP_DEBUG] Index module loaded");
-    return { default: m.default };
-  })
-);
+import { ThemeProvider } from "next-themes";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import ResetPassword from "./pages/ResetPassword";
+import ClienteLogin from "./pages/ClienteLogin";
+import MeusPedidos from "./pages/MeusPedidos";
+import MinhaConta from "./pages/MinhaConta";
+import Admin from "./pages/Admin";
+import AdminPedidos from "./pages/AdminPedidos";
+import AdminPdv from "./pages/AdminPdv";
+import AdminCaixa from "./pages/AdminCaixa";
+import AdminComandas from "./pages/AdminComandas";
+import AdminKitchen from "./pages/AdminKitchen";
+import AdminRelatorios from "./pages/AdminRelatorios";
+import AdminMarketing from "./pages/AdminMarketing";
+import Entregador from "./pages/Entregador";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <React.Suspense fallback={<div style={{ padding: 40 }}>Carregando...</div>}>
-      <ErrorBoundary name="TooltipProvider">
-        <TooltipProvider>
-          <ErrorBoundary name="Toaster">
-            <Toaster />
-          </ErrorBoundary>
-          <ErrorBoundary name="Sonner">
-            <Sonner />
-          </ErrorBoundary>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={
-                <ErrorBoundary name="Index">
-                  <Index />
-                </ErrorBoundary>
-              } />
-              <Route path="*" element={
-                <div style={{ padding: 40 }}>
-                  <p>Debug: outras rotas desabilitadas temporariamente</p>
-                </div>
-              } />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ErrorBoundary>
-    </React.Suspense>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/cliente-login" element={<ClienteLogin />} />
+            <Route path="/meus-pedidos" element={<MeusPedidos />} />
+            <Route path="/minha-conta" element={<MinhaConta />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/pedidos" element={<AdminPedidos />} />
+            <Route path="/admin/pdv" element={<AdminPdv />} />
+            <Route path="/admin/caixa" element={<AdminCaixa />} />
+            <Route path="/admin/comandas" element={<AdminComandas />} />
+            <Route path="/admin/cozinha" element={<AdminKitchen />} />
+            <Route path="/admin/relatorios" element={<AdminRelatorios />} />
+            <Route path="/admin/marketing" element={<AdminMarketing />} />
+            <Route path="/entregador" element={<Entregador />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
