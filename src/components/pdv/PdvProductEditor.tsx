@@ -292,7 +292,7 @@ const ProductEditModal = ({
       if (error) { toast.error('Erro ao salvar'); setSaving(false); return; }
       toast.success('Produto atualizado!');
     } else {
-      const { error } = await supabase.from('products').insert(data);
+      const { error } = await supabase.from('products').insert(data as any);
       if (error) { toast.error('Erro ao criar'); setSaving(false); return; }
       toast.success('Produto criado!');
     }
