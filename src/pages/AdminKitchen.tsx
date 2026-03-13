@@ -282,6 +282,24 @@ const AdminKitchen = () => {
                             {getTimeDiff(order.created_at)}
                           </div>
                           <button
+                            onClick={() => printOrder({
+                              orderId: order.id,
+                              items: order.items.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.unit_price || 0 })),
+                              subtotal: order.total_price - order.delivery_fee,
+                              discount: 0,
+                              deliveryFee: order.delivery_fee,
+                              total: order.total_price,
+                              paymentMethod: order.payment_method,
+                              orderType: order.order_source || 'delivery',
+                              tableNumber: order.table_number || undefined,
+                              customerName: order.customer_name,
+                            })}
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                            title="Imprimir pedido"
+                          >
+                            <Printer className="h-3.5 w-3.5" />
+                          </button>
+                          <button
                             onClick={() => setDeleteOrderId(order.id)}
                             className="text-muted-foreground hover:text-destructive transition-colors"
                           >
