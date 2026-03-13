@@ -1,9 +1,12 @@
-import { Search, User } from 'lucide-react';
+import { Search, User, LogIn } from 'lucide-react';
 import { ShoppingBag, Clock, Bike } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import heroBg from '@/assets/hero-pastel.jpg';
 import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
+import { supabase } from '@/integrations/supabase/client';
 import ThemeToggle from './ThemeToggle';
 
 const HeroSection = () => {
