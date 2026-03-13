@@ -43,9 +43,9 @@ const HeroSection = () => {
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
           <ThemeToggle />
           <button
-            onClick={() => navigate('/cliente-login')}
+            onClick={() => navigate(isLoggedIn ? '/minha-conta' : '/cliente-login')}
             className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg"
-            aria-label="Login ou Cadastro"
+            aria-label={isLoggedIn ? 'Minha Conta' : 'Login ou Cadastro'}
           >
             <User className="h-5 w-5 text-white" />
           </button>
