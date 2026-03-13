@@ -18,7 +18,7 @@ const LazyAdminComandas = lazy(() => import('./AdminComandas'));
 const LazyAdminCaixa = lazy(() => import('./AdminCaixa'));
 const LazyAdminRelatorios = lazy(() => import('./AdminRelatorios'));
 const LazyAdminPedidos = lazy(() => import('./AdminPedidos'));
-
+const LazyAdminDeliverySettings = lazy(() => import('@/components/admin/AdminDeliverySettings'));
 interface Product {
   id: string;
   name: string;
