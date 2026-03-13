@@ -186,7 +186,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const removeCoupon = () => { setCouponCode(''); setCouponDiscount(0); setCouponApplied(false); };
 
   const resetForm = () => {
-    setName(''); setPhone(''); setCep(''); setStreet(''); setStreetInput(''); setNumber('');
+    setName(''); setPhone(''); setPhoneError(''); setCep(''); setStreet(''); setStreetInput(''); setNumber('');
     setNeighborhood(''); setCity(''); setComplement(''); setPayment('');
     setNotes(''); setNeedsChange(false); setChangeFor(''); setDeliveryFee(0);
     setDistanceKm(null); setOutOfRange(false); setDeliveryMode('delivery'); removeCoupon();
