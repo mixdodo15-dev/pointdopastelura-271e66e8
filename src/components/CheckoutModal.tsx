@@ -116,7 +116,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
           delivery_fee: deliveryFee,
           status: 'received' as const,
         })
-        .select()
+        .select('id, order_number')
         .single();
 
       if (orderError) throw orderError;
@@ -134,7 +134,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
       if (itemsError) throw itemsError;
 
-      let msg = `🧾 *PEDIDO #${order.id.slice(0, 8).toUpperCase()} - Point Do Pastel*\n\n`;
+      const orderLabel = `Point-${String(order.order_number || 0).padStart(4, '0')}`;
+      let msg = `🧾 *PEDIDO ${orderLabel} - Point Do Pastel*\n\n`;
       msg += `👤 *Cliente:* ${sanitizedName}\n`;
       msg += `📞 *Telefone:* ${sanitizedPhone}\n`;
       if (deliveryMode === 'pickup') {
