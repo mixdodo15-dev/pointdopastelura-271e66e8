@@ -562,6 +562,38 @@ const Admin = () => {
             </div>
           </>
         )}
+
+        {/* Embedded Pages */}
+        {activeTab === 'pedidos' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminPedidos />
+          </Suspense>
+        )}
+        {activeTab === 'pdv' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminPdv />
+          </Suspense>
+        )}
+        {activeTab === 'kitchen' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminKitchen />
+          </Suspense>
+        )}
+        {activeTab === 'comandas' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminComandas />
+          </Suspense>
+        )}
+        {activeTab === 'caixa' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminCaixa />
+          </Suspense>
+        )}
+        {activeTab === 'relatorios' && (
+          <Suspense fallback={<div className="py-16 text-center text-muted-foreground">Carregando...</div>}>
+            <LazyAdminRelatorios />
+          </Suspense>
+        )}
       </div>
 
       {/* Product Modal */}
