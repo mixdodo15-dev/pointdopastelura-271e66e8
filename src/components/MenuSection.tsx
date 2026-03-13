@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { type MenuItem, SWEET_SPECIAL_FLAVORS } from '@/data/menu';
 import { useProducts } from '@/hooks/useProducts';
+import { useHappyHour } from '@/hooks/useHappyHour';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Star, ShoppingCart } from 'lucide-react';
+import { Plus, Star, ShoppingCart, Clock } from 'lucide-react';
 import FlavorModal from './FlavorModal';
 import AdicionaisModal from './AdicionaisModal';
 import AnimatedCard from './AnimatedCard';
