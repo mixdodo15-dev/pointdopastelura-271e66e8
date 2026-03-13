@@ -204,11 +204,14 @@ const AdminPdv = () => {
   }
 
   const navTabs = [
-    { id: 'pdv', label: 'PDV', icon: <ShoppingCart className="h-4 w-4" /> },
-    { id: 'pedidos', label: 'Pedidos', icon: <ClipboardList className="h-4 w-4" /> },
-    { id: 'cozinha', label: 'Cozinha', icon: <ChefHat className="h-4 w-4" /> },
-    { id: 'caixa', label: 'Caixa', icon: <Wallet className="h-4 w-4" /> },
-    { id: 'relatorios', label: 'Relatórios', icon: <BarChart3 className="h-4 w-4" /> },
+    { id: 'pdv', label: 'PDV', icon: <ShoppingCart className="h-4 w-4" />, route: '/admin/pdv' },
+    { id: 'pedidos', label: 'Pedidos', icon: <ClipboardList className="h-4 w-4" />, route: '/admin/pedidos' },
+    { id: 'cozinha', label: 'Cozinha', icon: <ChefHat className="h-4 w-4" />, route: '/admin/kitchen' },
+    { id: 'caixa', label: 'Caixa', icon: <Wallet className="h-4 w-4" />, route: '/admin/caixa' },
+    { id: 'relatorios', label: 'Relatório', icon: <BarChart3 className="h-4 w-4" />, route: '/admin/relatorios' },
+    { id: 'mais-vendidos', label: 'Mais Vendidos', icon: <TrendingUp className="h-4 w-4" />, route: '/admin/relatorios' },
+    { id: 'ficha-tecnica', label: 'Ficha Técnica', icon: <FileText className="h-4 w-4" />, route: '/admin' },
+    { id: 'embalagens', label: 'Embalagens', icon: <Package className="h-4 w-4" />, route: '/admin' },
   ];
 
   const paymentMethods: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
