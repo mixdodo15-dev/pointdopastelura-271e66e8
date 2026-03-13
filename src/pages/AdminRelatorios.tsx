@@ -193,6 +193,82 @@ const AdminRelatorios = () => {
           </div>
         </div>
 
+        {/* Hourly Sales Chart */}
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-extrabold flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" />
+              Vendas por Horário (Hoje)
+            </h2>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground">Pico:</span>
+              <span className="font-bold text-primary">{peakHour}</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="bg-secondary rounded-xl p-3 text-center">
+              <p className="text-xs text-muted-foreground">Transações Hoje</p>
+              <p className="text-lg font-extrabold text-foreground">{todayCount}</p>
+            </div>
+            <div className="bg-secondary rounded-xl p-3 text-center">
+              <p className="text-xs text-muted-foreground">Total Hoje</p>
+              <p className="text-lg font-extrabold text-foreground">{formatPrice(todaySales)}</p>
+            </div>
+            <div className="bg-secondary rounded-xl p-3 text-center">
+              <p className="text-xs text-muted-foreground">Média/Hora</p>
+              <p className="text-lg font-extrabold text-foreground">
+                {formatPrice(todayCount > 0 ? todaySales / 24 : 0)}
+              </p>
+            </div>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={hourlyChart.filter(h => {
+                const hr = parseInt(h.hour);
+                return hr >= 8 && hr <= 23;
+              })}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip
+                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                  formatter={(value: number, name: string) => {
+                    if (name === 'total') return [formatPrice(value), 'Vendas'];
+                    if (name === 'count') return [value, 'Pedidos'];
+                    return [formatPrice(value), 'Média'];
+                  }}
+                />
+                <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="total" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 max-h-48 overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border text-muted-foreground">
+                  <th className="text-left py-1.5 font-semibold">Horário</th>
+                  <th className="text-right py-1.5 font-semibold">Pedidos</th>
+                  <th className="text-right py-1.5 font-semibold">Total</th>
+                  <th className="text-right py-1.5 font-semibold">Média</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hourlyChart.filter(h => h.count > 0).map(h => (
+                  <tr key={h.hour} className="border-b border-border/50">
+                    <td className="py-1.5 font-bold text-foreground">{h.hour}</td>
+                    <td className="text-right text-foreground">{h.count}</td>
+                    <td className="text-right font-semibold text-foreground">{formatPrice(h.total)}</td>
+                    <td className="text-right text-muted-foreground">{formatPrice(h.avg)}</td>
+                  </tr>
+                ))}
+                {hourlyChart.filter(h => h.count > 0).length === 0 && (
+                  <tr><td colSpan={4} className="text-center py-4 text-muted-foreground">Sem vendas hoje</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* Top Products */}
         <div className="bg-card rounded-xl border border-border p-4">
           <h2 className="text-sm font-extrabold mb-3">Produtos Mais Vendidos</h2>
