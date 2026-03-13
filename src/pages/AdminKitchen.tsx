@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, Clock, ArrowRight, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ChefHat, Clock, ArrowRight, Trash2, AlertTriangle, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog,
