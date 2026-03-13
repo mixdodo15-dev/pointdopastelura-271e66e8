@@ -285,6 +285,7 @@ const AdminKitchen = () => {
                           <button
                             onClick={() => printOrder({
                               orderId: order.id,
+                              orderNumber: order.order_number || undefined,
                               items: order.items.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.unit_price || 0 })),
                               subtotal: order.total_price - order.delivery_fee,
                               discount: 0,
