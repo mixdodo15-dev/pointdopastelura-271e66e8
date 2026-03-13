@@ -226,7 +226,7 @@ const AdminPdv = () => {
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Purple Header */}
-      <header className="bg-[hsl(270_60%_40%)] px-4 py-2.5 flex items-center justify-between shrink-0 shadow-lg">
+      <header className="bg-[hsl(var(--pdv-red))] px-4 py-2.5 flex items-center justify-between shrink-0 shadow-lg">
         <div className="flex items-center gap-3">
           <span className="text-2xl">🥟</span>
           <h1 className="text-lg font-extrabold text-white tracking-tight">POINT DO PASTEL</h1>
