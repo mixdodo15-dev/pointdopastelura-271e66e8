@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -8,6 +8,12 @@ import {
   CheckCircle, Printer, MessageCircle, Minus, Plus, Trash2, Image as ImageIcon,
   TrendingUp, FileText, Package
 } from 'lucide-react';
+
+// Lazy load embedded sections
+const AdminPedidos = lazy(() => import('@/pages/AdminPedidos'));
+const AdminKitchen = lazy(() => import('@/pages/AdminKitchen'));
+const AdminCaixa = lazy(() => import('@/pages/AdminCaixa'));
+const AdminRelatorios = lazy(() => import('@/pages/AdminRelatorios'));
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -47,6 +53,7 @@ const AdminPdv = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState('');
   const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('pdv');
   const [darkMode, setDarkMode] = useState(false);
   const [payment, setPayment] = useState<PaymentMethod>('dinheiro');
   const [notes, setNotes] = useState('');
@@ -204,14 +211,14 @@ const AdminPdv = () => {
   }
 
   const navTabs = [
-    { id: 'pdv', label: 'PDV', icon: <ShoppingCart className="h-4 w-4" />, route: '/admin/pdv' },
-    { id: 'pedidos', label: 'Pedidos', icon: <ClipboardList className="h-4 w-4" />, route: '/admin/pedidos' },
-    { id: 'cozinha', label: 'Cozinha', icon: <ChefHat className="h-4 w-4" />, route: '/admin/kitchen' },
-    { id: 'caixa', label: 'Caixa', icon: <Wallet className="h-4 w-4" />, route: '/admin/caixa' },
-    { id: 'relatorios', label: 'Relatório', icon: <BarChart3 className="h-4 w-4" />, route: '/admin/relatorios' },
-    { id: 'mais-vendidos', label: 'Mais Vendidos', icon: <TrendingUp className="h-4 w-4" />, route: '/admin/relatorios' },
-    { id: 'ficha-tecnica', label: 'Ficha Técnica', icon: <FileText className="h-4 w-4" />, route: '/admin' },
-    { id: 'embalagens', label: 'Embalagens', icon: <Package className="h-4 w-4" />, route: '/admin' },
+    { id: 'pdv', label: 'PDV', icon: <ShoppingCart className="h-4 w-4" /> },
+    { id: 'pedidos', label: 'Pedidos', icon: <ClipboardList className="h-4 w-4" /> },
+    { id: 'cozinha', label: 'Cozinha', icon: <ChefHat className="h-4 w-4" /> },
+    { id: 'caixa', label: 'Caixa', icon: <Wallet className="h-4 w-4" /> },
+    { id: 'relatorios', label: 'Relatório', icon: <BarChart3 className="h-4 w-4" /> },
+    { id: 'mais-vendidos', label: 'Mais Vendidos', icon: <TrendingUp className="h-4 w-4" /> },
+    { id: 'ficha-tecnica', label: 'Ficha Técnica', icon: <FileText className="h-4 w-4" /> },
+    { id: 'embalagens', label: 'Embalagens', icon: <Package className="h-4 w-4" /> },
   ];
 
   const paymentMethods: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
@@ -236,16 +243,14 @@ const AdminPdv = () => {
           <h1 className="text-lg font-extrabold text-white tracking-tight">POINT DO PASTEL</h1>
         </div>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-hide">
           {navTabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => {
-                if (tab.id !== 'pdv') navigate(tab.route);
-              }}
+              onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all",
-                tab.id === 'pdv'
+                "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
+                activeTab === tab.id
                   ? "bg-white text-[hsl(var(--pdv-red))] shadow-md"
                   : "text-white/80 hover:bg-white/15 hover:text-white"
               )}
@@ -277,6 +282,35 @@ const AdminPdv = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
+        {activeTab !== 'pdv' ? (
+          <div className="flex-1 overflow-y-auto">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-full">
+                <div className="h-10 w-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+              </div>
+            }>
+              {activeTab === 'pedidos' && <AdminPedidos />}
+              {activeTab === 'cozinha' && <AdminKitchen />}
+              {activeTab === 'caixa' && <AdminCaixa />}
+              {(activeTab === 'relatorios' || activeTab === 'mais-vendidos') && <AdminRelatorios />}
+              {activeTab === 'ficha-tecnica' && (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2 p-8">
+                  <FileText className="h-16 w-16 opacity-30" />
+                  <p className="text-lg font-bold">Ficha Técnica</p>
+                  <p className="text-sm">Em breve — módulo em desenvolvimento</p>
+                </div>
+              )}
+              {activeTab === 'embalagens' && (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2 p-8">
+                  <Package className="h-16 w-16 opacity-30" />
+                  <p className="text-lg font-bold">Embalagens</p>
+                  <p className="text-sm">Em breve — módulo em desenvolvimento</p>
+                </div>
+              )}
+            </Suspense>
+          </div>
+        ) : (
+        <>
         {/* Left - Products */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search */}
@@ -552,6 +586,8 @@ const AdminPdv = () => {
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
 
       {/* Modals */}
