@@ -327,11 +327,13 @@ const EspecialCard = ({
   item,
   addItem,
   allProducts,
+  getDiscountedPrice,
 }: {
   item: MenuItem;
   onAdd: (item: MenuItem) => void;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
   allProducts: MenuItem[];
+  getDiscountedPrice: GetDiscountedPrice;
 }) => {
   const [cheese, setCheese] = useState<string>('');
   const [adicionaisOpen, setAdicionaisOpen] = useState(false);
