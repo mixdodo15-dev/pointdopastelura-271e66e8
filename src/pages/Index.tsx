@@ -10,6 +10,7 @@ import { useCategories } from '@/hooks/useCategories';
 import AnimatedCard from '@/components/AnimatedCard';
 import SectionTitle from '@/components/SectionTitle';
 import TopDaSemana from '@/components/TopDaSemana';
+import AuthBanner from '@/components/AuthBanner';
 
 const Index = () => {
   const { categories, loading } = useCategories();
