@@ -222,7 +222,74 @@ const AdminDeliverySettings = () => {
           </p>
         </div>
       </div>
+
+      {/* Map */}
+      <div className="bg-card rounded-xl border p-5 space-y-4">
+        <h3 className="font-bold text-sm flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-primary" />
+          Mapa da Área de Entrega
+        </h3>
+        <p className="text-[11px] text-muted-foreground">
+          Clique no mapa para reposicionar a loja. O círculo mostra o raio de entrega.
+        </p>
+        <div className="rounded-xl overflow-hidden border" style={{ height: 400 }}>
+          <DeliveryMap
+            lat={settings.store_lat}
+            lng={settings.store_lng}
+            radiusKm={settings.max_radius_km}
+            onLocationChange={(lat, lng) => setSettings({ ...settings, store_lat: lat, store_lng: lng })}
+          />
+        </div>
+      </div>
     </div>
+  );
+};
+
+// Fix Leaflet default icon
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
+const MapClickHandler = ({ onClick }: { onClick: (lat: number, lng: number) => void }) => {
+  useMapEvents({
+    click: (e) => {
+      onClick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+};
+
+const DeliveryMap = ({
+  lat, lng, radiusKm, onLocationChange,
+}: {
+  lat: number; lng: number; radiusKm: number; onLocationChange: (lat: number, lng: number) => void;
+}) => {
+  const position = useMemo((): [number, number] => [lat, lng], [lat, lng]);
+
+  return (
+    <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }} key={`${lat}-${lng}`}>
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <Marker position={position} />
+      <Circle
+        center={position}
+        radius={radiusKm * 1000}
+        pathOptions={{
+          color: 'hsl(0, 85%, 50%)',
+          fillColor: 'hsl(0, 85%, 50%)',
+          fillOpacity: 0.12,
+          weight: 2,
+        }}
+      />
+      <MapClickHandler onClick={(newLat, newLng) => {
+        onLocationChange(Math.round(newLat * 10000) / 10000, Math.round(newLng * 10000) / 10000);
+      }} />
+    </MapContainer>
   );
 };
 
