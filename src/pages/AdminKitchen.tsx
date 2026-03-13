@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, Clock, ArrowRight, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ChefHat, Clock, ArrowRight, Trash2, AlertTriangle, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { printOrder } from '@/utils/printOrder';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +20,7 @@ import {
 interface OrderItem {
   product_name: string;
   quantity: number;
+  unit_price?: number;
 }
 
 interface KitchenOrder {
@@ -28,6 +30,10 @@ interface KitchenOrder {
   order_source: string | null;
   table_number: string | null;
   customer_name: string;
+  payment_method: string;
+  total_price: number;
+  delivery_fee: number;
+  notes: string | null;
   items: OrderItem[];
 }
 
@@ -108,7 +114,7 @@ const AdminKitchen = () => {
   const loadOrders = async () => {
     const { data, error } = await supabase
       .from('orders')
-      .select('id, status, created_at, order_source, table_number, customer_name')
+      .select('id, status, created_at, order_source, table_number, customer_name, payment_method, total_price, delivery_fee, notes')
       .in('status', ['received', 'accepted', 'preparing', 'out_for_delivery', 'delivered'])
       .order('created_at', { ascending: true });
 
@@ -118,7 +124,7 @@ const AdminKitchen = () => {
     const orderIds = data.map(o => o.id);
     const { data: items } = await supabase
       .from('order_items')
-      .select('order_id, product_name, quantity')
+      .select('order_id, product_name, quantity, unit_price')
       .in('order_id', orderIds);
 
     const enriched: KitchenOrder[] = data.map(o => ({
@@ -127,6 +133,7 @@ const AdminKitchen = () => {
       items: items?.filter(i => i.order_id === o.id).map(i => ({
         product_name: i.product_name,
         quantity: i.quantity,
+        unit_price: i.unit_price,
       })) || [],
     }));
 
@@ -274,6 +281,24 @@ const AdminKitchen = () => {
                             <Clock className="h-3 w-3" />
                             {getTimeDiff(order.created_at)}
                           </div>
+                          <button
+                            onClick={() => printOrder({
+                              orderId: order.id,
+                              items: order.items.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.unit_price || 0 })),
+                              subtotal: order.total_price - order.delivery_fee,
+                              discount: 0,
+                              deliveryFee: order.delivery_fee,
+                              total: order.total_price,
+                              paymentMethod: order.payment_method,
+                              orderType: order.order_source || 'delivery',
+                              tableNumber: order.table_number || undefined,
+                              customerName: order.customer_name,
+                            })}
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                            title="Imprimir pedido"
+                          >
+                            <Printer className="h-3.5 w-3.5" />
+                          </button>
                           <button
                             onClick={() => setDeleteOrderId(order.id)}
                             className="text-muted-foreground hover:text-destructive transition-colors"
