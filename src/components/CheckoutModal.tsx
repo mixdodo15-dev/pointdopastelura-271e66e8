@@ -18,12 +18,6 @@ interface CheckoutModalProps {
   onClose: () => void;
 }
 
-interface Neighborhood {
-  id: string;
-  name: string;
-  delivery_fee: number;
-}
-
 const PHONE = '5534984050892';
 
 const formatPrice = (price: number) =>
