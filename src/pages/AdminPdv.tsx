@@ -287,6 +287,25 @@ const AdminPdv = () => {
         />
       )}
 
+      {store.orderType === 'delivery' && (
+        <div className="flex items-center gap-2">
+          <Truck className="h-4 w-4 text-primary shrink-0" />
+          <Input
+            type="number"
+            step="0.50"
+            min="0"
+            placeholder="Taxa de entrega (R$)"
+            value={store.deliveryFee > 0 ? store.deliveryFee : ''}
+            onChange={e => {
+              const val = parseFloat(e.target.value);
+              store.setDeliveryFee(isNaN(val) ? 0 : val);
+            }}
+            className="rounded-xl bg-background border h-9 text-sm"
+            autoFocus
+          />
+        </div>
+      )}
+
       {/* Cart Items */}
       <div className="flex-1 min-h-[80px]">
         {store.items.length === 0 ? (

@@ -13,11 +13,13 @@ const types: { value: OrderType; label: string; icon: React.ReactNode }[] = [
 interface OrderTypeSelectorProps {
   current: OrderType;
   tableNumber: string;
+  deliveryFee: number;
   onTypeChange: (t: OrderType) => void;
   onTableChange: (n: string) => void;
+  onDeliveryFeeChange: (fee: number) => void;
 }
 
-const OrderTypeSelector = ({ current, tableNumber, onTypeChange, onTableChange }: OrderTypeSelectorProps) => (
+const OrderTypeSelector = ({ current, tableNumber, deliveryFee, onTypeChange, onTableChange, onDeliveryFeeChange }: OrderTypeSelectorProps) => (
   <div className="space-y-1.5">
     <div className="flex gap-1">
       {types.map(t => (
@@ -44,6 +46,24 @@ const OrderTypeSelector = ({ current, tableNumber, onTypeChange, onTableChange }
         className="rounded-xl bg-card h-9 text-sm border"
         autoFocus
       />
+    )}
+    {current === 'delivery' && (
+      <div className="flex items-center gap-2">
+        <Truck className="h-4 w-4 text-primary shrink-0" />
+        <Input
+          type="number"
+          step="0.50"
+          min="0"
+          placeholder="Taxa de entrega (R$)"
+          value={deliveryFee > 0 ? deliveryFee : ''}
+          onChange={e => {
+            const val = parseFloat(e.target.value);
+            onDeliveryFeeChange(isNaN(val) ? 0 : val);
+          }}
+          className="rounded-xl bg-card h-9 text-sm border"
+          autoFocus
+        />
+      </div>
     )}
   </div>
 );
