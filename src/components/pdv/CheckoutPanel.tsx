@@ -4,17 +4,17 @@ import { Input } from '@/components/ui/input';
 import { usePdvStore } from '@/store/pdvStore';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { DollarSign, CreditCard, Smartphone, Percent, Layers } from 'lucide-react';
+import { DollarSign, CreditCard, Smartphone, Percent, Layers, CheckCircle, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { printOrder } from '@/utils/printOrder';
 
 type PaymentMethod = 'dinheiro' | 'cartao' | 'pix' | 'misto';
 
-const payments: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
-  { value: 'dinheiro', label: 'Dinheiro', icon: <DollarSign className="h-4 w-4" /> },
-  { value: 'cartao', label: 'Cartão', icon: <CreditCard className="h-4 w-4" /> },
-  { value: 'pix', label: 'PIX', icon: <Smartphone className="h-4 w-4" /> },
-  { value: 'misto', label: 'Misto', icon: <Layers className="h-4 w-4" /> },
+const payments: { value: PaymentMethod; label: string; icon: React.ReactNode; shortcut: string }[] = [
+  { value: 'dinheiro', label: 'Dinheiro', icon: <DollarSign className="h-4 w-4" />, shortcut: 'F4' },
+  { value: 'cartao', label: 'Cartão', icon: <CreditCard className="h-4 w-4" />, shortcut: 'F6' },
+  { value: 'pix', label: 'PIX', icon: <Smartphone className="h-4 w-4" />, shortcut: 'F8' },
+  { value: 'misto', label: 'Misto', icon: <Layers className="h-4 w-4" />, shortcut: '' },
 ];
 
 const CheckoutPanel = () => {
@@ -83,7 +83,7 @@ const CheckoutPanel = () => {
         customerName: store.customerName,
       });
 
-      toast.success('Pedido registrado!');
+      toast.success('✅ Pedido registrado com sucesso!');
       store.clearCart();
       setDiscountInput('');
     } catch (err: any) {
@@ -95,68 +95,103 @@ const CheckoutPanel = () => {
   };
 
   return (
-    <div className="flex flex-col h-full gap-3">
+    <div className="flex flex-col h-full gap-4">
+      {/* Payment Methods */}
       <div>
-        <label className="text-xs font-extrabold text-[hsl(var(--pdv-red))] mb-1 block">💳 Pagamento</label>
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
+          Forma de Pagamento
+        </label>
         <div className="grid grid-cols-2 gap-1.5">
           {payments.map(p => (
             <button
               key={p.value}
               onClick={() => setPayment(p.value)}
               className={cn(
-                "flex items-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-extrabold border-2 transition-all duration-200",
+                "flex flex-col items-center gap-1 py-3 px-2 rounded-xl text-xs font-bold border transition-all duration-200",
                 payment === p.value
-                  ? "bg-[hsl(var(--pdv-red))] text-white border-[hsl(var(--pdv-red))] shadow-md"
-                  : "bg-card text-foreground border-border hover:border-[hsl(var(--pdv-accent))]"
+                  ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
+                  : "bg-card text-foreground border-border hover:border-primary/50 hover:bg-secondary"
               )}
             >
               {p.icon}
-              {p.label}
+              <span>{p.label}</span>
+              {p.shortcut && (
+                <span className={cn("text-[9px] opacity-50", payment === p.value && "opacity-70")}>{p.shortcut}</span>
+              )}
             </button>
           ))}
         </div>
       </div>
 
+      {/* Discount */}
       <div>
-        <label className="text-xs font-extrabold text-muted-foreground mb-1 block">Desconto (R$)</label>
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+          Desconto (R$)
+        </label>
         <div className="flex gap-1.5">
           <Input
             placeholder="0,00"
             value={discountInput}
             onChange={e => setDiscountInput(e.target.value)}
-            className="rounded-xl bg-card text-sm border-2"
+            onKeyDown={e => e.key === 'Enter' && handleDiscount()}
+            className="rounded-xl bg-card text-sm border"
           />
-          <Button size="icon" variant="outline" className="rounded-xl shrink-0 border-2 hover:bg-[hsl(var(--pdv-accent))] hover:text-black" onClick={handleDiscount} aria-label="Aplicar desconto">
+          <Button
+            size="icon"
+            variant="outline"
+            className="rounded-xl shrink-0 hover:bg-accent hover:text-accent-foreground border"
+            onClick={handleDiscount}
+            aria-label="Aplicar desconto"
+          >
             <Percent className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
+      {/* Customer Name */}
       <div>
-        <label className="text-xs font-extrabold text-muted-foreground mb-1 block">👤 Cliente</label>
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+          Cliente
+        </label>
         <Input
           placeholder="Nome (opcional)"
           value={store.customerName}
           onChange={e => store.setCustomerName(e.target.value)}
-          className="rounded-xl bg-card text-sm border-2"
+          className="rounded-xl bg-card text-sm border"
         />
       </div>
 
+      {/* Actions */}
       <div className="mt-auto space-y-2">
         <Button
-          className="w-full rounded-xl h-14 text-base font-extrabold bg-[hsl(var(--pdv-red))] hover:bg-[hsl(var(--pdv-red))]/90 text-white shadow-lg shadow-[hsl(var(--pdv-red))]/20"
+          className={cn(
+            "w-full rounded-xl h-14 text-base font-extrabold shadow-lg transition-all duration-200",
+            "bg-gradient-to-r from-primary to-[hsl(0_85%_40%)] hover:from-[hsl(0_85%_40%)] hover:to-primary text-primary-foreground",
+            "disabled:opacity-50"
+          )}
           disabled={submitting || store.items.length === 0}
           onClick={handleCheckout}
         >
-          {submitting ? 'Registrando...' : `✅ Finalizar • R$ ${store.total.toFixed(2).replace('.', ',')}`}
+          {submitting ? (
+            <span className="flex items-center gap-2">
+              <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Registrando...
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              Finalizar • R$ {store.total.toFixed(2).replace('.', ',')}
+            </span>
+          )}
         </Button>
         <Button
           variant="outline"
-          className="w-full rounded-xl border-2 font-bold"
+          className="w-full rounded-xl font-bold text-xs h-10 border text-destructive/70 hover:text-destructive hover:border-destructive/50"
           onClick={() => store.clearCart()}
           disabled={store.items.length === 0}
         >
-          🗑️ Limpar Carrinho
+          <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+          Limpar Carrinho
         </Button>
       </div>
     </div>
