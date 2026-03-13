@@ -275,7 +275,7 @@ const ProductEditModal = ({
   const handleSave = async () => {
     if (!name.trim() || !price) { toast.error('Preencha nome e preço'); return; }
     setSaving(true);
-    const data = {
+    const data: Record<string, any> = {
       name: name.trim(),
       description: description.trim() || null,
       price: parseFloat(price),
@@ -285,6 +285,7 @@ const ProductEditModal = ({
       sort_order: parseInt(sortOrder) || 0,
       image_url: imageUrl || null,
       is_top_week: isTopWeek,
+      available_on: availableOn,
     };
     if (product) {
       const { error } = await supabase.from('products').update(data).eq('id', product.id);
