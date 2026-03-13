@@ -400,9 +400,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                     <Input placeholder="Complemento" value={complement} onChange={e => setComplement(e.target.value)} maxLength={50}
                       className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm col-span-2" />
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <Input placeholder="CEP" value={cep} readOnly
-                      className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm font-mono" />
+                  <div className="grid grid-cols-2 gap-2">
                     <Input placeholder="Bairro" value={neighborhood} readOnly
                       className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
                     <Input placeholder="Cidade" value={city} readOnly
