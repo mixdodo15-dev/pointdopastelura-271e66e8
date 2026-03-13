@@ -116,7 +116,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
           delivery_fee: deliveryFee,
           status: 'received' as const,
         })
-        .select()
+        .select('id, order_number')
         .single();
 
       if (orderError) throw orderError;
