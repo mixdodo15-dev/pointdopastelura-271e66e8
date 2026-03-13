@@ -330,6 +330,9 @@ const Admin = () => {
           <Button variant={activeTab === 'relatorios' ? 'default' : 'outline'} className="rounded-full" onClick={() => setActiveTab('relatorios')}>
             <BarChart3 className="h-4 w-4 mr-1" /> Relatórios
           </Button>
+          <Button variant="outline" className="rounded-full" onClick={() => navigate('/admin/marketing')}>
+            🎁 Marketing
+          </Button>
         </div>
 
         {/* Products Tab */}

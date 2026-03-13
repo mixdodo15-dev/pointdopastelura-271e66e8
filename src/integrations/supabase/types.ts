@@ -122,6 +122,93 @@ export type Database = {
         }
         Relationships: []
       }
+      combos: {
+        Row: {
+          active: boolean
+          combo_price: number
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          items: Json
+          name: string
+          original_price: number
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          combo_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          items?: Json
+          name: string
+          original_price?: number
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          combo_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          items?: Json
+          name?: string
+          original_price?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      coupons: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          max_uses_per_user: number | null
+          min_order_value: number | null
+          starts_at: string | null
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          max_uses_per_user?: number | null
+          min_order_value?: number | null
+          starts_at?: string | null
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          max_uses_per_user?: number | null
+          min_order_value?: number | null
+          starts_at?: string | null
+          used_count?: number
+        }
+        Relationships: []
+      }
       flavors: {
         Row: {
           active: boolean
@@ -143,6 +230,134 @@ export type Database = {
           id?: string
           name?: string
           type?: string
+        }
+        Relationships: []
+      }
+      happy_hour: {
+        Row: {
+          active: boolean
+          categories: string[] | null
+          created_at: string
+          discount_percent: number
+          end_time: string
+          id: string
+          name: string
+          start_time: string
+          weekdays: number[]
+        }
+        Insert: {
+          active?: boolean
+          categories?: string[] | null
+          created_at?: string
+          discount_percent?: number
+          end_time?: string
+          id?: string
+          name?: string
+          start_time?: string
+          weekdays?: number[]
+        }
+        Update: {
+          active?: boolean
+          categories?: string[] | null
+          created_at?: string
+          discount_percent?: number
+          end_time?: string
+          id?: string
+          name?: string
+          start_time?: string
+          weekdays?: number[]
+        }
+        Relationships: []
+      }
+      loyalty_points: {
+        Row: {
+          created_at: string
+          id: string
+          points: number
+          total_earned: number
+          total_redeemed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          points?: number
+          total_earned?: number
+          total_redeemed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          points?: number
+          total_earned?: number
+          total_redeemed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      loyalty_transactions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          order_id: string | null
+          points: number
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          points: number
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          points?: number
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_settings: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }

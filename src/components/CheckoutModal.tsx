@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
-import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike, Store } from 'lucide-react';
+import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike, Store, Ticket, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import OrderSuccessAnimation from './OrderSuccessAnimation';
@@ -50,6 +50,10 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
   const [deliveryMode, setDeliveryMode] = useState<'delivery' | 'pickup'>('delivery');
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -87,6 +91,52 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     }
   };
 
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setApplyingCoupon(true);
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('code', couponCode.trim().toUpperCase())
+      .eq('active', true)
+      .maybeSingle();
+
+    if (error || !data) {
+      toast.error('Cupom inválido ou expirado');
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      toast.error('Cupom expirado');
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.max_uses && data.used_count >= data.max_uses) {
+      toast.error('Cupom esgotado');
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.min_order_value && totalPrice < Number(data.min_order_value)) {
+      toast.error(`Pedido mínimo: ${formatPrice(Number(data.min_order_value))}`);
+      setApplyingCoupon(false);
+      return;
+    }
+    const discount = data.discount_type === 'percentage'
+      ? totalPrice * (Number(data.discount_value) / 100)
+      : Number(data.discount_value);
+    setCouponDiscount(Math.min(discount, totalPrice));
+    setCouponApplied(true);
+    await supabase.from('coupons').update({ used_count: data.used_count + 1 }).eq('id', data.id);
+    toast.success(`Cupom aplicado! Desconto: ${formatPrice(Math.min(discount, totalPrice))}`);
+    setApplyingCoupon(false);
+  };
+
+  const removeCoupon = () => {
+    setCouponCode('');
+    setCouponDiscount(0);
+    setCouponApplied(false);
+  };
+
   const handleSend = async () => {
     if (!name.trim()) { toast.error('Informe seu nome.'); return; }
     if (!phone.trim()) { toast.error('Informe seu telefone.'); return; }
@@ -103,7 +153,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const grandTotal = totalPrice + deliveryFee;
+      const grandTotal = totalPrice - couponDiscount + deliveryFee;
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -160,6 +210,9 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       });
 
       msg += `\n━━━━━━━━━━━━━━━━━━\n`;
+      if (couponDiscount > 0) {
+        msg += `🎫 *Cupom (${couponCode.toUpperCase()}):* -${formatPrice(couponDiscount)}\n`;
+      }
       if (deliveryMode === 'delivery') {
         msg += `🛵 *Taxa de entrega:* ${formatPrice(deliveryFee)}\n`;
       }
@@ -176,7 +229,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setDeliveryFee(0);
       setSelectedNeighborhood('');
       setDeliveryMode('delivery');
-      setDeliveryMode('delivery');
+      removeCoupon();
       onClose();
       setShowSuccess(true);
 
@@ -257,9 +310,15 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 <span className="text-primary-foreground/80 text-sm">{formatPrice(deliveryFee)}</span>
               </div>
             )}
+            {couponDiscount > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-primary-foreground/80 text-sm">🎫 Cupom ({couponCode.toUpperCase()})</span>
+                <span className="text-primary-foreground/80 text-sm">-{formatPrice(couponDiscount)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center border-t border-primary-foreground/20 pt-1.5">
               <span className="text-primary-foreground font-bold text-sm">Total</span>
-              <span className="text-primary-foreground font-extrabold text-lg">{formatPrice(totalPrice + deliveryFee)}</span>
+              <span className="text-primary-foreground font-extrabold text-lg">{formatPrice(totalPrice - couponDiscount + deliveryFee)}</span>
             </div>
           </div>
         </div>
@@ -401,6 +460,32 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
               )}
             </div>
           )}
+
+          {/* Coupon */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Ticket className="h-4 w-4 text-primary" /> Cupom de desconto
+            </Label>
+            {couponApplied ? (
+              <div className="flex items-center gap-2 bg-primary/10 rounded-xl px-4 py-3">
+                <Check className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-primary flex-1">{couponCode.toUpperCase()} — -{formatPrice(couponDiscount)}</span>
+                <button onClick={removeCoupon} className="text-xs text-destructive font-bold">Remover</button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Digite o código"
+                  value={couponCode}
+                  onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                  className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary font-mono font-bold flex-1"
+                />
+                <Button onClick={applyCoupon} disabled={applyingCoupon || !couponCode.trim()} className="h-12 rounded-xl px-5 font-bold">
+                  {applyingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
+                </Button>
+              </div>
+            )}
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
