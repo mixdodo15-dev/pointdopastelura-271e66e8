@@ -22,6 +22,7 @@ interface Product {
   active: boolean;
   sort_order: number;
   is_top_week: boolean;
+  available_on: string;
 }
 
 interface Category {
@@ -49,7 +50,7 @@ const PdvProductEditor = () => {
 
   const loadData = async () => {
     const [prodRes, catRes] = await Promise.all([
-      supabase.from('products').select('*').order('sort_order'),
+      supabase.from('products').select('*').in('available_on', ['pdv', 'both']).order('sort_order'),
       supabase.from('categories').select('*').eq('active', true).order('sort_order'),
     ]);
     if (prodRes.data) setProducts(prodRes.data as Product[]);
@@ -163,6 +164,14 @@ const PdvProductEditor = () => {
                   {product.is_top_week && (
                     <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold shrink-0">TOP</span>
                   )}
+                  <span className={cn(
+                    "text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0",
+                    product.available_on === 'pdv' ? 'bg-blue-100 text-blue-700' :
+                    product.available_on === 'site' ? 'bg-green-100 text-green-700' :
+                    'bg-secondary text-muted-foreground'
+                  )}>
+                    {product.available_on === 'pdv' ? 'PDV' : product.available_on === 'site' ? 'Site' : 'Ambos'}
+                  </span>
                 </div>
                 {product.description && (
                   <p className="text-xs text-muted-foreground truncate">{product.description}</p>
@@ -232,6 +241,7 @@ const ProductEditModal = ({
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [isTopWeek, setIsTopWeek] = useState(false);
+  const [availableOn, setAvailableOn] = useState('both');
 
   useEffect(() => {
     if (product) {
@@ -244,11 +254,13 @@ const ProductEditModal = ({
       setSortOrder(String(product.sort_order));
       setImageUrl(product.image_url || '');
       setIsTopWeek(product.is_top_week || false);
+      setAvailableOn(product.available_on || 'both');
     } else {
       setName(''); setDescription(''); setPrice('');
       setCategory(defaultCategory);
       setSubcategory(''); setMaxFlavors(''); setSortOrder('0'); setImageUrl('');
       setIsTopWeek(false);
+      setAvailableOn('pdv');
     }
   }, [product, defaultCategory, open]);
 
@@ -271,7 +283,7 @@ const ProductEditModal = ({
   const handleSave = async () => {
     if (!name.trim() || !price) { toast.error('Preencha nome e preço'); return; }
     setSaving(true);
-    const data = {
+    const data: Record<string, any> = {
       name: name.trim(),
       description: description.trim() || null,
       price: parseFloat(price),
@@ -281,13 +293,14 @@ const ProductEditModal = ({
       sort_order: parseInt(sortOrder) || 0,
       image_url: imageUrl || null,
       is_top_week: isTopWeek,
+      available_on: availableOn,
     };
     if (product) {
       const { error } = await supabase.from('products').update(data).eq('id', product.id);
       if (error) { toast.error('Erro ao salvar'); setSaving(false); return; }
       toast.success('Produto atualizado!');
     } else {
-      const { error } = await supabase.from('products').insert(data);
+      const { error } = await supabase.from('products').insert(data as any);
       if (error) { toast.error('Erro ao criar'); setSaving(false); return; }
       toast.success('Produto criado!');
     }
@@ -374,6 +387,20 @@ const ProductEditModal = ({
               <p className="text-xs text-muted-foreground">Destacar na seção TOP</p>
             </div>
             <Switch checked={isTopWeek} onCheckedChange={setIsTopWeek} />
+          </div>
+
+          {/* Disponibilidade */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Disponível em</Label>
+            <select
+              className="w-full h-11 rounded-xl bg-secondary border-0 px-3 text-sm"
+              value={availableOn}
+              onChange={e => setAvailableOn(e.target.value)}
+            >
+              <option value="both">📱 Site + PDV</option>
+              <option value="pdv">🖥️ Somente PDV</option>
+              <option value="site">🌐 Somente Site</option>
+            </select>
           </div>
 
           {/* Sort Order */}
