@@ -215,6 +215,7 @@ export type Database = {
           driver_id: string | null
           id: string
           notes: string | null
+          order_number: number
           order_source: string | null
           payment_method: string
           status: Database["public"]["Enums"]["order_status"]
@@ -232,6 +233,7 @@ export type Database = {
           driver_id?: string | null
           id?: string
           notes?: string | null
+          order_number?: number
           order_source?: string | null
           payment_method: string
           status?: Database["public"]["Enums"]["order_status"]
@@ -249,6 +251,7 @@ export type Database = {
           driver_id?: string | null
           id?: string
           notes?: string | null
+          order_number?: number
           order_source?: string | null
           payment_method?: string
           status?: Database["public"]["Enums"]["order_status"]
@@ -363,6 +366,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      format_order_number: { Args: { num: number }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -25,6 +25,7 @@ interface OrderItem {
 
 interface KitchenOrder {
   id: string;
+  order_number: number | null;
   status: string;
   created_at: string;
   order_source: string | null;
@@ -114,7 +115,7 @@ const AdminKitchen = () => {
   const loadOrders = async () => {
     const { data, error } = await supabase
       .from('orders')
-      .select('id, status, created_at, order_source, table_number, customer_name, payment_method, total_price, delivery_fee, notes')
+      .select('id, order_number, status, created_at, order_source, table_number, customer_name, payment_method, total_price, delivery_fee, notes')
       .in('status', ['received', 'accepted', 'preparing', 'out_for_delivery', 'delivered'])
       .order('created_at', { ascending: true });
 
@@ -273,7 +274,7 @@ const AdminKitchen = () => {
                     <div key={order.id} className="bg-card rounded-xl border border-border p-3 shadow-sm hover:shadow-md transition-all duration-200">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-foreground text-sm">#{order.id.slice(0, 6).toUpperCase()}</span>
+                          <span className="font-extrabold text-foreground text-sm">Point-{String(order.order_number || 0).padStart(4, '0')}</span>
                           <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-bold", source.color)}>{source.label}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -284,6 +285,7 @@ const AdminKitchen = () => {
                           <button
                             onClick={() => printOrder({
                               orderId: order.id,
+                              orderNumber: order.order_number || undefined,
                               items: order.items.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.unit_price || 0 })),
                               subtotal: order.total_price - order.delivery_fee,
                               discount: 0,

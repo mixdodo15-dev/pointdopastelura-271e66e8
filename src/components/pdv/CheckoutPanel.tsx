@@ -53,7 +53,7 @@ const CheckoutPanel = () => {
         notes: store.discount > 0 ? `Desconto: R$ ${store.discount.toFixed(2)}` : null,
       };
 
-      const { data: order, error } = await supabase.from('orders').insert(orderData).select('id').single();
+      const { data: order, error } = await supabase.from('orders').insert(orderData).select('id, order_number').single();
       if (error) throw error;
 
       const itemsInsert = store.items.map(i => ({
@@ -72,6 +72,7 @@ const CheckoutPanel = () => {
 
       printOrder({
         orderId: order.id,
+        orderNumber: order.order_number,
         items: store.items,
         subtotal: store.subtotal,
         discount: store.discount,
