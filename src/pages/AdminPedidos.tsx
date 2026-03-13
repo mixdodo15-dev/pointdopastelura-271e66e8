@@ -17,6 +17,7 @@ import {
 
 interface Order {
   id: string;
+  order_number: number | null;
   customer_name: string;
   customer_phone: string;
   delivery_address: string;
@@ -240,7 +241,7 @@ const AdminPedidos = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-bold text-sm text-foreground">#{order.id.slice(0, 8).toUpperCase()}</p>
+                          <p className="font-bold text-sm text-foreground">Point-{String(order.order_number || 0).padStart(4, '0')}</p>
                           <p className="text-xs text-muted-foreground">{order.customer_name} • {formatDate(order.created_at)}</p>
                         </div>
                         <span className="text-primary font-extrabold text-sm">{formatPrice(order.total_price)}</span>
