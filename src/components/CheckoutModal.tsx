@@ -229,7 +229,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setDeliveryFee(0);
       setSelectedNeighborhood('');
       setDeliveryMode('delivery');
-      setDeliveryMode('delivery');
+      removeCoupon();
       onClose();
       setShowSuccess(true);
 
