@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,9 +8,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin, Monitor, ChefHat, UtensilsCrossed, Wallet, BarChart3, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+
+const LazyAdminPdv = lazy(() => import('./AdminPdv'));
+const LazyAdminKitchen = lazy(() => import('./AdminKitchen'));
+const LazyAdminComandas = lazy(() => import('./AdminComandas'));
+const LazyAdminCaixa = lazy(() => import('./AdminCaixa'));
+const LazyAdminRelatorios = lazy(() => import('./AdminRelatorios'));
+const LazyAdminPedidos = lazy(() => import('./AdminPedidos'));
 
 interface Product {
   id: string;
