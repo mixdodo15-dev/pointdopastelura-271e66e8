@@ -1,6 +1,7 @@
-import { Search, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { ShoppingBag, Clock, Bike } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import heroBg from '@/assets/hero-pastel.jpg';
 import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
