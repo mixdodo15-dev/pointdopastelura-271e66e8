@@ -29,6 +29,10 @@ interface KitchenOrder {
   order_source: string | null;
   table_number: string | null;
   customer_name: string;
+  payment_method: string;
+  total_price: number;
+  delivery_fee: number;
+  notes: string | null;
   items: OrderItem[];
 }
 
