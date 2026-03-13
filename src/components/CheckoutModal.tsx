@@ -73,11 +73,48 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       return;
     }
     searchTimeout.current = setTimeout(async () => {
-      // Search in Uberlândia/MG (adjust UF/city as needed)
-      const results = await searchByStreet('MG', 'Uberlandia', value);
+      const results = await searchByStreet('MG', 'Uberaba', value);
       setStreetSuggestions(results.slice(0, 8));
       setShowSuggestions(results.length > 0);
     }, 400);
+  };
+
+  const handleCepChange = async (value: string) => {
+    const clean = value.replace(/\D/g, '');
+    const formatted = clean.length > 5 ? `${clean.slice(0, 5)}-${clean.slice(5, 8)}` : clean;
+    setCep(formatted);
+    if (clean.length === 8) {
+      const result = await fetchAddress(clean);
+      if (result) {
+        setStreet(result.logradouro);
+        setStreetInput(result.logradouro);
+        setNeighborhood(result.bairro);
+        setCity(`${result.localidade}/${result.uf}`);
+        // Calculate delivery fee
+        setCalculatingFee(true);
+        const addr = `${result.logradouro}, ${result.bairro}, ${result.localidade}, ${result.uf}, Brasil`;
+        const coords = await geocodeAddress(addr);
+        if (coords) {
+          const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
+          setDistanceKm(Math.round(dist * 10) / 10);
+          if (dist > deliverySettings.max_radius_km) {
+            setOutOfRange(true);
+            setDeliveryFee(0);
+            toast.error(`Fora da área de entrega (${dist.toFixed(1)} km)`);
+          } else {
+            setOutOfRange(false);
+            setDeliveryFee(Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100);
+          }
+        } else {
+          setDistanceKm(null);
+          setOutOfRange(false);
+          setDeliveryFee(deliverySettings.min_fee);
+        }
+        setCalculatingFee(false);
+      } else {
+        toast.error('CEP não encontrado.');
+      }
+    }
   };
 
   const selectStreetSuggestion = async (suggestion: typeof streetSuggestions[0]) => {
@@ -319,9 +356,17 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 <MapPin className="h-4 w-4 text-primary" /> Endereço de entrega
               </Label>
 
+              {/* CEP input */}
+              <Input placeholder="CEP (ex: 38000-000)"
+                value={cep}
+                onChange={e => handleCepChange(e.target.value)}
+                maxLength={9}
+                className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary font-mono"
+              />
+
               {/* Street search */}
               <div className="relative">
-                <Input placeholder="Digite o nome da rua..."
+                <Input placeholder="Ou busque pelo nome da rua..."
                   value={streetInput}
                   onChange={e => handleStreetInputChange(e.target.value)}
                   onFocus={() => streetSuggestions.length > 0 && setShowSuggestions(true)}
@@ -355,9 +400,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                     <Input placeholder="Complemento" value={complement} onChange={e => setComplement(e.target.value)} maxLength={50}
                       className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm col-span-2" />
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <Input placeholder="CEP" value={cep} readOnly
-                      className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm font-mono" />
+                  <div className="grid grid-cols-2 gap-2">
                     <Input placeholder="Bairro" value={neighborhood} readOnly
                       className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
                     <Input placeholder="Cidade" value={city} readOnly
