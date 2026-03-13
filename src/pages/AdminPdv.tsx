@@ -51,7 +51,7 @@ const AdminPdv = () => {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState('');
+  const [activeCategory, setActiveCategory] = useState('monte');
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('pdv');
   const [darkMode, setDarkMode] = useState(false);
