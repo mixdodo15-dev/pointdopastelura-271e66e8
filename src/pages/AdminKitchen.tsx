@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChefHat, Clock, ArrowRight, Trash2, AlertTriangle, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { printOrder } from '@/utils/printOrder';
 import {
   AlertDialog,
   AlertDialogAction,
