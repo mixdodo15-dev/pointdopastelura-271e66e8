@@ -282,6 +282,35 @@ const AdminPdv = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
+        {activeTab !== 'pdv' ? (
+          <div className="flex-1 overflow-y-auto">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-full">
+                <div className="h-10 w-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+              </div>
+            }>
+              {activeTab === 'pedidos' && <AdminPedidos />}
+              {activeTab === 'cozinha' && <AdminKitchen />}
+              {activeTab === 'caixa' && <AdminCaixa />}
+              {(activeTab === 'relatorios' || activeTab === 'mais-vendidos') && <AdminRelatorios />}
+              {activeTab === 'ficha-tecnica' && (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2 p-8">
+                  <FileText className="h-16 w-16 opacity-30" />
+                  <p className="text-lg font-bold">Ficha Técnica</p>
+                  <p className="text-sm">Em breve — módulo em desenvolvimento</p>
+                </div>
+              )}
+              {activeTab === 'embalagens' && (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2 p-8">
+                  <Package className="h-16 w-16 opacity-30" />
+                  <p className="text-lg font-bold">Embalagens</p>
+                  <p className="text-sm">Em breve — módulo em desenvolvimento</p>
+                </div>
+              )}
+            </Suspense>
+          </div>
+        ) : (
+        <>
         {/* Left - Products */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search */}
