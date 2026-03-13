@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 import {
   ShoppingCart, ClipboardList, ChefHat, Wallet, BarChart3,
   Settings, Moon, Sun, LogOut, Search, Store, ShoppingBag, Truck,
-  CheckCircle, Printer, MessageCircle, Minus, Plus, Trash2, Image as ImageIcon
+  CheckCircle, Printer, MessageCircle, Minus, Plus, Trash2, Image as ImageIcon,
+  TrendingUp, FileText, Package
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
