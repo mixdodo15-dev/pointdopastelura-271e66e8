@@ -37,6 +37,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [cep, setCep] = useState('');
   const [street, setStreet] = useState('');
   const [streetInput, setStreetInput] = useState('');
