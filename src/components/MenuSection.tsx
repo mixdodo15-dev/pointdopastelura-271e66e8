@@ -355,7 +355,7 @@ const EspecialCard = ({
     addItem({
       id: `${item.id}-${cheese}-${extras.map(e => e.name).join(',')}`,
       name: `${item.name}${suffix}`,
-      price: item.price + extraPrice,
+      price: getDiscountedPrice(item.price, item.category).discounted + extraPrice,
     });
     toast.success(`${item.name} adicionado!`);
     setCheese('');
