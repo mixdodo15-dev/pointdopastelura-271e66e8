@@ -12,6 +12,15 @@ import ThemeToggle from './ThemeToggle';
 const HeroSection = () => {
   const { isOpen, label, subtitle } = useRestaurantStatus();
 
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setIsLoggedIn(!!session));
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <section className="relative w-full">
       {/* Banner with overlay */}
@@ -30,7 +39,10 @@ const HeroSection = () => {
         {/* Top icons */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
           <ThemeToggle />
-          <button className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg">
+          <button
+            onClick={() => navigate(isLoggedIn ? '/minha-conta' : '/cliente-login')}
+            className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg"
+          >
             <User className="h-5 w-5 text-white" />
           </button>
         </div>
