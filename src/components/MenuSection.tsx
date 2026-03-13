@@ -41,10 +41,11 @@ const MenuSection = ({ category }: MenuSectionProps) => {
   const handleFlavorConfirm = (flavors: string[]) => {
     if (!flavorModal) return;
     const flavorText = flavors.join(', ');
+    const { discounted } = getDiscountedPrice(flavorModal.price, flavorModal.category);
     addItem({
       id: flavorModal.id,
       name: `${flavorModal.name} (${flavorText})`,
-      price: flavorModal.price,
+      price: discounted,
       flavors,
     });
     toast.success(`${flavorModal.name} adicionado!`);
