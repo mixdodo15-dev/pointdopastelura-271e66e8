@@ -29,7 +29,11 @@ const HeroSection = () => {
         {/* Top icons */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
           <ThemeToggle />
-          <button className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg">
+          <button
+            onClick={() => navigate('/cliente-login')}
+            className="p-2 rounded-full bg-primary hover:bg-primary/80 transition-colors shadow-lg"
+            aria-label="Login ou Cadastro"
+          >
             <User className="h-5 w-5 text-white" />
           </button>
         </div>
