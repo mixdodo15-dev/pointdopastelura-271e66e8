@@ -215,6 +215,7 @@ const AdminPdv = () => {
 
   const navTabs = [
     { id: 'pdv', label: 'PDV', icon: <ShoppingCart className="h-4 w-4" /> },
+    { id: 'editar-produtos', label: 'Produtos', icon: <Settings className="h-4 w-4" /> },
     { id: 'pedidos', label: 'Pedidos', icon: <ClipboardList className="h-4 w-4" /> },
     { id: 'cozinha', label: 'Cozinha', icon: <ChefHat className="h-4 w-4" /> },
     { id: 'caixa', label: 'Caixa', icon: <Wallet className="h-4 w-4" /> },
