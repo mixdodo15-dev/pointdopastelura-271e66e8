@@ -293,6 +293,7 @@ const AdminPdv = () => {
                 <div className="h-10 w-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
               </div>
             }>
+              {activeTab === 'editar-produtos' && <PdvProductEditor />}
               {activeTab === 'pedidos' && <AdminPedidos />}
               {activeTab === 'cozinha' && <AdminKitchen />}
               {activeTab === 'caixa' && <AdminCaixa />}
