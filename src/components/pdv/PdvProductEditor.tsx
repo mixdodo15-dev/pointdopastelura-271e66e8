@@ -381,6 +381,20 @@ const ProductEditModal = ({
             <Switch checked={isTopWeek} onCheckedChange={setIsTopWeek} />
           </div>
 
+          {/* Disponibilidade */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Disponível em</Label>
+            <select
+              className="w-full h-11 rounded-xl bg-secondary border-0 px-3 text-sm"
+              value={availableOn}
+              onChange={e => setAvailableOn(e.target.value)}
+            >
+              <option value="both">📱 Site + PDV</option>
+              <option value="pdv">🖥️ Somente PDV</option>
+              <option value="site">🌐 Somente Site</option>
+            </select>
+          </div>
+
           {/* Sort Order */}
           <div className="space-y-1.5">
             <Label className="text-sm font-semibold">Ordem de exibição</Label>
