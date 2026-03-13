@@ -310,9 +310,15 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 <span className="text-primary-foreground/80 text-sm">{formatPrice(deliveryFee)}</span>
               </div>
             )}
+            {couponDiscount > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-primary-foreground/80 text-sm">🎫 Cupom ({couponCode.toUpperCase()})</span>
+                <span className="text-primary-foreground/80 text-sm">-{formatPrice(couponDiscount)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center border-t border-primary-foreground/20 pt-1.5">
               <span className="text-primary-foreground font-bold text-sm">Total</span>
-              <span className="text-primary-foreground font-extrabold text-lg">{formatPrice(totalPrice + deliveryFee)}</span>
+              <span className="text-primary-foreground font-extrabold text-lg">{formatPrice(totalPrice - couponDiscount + deliveryFee)}</span>
             </div>
           </div>
         </div>
