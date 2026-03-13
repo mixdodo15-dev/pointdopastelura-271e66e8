@@ -22,9 +22,10 @@ interface KitchenOrder {
 }
 
 const STATUS_COLUMNS = [
-  { key: 'received', label: 'Recebido', color: 'border-yellow-500', bg: 'bg-yellow-500/10' },
+  { key: 'received', label: 'Novo', color: 'border-yellow-500', bg: 'bg-yellow-500/10' },
   { key: 'accepted', label: 'Aceito', color: 'border-blue-500', bg: 'bg-blue-500/10' },
   { key: 'preparing', label: 'Em Preparo', color: 'border-orange-500', bg: 'bg-orange-500/10' },
+  { key: 'out_for_delivery', label: 'Saiu p/ Entrega', color: 'border-purple-500', bg: 'bg-purple-500/10' },
 ];
 
 const NEXT_STATUS: Record<string, string> = {
@@ -65,7 +66,7 @@ const AdminKitchen = () => {
     const { data, error } = await supabase
       .from('orders')
       .select('id, status, created_at, order_source, table_number, customer_name')
-      .in('status', ['received', 'accepted', 'preparing'])
+      .in('status', ['received', 'accepted', 'preparing', 'out_for_delivery'])
       .order('created_at', { ascending: true });
 
     if (error) { toast.error('Erro ao carregar pedidos'); return; }
@@ -153,7 +154,7 @@ const AdminKitchen = () => {
         <p className="text-xs text-muted-foreground">{orders.length} pedidos ativos</p>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 p-4 overflow-hidden">
         {STATUS_COLUMNS.map(col => {
           const colOrders = orders.filter(o => o.status === col.key);
           return (
