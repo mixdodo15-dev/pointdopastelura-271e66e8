@@ -62,6 +62,10 @@ const AdminKitchen = () => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<KitchenOrder[]>([]);
 
+  const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     const check = async () => {
       const { data: { user } } = await supabase.auth.getUser();
