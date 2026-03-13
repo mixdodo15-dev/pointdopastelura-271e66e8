@@ -445,7 +445,7 @@ const DoceCard = ({
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
-            <span className="text-lg font-extrabold text-primary shrink-0">{formatPrice(item.price)}</span>
+            <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />
           </div>
           {item.description && (
             <p className="text-xs text-primary font-semibold mt-1">{item.description}</p>
