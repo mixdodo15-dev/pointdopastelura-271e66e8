@@ -350,10 +350,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const resetForm = () => {
     setName(''); setPhone(''); setPhoneError(''); setCep(''); setStreet(''); setStreetInput(''); setNumber('');
     setNeighborhood(''); setCity(''); setComplement(''); setPayment('');
-    setNotes(''); setNeedsChange(false); setChangeFor(''); setDeliveryFee(0);
-    setDistanceKm(null); setOutOfRange(false); setDeliveryMode('delivery'); removeCoupon();
+    setNotes(''); setNeedsChange(false); setChangeFor(''); setDeliveryMode('delivery'); removeCoupon();
     setStreetSuggestions([]); setShowSuggestions(false);
-    setSelectedAddressId(null); setAddressMode('new'); setShowAddressSelector(false);
+    setSelectedAddressId(null); setSelectedDeliveryAddress(null); setAddressMode('new'); setShowAddressSelector(false);
+    feeCalculationRequestRef.current += 1;
+    resetDeliveryFee();
   };
 
   const handleSend = async () => {
@@ -362,7 +363,9 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     if (!phoneClean) { setPhoneError('Informe seu telefone.'); toast.error('Informe seu telefone.'); return; }
     if (phoneClean.length < 10 || phoneClean.length > 11) { setPhoneError('Telefone inválido. Use (DD) 9XXXX-XXXX'); toast.error('Telefone inválido.'); return; }
     setPhoneError('');
-    if (deliveryMode === 'delivery' && !street.trim()) { toast.error('Informe seu endereço (busque pelo CEP).'); return; }
+    if (deliveryMode === 'delivery' && !selectedDeliveryAddress) { toast.error('Selecione um endereço de entrega no checkout.'); return; }
+    if (deliveryMode === 'delivery' && calculatingFee) { toast.error('Aguarde o cálculo da taxa de entrega.'); return; }
+    if (deliveryMode === 'delivery' && distanceKm === null) { toast.error('Não foi possível calcular a taxa para este endereço.'); return; }
     if (deliveryMode === 'delivery' && outOfRange) { toast.error('Endereço fora da área de entrega.'); return; }
     if (!payment) { toast.error('Selecione o método de pagamento.'); return; }
 
