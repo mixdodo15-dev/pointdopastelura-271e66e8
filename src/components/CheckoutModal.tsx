@@ -200,15 +200,15 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       if (!user) {
         setSavedAddresses([]);
         setAddressMode('new');
-        setLoadingAddresses(false);
         return;
       }
-      setLoadingAddresses(true);
+
       const { data } = await supabase
         .from('addresses')
         .select('*')
         .eq('user_id', user.id)
         .order('is_default', { ascending: false });
+
       if (data && data.length > 0) {
         setSavedAddresses(data);
         setAddressMode('saved');
@@ -216,7 +216,6 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         setSavedAddresses([]);
         setAddressMode('new');
       }
-      setLoadingAddresses(false);
     };
     loadAddresses();
   }, [open, resetDeliveryFee]);
