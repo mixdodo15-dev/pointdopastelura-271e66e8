@@ -87,7 +87,6 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [selectedDeliveryAddress, setSelectedDeliveryAddress] = useState<SelectedDeliveryAddress | null>(null);
   const [addressMode, setAddressMode] = useState<'saved' | 'new'>('new');
-  const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [showAddressSelector, setShowAddressSelector] = useState(false);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
