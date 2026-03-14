@@ -771,7 +771,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
         <div className="px-6 pb-6">
           <Button className="w-full rounded-xl text-base font-bold py-6 gap-2 shadow-lg" onClick={handleSend}
-            disabled={sending || (deliveryMode === 'delivery' && outOfRange)}>
+            disabled={sending || (deliveryMode === 'delivery' && (outOfRange || calculatingFee))}>
             {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <MessageCircle className="h-5 w-5" />}
             {sending ? 'Enviando...' : 'Enviar Pedido via WhatsApp'}
           </Button>
