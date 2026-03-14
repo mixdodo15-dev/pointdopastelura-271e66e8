@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
-import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike, Store, Ticket, Check } from 'lucide-react';
+import { MessageCircle, User, MapPin, CreditCard, StickyNote, ShoppingBag, Phone, Loader2, Bike, Store, Ticket, Check, ChevronDown, Plus, Home } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import OrderSuccessAnimation from './OrderSuccessAnimation';
@@ -16,6 +16,16 @@ import { useDeliverySettings, calcDistanceKm, calcDeliveryFee } from '@/hooks/us
 interface CheckoutModalProps {
   open: boolean;
   onClose: () => void;
+}
+
+interface SavedAddress {
+  id: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  complement: string | null;
+  is_default: boolean;
 }
 
 const PHONE = '5534984050892';
@@ -63,10 +73,91 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [calculatingFee, setCalculatingFee] = useState(false);
 
+  // Saved addresses state
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [addressMode, setAddressMode] = useState<'saved' | 'new'>('new');
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [showAddressSelector, setShowAddressSelector] = useState(false);
+
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Calculate delivery fee from address string
+  const calculateFeeFromAddress = useCallback(async (addressStr: string) => {
+    setCalculatingFee(true);
+    setDeliveryFee(0);
+    setDistanceKm(null);
+    setOutOfRange(false);
+
+    const coords = await geocodeAddress(addressStr);
+    if (coords) {
+      const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
+      setDistanceKm(Math.round(dist * 10) / 10);
+      if (dist > deliverySettings.max_radius_km) {
+        setOutOfRange(true);
+        setDeliveryFee(0);
+        toast.error(`Fora da área de entrega (${dist.toFixed(1)} km)`);
+      } else {
+        setOutOfRange(false);
+        setDeliveryFee(Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100);
+      }
+    } else {
+      setDistanceKm(null);
+      setOutOfRange(false);
+      setDeliveryFee(deliverySettings.min_fee);
+    }
+    setCalculatingFee(false);
+  }, [geocodeAddress, deliverySettings]);
+
+  // Load saved addresses when modal opens
+  useEffect(() => {
+    if (!open) return;
+    const loadAddresses = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setSavedAddresses([]);
+        setAddressMode('new');
+        return;
+      }
+      setLoadingAddresses(true);
+      const { data } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('is_default', { ascending: false });
+      if (data && data.length > 0) {
+        setSavedAddresses(data);
+        setAddressMode('saved');
+        // Don't auto-select any address - user must choose
+        setSelectedAddressId(null);
+      } else {
+        setSavedAddresses([]);
+        setAddressMode('new');
+      }
+      setLoadingAddresses(false);
+    };
+    loadAddresses();
+  }, [open]);
+
+  // When user selects a saved address, fill fields and recalculate fee
+  const handleSelectSavedAddress = useCallback(async (addr: SavedAddress) => {
+    setSelectedAddressId(addr.id);
+    setStreet(addr.street);
+    setStreetInput(addr.street);
+    setNumber(addr.number);
+    setNeighborhood(addr.neighborhood);
+    setCity(addr.city);
+    setComplement(addr.complement || '');
+    setShowAddressSelector(false);
+
+    // Recalculate delivery fee based on selected address
+    const fullAddr = `${addr.street}, ${addr.number}, ${addr.neighborhood}, ${addr.city}, Brasil`;
+    await calculateFeeFromAddress(fullAddr);
+  }, [calculateFeeFromAddress]);
 
   const handleStreetInputChange = (value: string) => {
     setStreetInput(value);
+    setSelectedAddressId(null); // Clear saved address selection
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     if (value.length < 3) {
       setStreetSuggestions([]);
@@ -84,6 +175,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     const clean = value.replace(/\D/g, '');
     const formatted = clean.length > 5 ? `${clean.slice(0, 5)}-${clean.slice(5, 8)}` : clean;
     setCep(formatted);
+    setSelectedAddressId(null); // Clear saved address selection
     if (clean.length === 8) {
       const result = await fetchAddress(clean);
       if (result) {
@@ -91,27 +183,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         setStreetInput(result.logradouro);
         setNeighborhood(result.bairro);
         setCity(`${result.localidade}/${result.uf}`);
-        // Calculate delivery fee
-        setCalculatingFee(true);
         const addr = `${result.logradouro}, ${result.bairro}, ${result.localidade}, ${result.uf}, Brasil`;
-        const coords = await geocodeAddress(addr);
-        if (coords) {
-          const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
-          setDistanceKm(Math.round(dist * 10) / 10);
-          if (dist > deliverySettings.max_radius_km) {
-            setOutOfRange(true);
-            setDeliveryFee(0);
-            toast.error(`Fora da área de entrega (${dist.toFixed(1)} km)`);
-          } else {
-            setOutOfRange(false);
-            setDeliveryFee(Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100);
-          }
-        } else {
-          setDistanceKm(null);
-          setOutOfRange(false);
-          setDeliveryFee(deliverySettings.min_fee);
-        }
-        setCalculatingFee(false);
+        await calculateFeeFromAddress(addr);
       } else {
         toast.error('CEP não encontrado.');
       }
@@ -126,28 +199,10 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     setCep(suggestion.cep);
     setShowSuggestions(false);
     setStreetSuggestions([]);
+    setSelectedAddressId(null);
 
-    // Calculate delivery fee
-    setCalculatingFee(true);
     const addr = `${suggestion.logradouro}, ${suggestion.bairro}, ${suggestion.localidade}, ${suggestion.uf}, Brasil`;
-    const coords = await geocodeAddress(addr);
-    if (coords) {
-      const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
-      setDistanceKm(Math.round(dist * 10) / 10);
-      if (dist > deliverySettings.max_radius_km) {
-        setOutOfRange(true);
-        setDeliveryFee(0);
-        toast.error(`Fora da área de entrega (${dist.toFixed(1)} km, máx: ${deliverySettings.max_radius_km} km)`);
-      } else {
-        setOutOfRange(false);
-        setDeliveryFee(Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100);
-      }
-    } else {
-      setDistanceKm(null);
-      setOutOfRange(false);
-      setDeliveryFee(deliverySettings.min_fee);
-    }
-    setCalculatingFee(false);
+    await calculateFeeFromAddress(addr);
   };
 
   const handleDeliveryModeChange = (mode: 'delivery' | 'pickup') => {
@@ -156,7 +211,15 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       setDeliveryFee(0);
       setCep(''); setStreet(''); setStreetInput(''); setNumber(''); setNeighborhood(''); setCity(''); setComplement('');
       setDistanceKm(null); setOutOfRange(false); setStreetSuggestions([]); setShowSuggestions(false);
+      setSelectedAddressId(null);
     }
+  };
+
+  const switchToNewAddress = () => {
+    setAddressMode('new');
+    setSelectedAddressId(null);
+    setStreet(''); setStreetInput(''); setNumber(''); setNeighborhood(''); setCity(''); setComplement(''); setCep('');
+    setDeliveryFee(0); setDistanceKm(null); setOutOfRange(false);
   };
 
   const buildFullAddress = () =>
@@ -191,6 +254,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     setNotes(''); setNeedsChange(false); setChangeFor(''); setDeliveryFee(0);
     setDistanceKm(null); setOutOfRange(false); setDeliveryMode('delivery'); removeCoupon();
     setStreetSuggestions([]); setShowSuggestions(false);
+    setSelectedAddressId(null); setAddressMode('new'); setShowAddressSelector(false);
   };
 
   const handleSend = async () => {
@@ -262,7 +326,6 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
       if (user) navigate(`/meus-pedidos`);
     } catch (err: any) {
       console.error('Error saving order:', err);
-      // Fallback: still send via WhatsApp
       let msg = `🧾 *PEDIDO - Point Do Pastel*\n\n👤 ${sanitizedName}\n📞 ${sanitizedPhone}\n`;
       msg += deliveryMode === 'pickup' ? `🏪 Retirada\n` : `📍 ${sanitizedAddress}\n`;
       msg += `💳 ${payment}\n━━━━━━━━━━━━━━━━━━\n`;
@@ -380,56 +443,136 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
                 <MapPin className="h-4 w-4 text-primary" /> Endereço de entrega
               </Label>
 
-              {/* CEP input */}
-              <Input placeholder="CEP (ex: 38000-000)"
-                value={cep}
-                onChange={e => handleCepChange(e.target.value)}
-                maxLength={9}
-                className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary font-mono"
-              />
+              {/* Saved addresses selector */}
+              {savedAddresses.length > 0 && (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setShowAddressSelector(!showAddressSelector)}
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-secondary text-foreground text-sm font-semibold hover:bg-secondary/80 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Home className="h-4 w-4 text-primary" />
+                      {selectedAddressId
+                        ? (() => {
+                            const a = savedAddresses.find(a => a.id === selectedAddressId);
+                            return a ? `${a.street}, ${a.number} - ${a.neighborhood}` : 'Selecione um endereço';
+                          })()
+                        : 'Selecione um endereço salvo'}
+                    </span>
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${showAddressSelector ? 'rotate-180' : ''}`} />
+                  </button>
 
-              {/* Street search */}
-              <div className="relative">
-                <Input placeholder="Ou busque pelo nome da rua..."
-                  value={streetInput}
-                  onChange={e => handleStreetInputChange(e.target.value)}
-                  onFocus={() => streetSuggestions.length > 0 && setShowSuggestions(true)}
-                  className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-                />
-                {cepLoading && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  </div>
-                )}
-                {showSuggestions && streetSuggestions.length > 0 && (
-                  <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                    {streetSuggestions.map((s, i) => (
-                      <button key={`${s.cep}-${i}`}
-                        onClick={() => selectStreetSuggestion(s)}
-                        className="w-full text-left px-4 py-2.5 hover:bg-secondary transition-colors text-sm border-b last:border-0">
-                        <p className="font-semibold text-foreground">{s.logradouro}</p>
-                        <p className="text-xs text-muted-foreground">{s.bairro} — {s.localidade}/{s.uf} — CEP {s.cep}</p>
+                  {showAddressSelector && (
+                    <div className="bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+                      {savedAddresses.map(addr => (
+                        <button
+                          key={addr.id}
+                          onClick={() => handleSelectSavedAddress(addr)}
+                          className={`w-full text-left px-4 py-3 hover:bg-secondary transition-colors border-b last:border-0 ${
+                            selectedAddressId === addr.id ? 'bg-primary/10' : ''
+                          }`}
+                        >
+                          <div className="flex items-start gap-2">
+                            <MapPin className={`h-4 w-4 mt-0.5 shrink-0 ${selectedAddressId === addr.id ? 'text-primary' : 'text-muted-foreground'}`} />
+                            <div>
+                              <p className="text-sm font-semibold text-foreground">
+                                {addr.street}, {addr.number}
+                                {addr.complement && ` - ${addr.complement}`}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {addr.neighborhood} — {addr.city}
+                                {addr.is_default && <span className="ml-1 text-primary font-bold">(Padrão)</span>}
+                              </p>
+                            </div>
+                            {selectedAddressId === addr.id && (
+                              <Check className="h-4 w-4 text-primary ml-auto shrink-0 mt-0.5" />
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => { setShowAddressSelector(false); switchToNewAddress(); }}
+                        className="w-full text-left px-4 py-3 hover:bg-secondary transition-colors text-sm font-semibold text-primary flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Usar outro endereço
                       </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
 
-              {/* Auto-filled fields */}
-              {street && (
+                  {/* Info about fee calculation */}
+                  {!selectedAddressId && !street && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      📍 Selecione um endereço para calcular a taxa de entrega
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Manual address entry (shown when no saved addresses or user chooses "new") */}
+              {(savedAddresses.length === 0 || addressMode === 'new' || !selectedAddressId) && !selectedAddressId && (
                 <>
-                  <div className="grid grid-cols-3 gap-2">
-                    <Input placeholder="Número *" value={number} onChange={e => setNumber(e.target.value)} maxLength={10}
-                      className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm" />
-                    <Input placeholder="Complemento" value={complement} onChange={e => setComplement(e.target.value)} maxLength={50}
-                      className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm col-span-2" />
+                  {savedAddresses.length > 0 && addressMode === 'new' && (
+                    <button
+                      onClick={() => { setAddressMode('saved'); setShowAddressSelector(true); }}
+                      className="text-xs text-primary font-semibold hover:underline flex items-center gap-1"
+                    >
+                      <Home className="h-3 w-3" /> Usar endereço salvo
+                    </button>
+                  )}
+
+                  {/* CEP input */}
+                  <Input placeholder="CEP (ex: 38000-000)"
+                    value={cep}
+                    onChange={e => handleCepChange(e.target.value)}
+                    maxLength={9}
+                    className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary font-mono"
+                  />
+
+                  {/* Street search */}
+                  <div className="relative">
+                    <Input placeholder="Ou busque pelo nome da rua..."
+                      value={streetInput}
+                      onChange={e => handleStreetInputChange(e.target.value)}
+                      onFocus={() => streetSuggestions.length > 0 && setShowSuggestions(true)}
+                      className="h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+                    />
+                    {cepLoading && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    )}
+                    {showSuggestions && streetSuggestions.length > 0 && (
+                      <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                        {streetSuggestions.map((s, i) => (
+                          <button key={`${s.cep}-${i}`}
+                            onClick={() => selectStreetSuggestion(s)}
+                            className="w-full text-left px-4 py-2.5 hover:bg-secondary transition-colors text-sm border-b last:border-0">
+                            <p className="font-semibold text-foreground">{s.logradouro}</p>
+                            <p className="text-xs text-muted-foreground">{s.bairro} — {s.localidade}/{s.uf} — CEP {s.cep}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Input placeholder="Bairro" value={neighborhood} readOnly
-                      className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
-                    <Input placeholder="Cidade" value={city} readOnly
-                      className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
-                  </div>
+
+                  {/* Auto-filled fields */}
+                  {street && (
+                    <>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Input placeholder="Número *" value={number} onChange={e => setNumber(e.target.value)} maxLength={10}
+                          className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm" />
+                        <Input placeholder="Complemento" value={complement} onChange={e => setComplement(e.target.value)} maxLength={50}
+                          className="h-11 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary text-sm col-span-2" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input placeholder="Bairro" value={neighborhood} readOnly
+                          className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
+                        <Input placeholder="Cidade" value={city} readOnly
+                          className="h-11 rounded-xl bg-muted border-0 text-foreground text-sm" />
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
