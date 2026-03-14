@@ -28,6 +28,15 @@ interface SavedAddress {
   is_default: boolean;
 }
 
+interface SelectedDeliveryAddress {
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  complement: string;
+  cep?: string;
+}
+
 const PHONE = '5534984050892';
 
 const formatPrice = (price: number) =>
@@ -76,42 +85,116 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   // Saved addresses state
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedDeliveryAddress, setSelectedDeliveryAddress] = useState<SelectedDeliveryAddress | null>(null);
   const [addressMode, setAddressMode] = useState<'saved' | 'new'>('new');
-  const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [showAddressSelector, setShowAddressSelector] = useState(false);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const feeCalculationRequestRef = useRef(0);
 
-  // Calculate delivery fee from address string
-  const calculateFeeFromAddress = useCallback(async (addressStr: string) => {
-    setCalculatingFee(true);
+  const resetDeliveryFee = useCallback(() => {
     setDeliveryFee(0);
     setDistanceKm(null);
     setOutOfRange(false);
+  }, []);
 
-    const coords = await geocodeAddress(addressStr);
-    if (coords) {
-      const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
-      setDistanceKm(Math.round(dist * 10) / 10);
-      if (dist > deliverySettings.max_radius_km) {
-        setOutOfRange(true);
-        setDeliveryFee(0);
-        toast.error(`Fora da área de entrega (${dist.toFixed(1)} km)`);
-      } else {
-        setOutOfRange(false);
-        setDeliveryFee(Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100);
-      }
-    } else {
-      setDistanceKm(null);
-      setOutOfRange(false);
-      setDeliveryFee(deliverySettings.min_fee);
+  const formatAddressForGeocode = useCallback((address: SelectedDeliveryAddress) => {
+    const normalizedCity = address.city.replace('/', ', ');
+    const numberPart = address.number ? `, ${address.number}` : '';
+    const complementPart = address.complement ? `, ${address.complement}` : '';
+    const cepPart = address.cep ? `, CEP ${address.cep}` : '';
+
+    return `${address.street}${numberPart}${complementPart}, ${address.neighborhood}, ${normalizedCity}${cepPart}, Brasil`;
+  }, []);
+
+  const recalculateDeliveryFee = useCallback(async (address: SelectedDeliveryAddress | null) => {
+    resetDeliveryFee();
+
+    if (!address || deliveryMode !== 'delivery') {
+      setCalculatingFee(false);
+      return;
     }
+
+    setCalculatingFee(true);
+    const requestId = ++feeCalculationRequestRef.current;
+    const coords = await geocodeAddress(formatAddressForGeocode(address));
+
+    if (requestId !== feeCalculationRequestRef.current) return;
+
+    if (!coords) {
+      setCalculatingFee(false);
+      return;
+    }
+
+    const dist = calcDistanceKm(deliverySettings.store_lat, deliverySettings.store_lng, coords.lat, coords.lng);
+    setDistanceKm(Math.round(dist * 10) / 10);
+
+    if (dist > deliverySettings.max_radius_km) {
+      setOutOfRange(true);
+      setDeliveryFee(0);
+      toast.error(`Fora da área de entrega (${dist.toFixed(1)} km)`);
+    } else {
+      setOutOfRange(false);
+      const calculatedFee = Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100;
+      setDeliveryFee(calculatedFee);
+    }
+
     setCalculatingFee(false);
-  }, [geocodeAddress, deliverySettings]);
+  }, [deliveryMode, geocodeAddress, formatAddressForGeocode, deliverySettings, resetDeliveryFee]);
+
+  // Keep selected delivery address strictly from checkout selection/edition
+  useEffect(() => {
+    if (deliveryMode !== 'delivery') {
+      setSelectedDeliveryAddress(null);
+      return;
+    }
+
+    const hasRequiredAddress = street.trim() && neighborhood.trim() && city.trim();
+    if (!hasRequiredAddress) {
+      setSelectedDeliveryAddress(null);
+      return;
+    }
+
+    setSelectedDeliveryAddress({
+      street: street.trim(),
+      number: number.trim(),
+      neighborhood: neighborhood.trim(),
+      city: city.trim(),
+      complement: complement.trim(),
+      cep: cep.trim() || undefined,
+    });
+  }, [deliveryMode, street, number, neighborhood, city, complement, cep]);
+
+  // Recalculate fee in real-time whenever selected checkout address changes
+  useEffect(() => {
+    if (!open || deliveryMode !== 'delivery') return;
+
+    const timeout = setTimeout(() => {
+      void recalculateDeliveryFee(selectedDeliveryAddress);
+    }, 350);
+
+    return () => clearTimeout(timeout);
+  }, [open, deliveryMode, selectedDeliveryAddress, recalculateDeliveryFee]);
 
   // Load saved addresses when modal opens
   useEffect(() => {
     if (!open) return;
+
+    feeCalculationRequestRef.current += 1;
+    resetDeliveryFee();
+    setSelectedDeliveryAddress(null);
+    setSelectedAddressId(null);
+    setShowAddressSelector(false);
+    setStreetSuggestions([]);
+    setShowSuggestions(false);
+    setCep('');
+    setStreet('');
+    setStreetInput('');
+    setNumber('');
+    setNeighborhood('');
+    setCity('');
+    setComplement('');
+
     const loadAddresses = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -119,45 +202,46 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
         setAddressMode('new');
         return;
       }
-      setLoadingAddresses(true);
+
       const { data } = await supabase
         .from('addresses')
         .select('*')
         .eq('user_id', user.id)
         .order('is_default', { ascending: false });
+
       if (data && data.length > 0) {
         setSavedAddresses(data);
         setAddressMode('saved');
-        // Don't auto-select any address - user must choose
-        setSelectedAddressId(null);
       } else {
         setSavedAddresses([]);
         setAddressMode('new');
       }
-      setLoadingAddresses(false);
     };
     loadAddresses();
-  }, [open]);
+  }, [open, resetDeliveryFee]);
 
-  // When user selects a saved address, fill fields and recalculate fee
-  const handleSelectSavedAddress = useCallback(async (addr: SavedAddress) => {
+  // When user selects a saved address, fill fields and trigger recalculation effect
+  const handleSelectSavedAddress = useCallback((addr: SavedAddress) => {
+    setAddressMode('saved');
     setSelectedAddressId(addr.id);
     setStreet(addr.street);
     setStreetInput(addr.street);
     setNumber(addr.number);
     setNeighborhood(addr.neighborhood);
-    setCity(addr.city);
+    setCity(addr.city.replace('/', ', '));
     setComplement(addr.complement || '');
     setShowAddressSelector(false);
-
-    // Recalculate delivery fee based on selected address
-    const fullAddr = `${addr.street}, ${addr.number}, ${addr.neighborhood}, ${addr.city}, Brasil`;
-    await calculateFeeFromAddress(fullAddr);
-  }, [calculateFeeFromAddress]);
+  }, []);
 
   const handleStreetInputChange = (value: string) => {
     setStreetInput(value);
-    setSelectedAddressId(null); // Clear saved address selection
+    setAddressMode('new');
+    setSelectedAddressId(null);
+    setStreet('');
+    setNeighborhood('');
+    setCity('');
+    resetDeliveryFee();
+
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     if (value.length < 3) {
       setStreetSuggestions([]);
@@ -175,51 +259,64 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     const clean = value.replace(/\D/g, '');
     const formatted = clean.length > 5 ? `${clean.slice(0, 5)}-${clean.slice(5, 8)}` : clean;
     setCep(formatted);
-    setSelectedAddressId(null); // Clear saved address selection
+    setAddressMode('new');
+    setSelectedAddressId(null);
+    resetDeliveryFee();
+
     if (clean.length === 8) {
       const result = await fetchAddress(clean);
       if (result) {
         setStreet(result.logradouro);
         setStreetInput(result.logradouro);
         setNeighborhood(result.bairro);
-        setCity(`${result.localidade}/${result.uf}`);
-        const addr = `${result.logradouro}, ${result.bairro}, ${result.localidade}, ${result.uf}, Brasil`;
-        await calculateFeeFromAddress(addr);
+        setCity(`${result.localidade}, ${result.uf}`);
       } else {
         toast.error('CEP não encontrado.');
       }
     }
   };
 
-  const selectStreetSuggestion = async (suggestion: typeof streetSuggestions[0]) => {
+  const selectStreetSuggestion = (suggestion: typeof streetSuggestions[0]) => {
+    setAddressMode('new');
     setStreet(suggestion.logradouro);
     setStreetInput(suggestion.logradouro);
     setNeighborhood(suggestion.bairro);
-    setCity(`${suggestion.localidade}/${suggestion.uf}`);
+    setCity(`${suggestion.localidade}, ${suggestion.uf}`);
     setCep(suggestion.cep);
     setShowSuggestions(false);
     setStreetSuggestions([]);
     setSelectedAddressId(null);
-
-    const addr = `${suggestion.logradouro}, ${suggestion.bairro}, ${suggestion.localidade}, ${suggestion.uf}, Brasil`;
-    await calculateFeeFromAddress(addr);
   };
 
   const handleDeliveryModeChange = (mode: 'delivery' | 'pickup') => {
     setDeliveryMode(mode);
-    if (mode === 'pickup') {
-      setDeliveryFee(0);
-      setCep(''); setStreet(''); setStreetInput(''); setNumber(''); setNeighborhood(''); setCity(''); setComplement('');
-      setDistanceKm(null); setOutOfRange(false); setStreetSuggestions([]); setShowSuggestions(false);
-      setSelectedAddressId(null);
-    }
+    feeCalculationRequestRef.current += 1;
+    setSelectedAddressId(null);
+    setSelectedDeliveryAddress(null);
+    setCep('');
+    setStreet('');
+    setStreetInput('');
+    setNumber('');
+    setNeighborhood('');
+    setCity('');
+    setComplement('');
+    setStreetSuggestions([]);
+    setShowSuggestions(false);
+    resetDeliveryFee();
   };
 
   const switchToNewAddress = () => {
     setAddressMode('new');
     setSelectedAddressId(null);
-    setStreet(''); setStreetInput(''); setNumber(''); setNeighborhood(''); setCity(''); setComplement(''); setCep('');
-    setDeliveryFee(0); setDistanceKm(null); setOutOfRange(false);
+    setSelectedDeliveryAddress(null);
+    setStreet('');
+    setStreetInput('');
+    setNumber('');
+    setNeighborhood('');
+    setCity('');
+    setComplement('');
+    setCep('');
+    resetDeliveryFee();
   };
 
   const buildFullAddress = () =>
@@ -251,10 +348,11 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
   const resetForm = () => {
     setName(''); setPhone(''); setPhoneError(''); setCep(''); setStreet(''); setStreetInput(''); setNumber('');
     setNeighborhood(''); setCity(''); setComplement(''); setPayment('');
-    setNotes(''); setNeedsChange(false); setChangeFor(''); setDeliveryFee(0);
-    setDistanceKm(null); setOutOfRange(false); setDeliveryMode('delivery'); removeCoupon();
+    setNotes(''); setNeedsChange(false); setChangeFor(''); setDeliveryMode('delivery'); removeCoupon();
     setStreetSuggestions([]); setShowSuggestions(false);
-    setSelectedAddressId(null); setAddressMode('new'); setShowAddressSelector(false);
+    setSelectedAddressId(null); setSelectedDeliveryAddress(null); setAddressMode('new'); setShowAddressSelector(false);
+    feeCalculationRequestRef.current += 1;
+    resetDeliveryFee();
   };
 
   const handleSend = async () => {
@@ -263,7 +361,9 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     if (!phoneClean) { setPhoneError('Informe seu telefone.'); toast.error('Informe seu telefone.'); return; }
     if (phoneClean.length < 10 || phoneClean.length > 11) { setPhoneError('Telefone inválido. Use (DD) 9XXXX-XXXX'); toast.error('Telefone inválido.'); return; }
     setPhoneError('');
-    if (deliveryMode === 'delivery' && !street.trim()) { toast.error('Informe seu endereço (busque pelo CEP).'); return; }
+    if (deliveryMode === 'delivery' && !selectedDeliveryAddress) { toast.error('Selecione um endereço de entrega no checkout.'); return; }
+    if (deliveryMode === 'delivery' && calculatingFee) { toast.error('Aguarde o cálculo da taxa de entrega.'); return; }
+    if (deliveryMode === 'delivery' && distanceKm === null) { toast.error('Não foi possível calcular a taxa para este endereço.'); return; }
     if (deliveryMode === 'delivery' && outOfRange) { toast.error('Endereço fora da área de entrega.'); return; }
     if (!payment) { toast.error('Selecione o método de pagamento.'); return; }
 
@@ -669,7 +769,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
         <div className="px-6 pb-6">
           <Button className="w-full rounded-xl text-base font-bold py-6 gap-2 shadow-lg" onClick={handleSend}
-            disabled={sending || (deliveryMode === 'delivery' && outOfRange)}>
+            disabled={sending || (deliveryMode === 'delivery' && (outOfRange || calculatingFee))}>
             {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <MessageCircle className="h-5 w-5" />}
             {sending ? 'Enviando...' : 'Enviar Pedido via WhatsApp'}
           </Button>
