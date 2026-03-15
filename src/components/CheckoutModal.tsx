@@ -123,6 +123,8 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
     if (!coords) {
       setCalculatingFee(false);
+      console.warn('[DeliveryFee] Geocoding failed for:', formatAddressForGeocode(address));
+      toast.error('Não foi possível localizar o endereço. Verifique os dados.');
       return;
     }
 
