@@ -7,6 +7,12 @@ export interface DeliverySettings {
   max_radius_km: number;
   fee_per_km: number;
   min_fee: number;
+  base_distance_km: number;
+  base_fee: number;
+  extra_km_fee: number;
+  min_order_value: number;
+  estimated_time_min: number;
+  estimated_time_max: number;
 }
 
 const DEFAULT_SETTINGS: DeliverySettings = {
@@ -15,6 +21,12 @@ const DEFAULT_SETTINGS: DeliverySettings = {
   max_radius_km: 10,
   fee_per_km: 1.5,
   min_fee: 5,
+  base_distance_km: 2,
+  base_fee: 5,
+  extra_km_fee: 2,
+  min_order_value: 20,
+  estimated_time_min: 30,
+  estimated_time_max: 50,
 };
 
 export const useDeliverySettings = () => {
@@ -36,6 +48,12 @@ export const useDeliverySettings = () => {
           max_radius_km: Number(data.max_radius_km),
           fee_per_km: Number(data.fee_per_km),
           min_fee: Number(data.min_fee),
+          base_distance_km: Number((data as any).base_distance_km ?? 2),
+          base_fee: Number((data as any).base_fee ?? 5),
+          extra_km_fee: Number((data as any).extra_km_fee ?? 2),
+          min_order_value: Number((data as any).min_order_value ?? 20),
+          estimated_time_min: Number((data as any).estimated_time_min ?? 30),
+          estimated_time_max: Number((data as any).estimated_time_max ?? 50),
         });
       }
       setLoading(false);
@@ -57,7 +75,11 @@ export const calcDistanceKm = (lat1: number, lng1: number, lat2: number, lng2: n
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
+/** New formula: base fee for base distance, then extra per km */
 export const calcDeliveryFee = (distanceKm: number, settings: DeliverySettings): number => {
-  const fee = distanceKm * settings.fee_per_km;
-  return Math.max(fee, settings.min_fee);
+  if (distanceKm <= settings.base_distance_km) {
+    return settings.base_fee;
+  }
+  const extraKm = distanceKm - settings.base_distance_km;
+  return settings.base_fee + (extraKm * settings.extra_km_fee);
 };
