@@ -31,7 +31,7 @@ export const useViaCep = () => {
   }, []);
 
   /** Search addresses by street name + city using ViaCEP */
-  const searchByStreet = async (uf: string, city: string, street: string): Promise<ViaCepResult[]> => {
+  const searchByStreet = useCallback(async (uf: string, city: string, street: string): Promise<ViaCepResult[]> => {
     if (street.length < 3) return [];
     setLoading(true);
     try {
