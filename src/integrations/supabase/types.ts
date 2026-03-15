@@ -286,28 +286,46 @@ export type Database = {
       }
       delivery_settings: {
         Row: {
+          base_distance_km: number
+          base_fee: number
+          estimated_time_max: number
+          estimated_time_min: number
+          extra_km_fee: number
           fee_per_km: number
           id: string
           max_radius_km: number
           min_fee: number
+          min_order_value: number
           store_lat: number
           store_lng: number
           updated_at: string
         }
         Insert: {
+          base_distance_km?: number
+          base_fee?: number
+          estimated_time_max?: number
+          estimated_time_min?: number
+          extra_km_fee?: number
           fee_per_km?: number
           id?: string
           max_radius_km?: number
           min_fee?: number
+          min_order_value?: number
           store_lat?: number
           store_lng?: number
           updated_at?: string
         }
         Update: {
+          base_distance_km?: number
+          base_fee?: number
+          estimated_time_max?: number
+          estimated_time_min?: number
+          extra_km_fee?: number
           fee_per_km?: number
           id?: string
           max_radius_km?: number
           min_fee?: number
+          min_order_value?: number
           store_lat?: number
           store_lng?: number
           updated_at?: string

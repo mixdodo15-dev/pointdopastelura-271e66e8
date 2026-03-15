@@ -132,7 +132,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     if (dist > deliverySettings.max_radius_km) {
       setOutOfRange(true);
       setDeliveryFee(0);
-      toast.error(`Fora da área de entrega (${dist.toFixed(1)} km)`);
+      toast.error(`Desculpe, ainda não entregamos nessa região (${dist.toFixed(1)} km). Raio máximo: ${deliverySettings.max_radius_km} km.`);
     } else {
       setOutOfRange(false);
       const calculatedFee = Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100;
@@ -365,6 +365,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     if (deliveryMode === 'delivery' && calculatingFee) { toast.error('Aguarde o cálculo da taxa de entrega.'); return; }
     if (deliveryMode === 'delivery' && distanceKm === null) { toast.error('Não foi possível calcular a taxa para este endereço.'); return; }
     if (deliveryMode === 'delivery' && outOfRange) { toast.error('Endereço fora da área de entrega.'); return; }
+    if (deliveryMode === 'delivery' && totalPrice < deliverySettings.min_order_value) { toast.error(`Pedido mínimo para entrega: R$ ${deliverySettings.min_order_value.toFixed(2).replace('.', ',')}`); return; }
     if (!payment) { toast.error('Selecione o método de pagamento.'); return; }
 
     setSending(true);
@@ -684,13 +685,23 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
               )}
               {outOfRange && (
                 <div className="bg-destructive/10 text-destructive rounded-xl px-4 py-3 text-sm font-semibold">
-                  ⚠️ Endereço fora da área de entrega ({distanceKm} km). Raio máximo: {deliverySettings.max_radius_km} km.
+                  ⚠️ Desculpe, ainda não entregamos nessa região ({distanceKm} km). Raio máximo: {deliverySettings.max_radius_km} km.
+                </div>
+              )}
+              {!outOfRange && deliveryMode === 'delivery' && totalPrice < deliverySettings.min_order_value && (
+                <div className="bg-destructive/10 text-destructive rounded-xl px-4 py-3 text-sm font-semibold">
+                  🛒 Pedido mínimo para entrega: R$ {deliverySettings.min_order_value.toFixed(2).replace('.', ',')}
                 </div>
               )}
               {!outOfRange && distanceKm !== null && deliveryFee > 0 && (
-                <div className="bg-primary/10 rounded-xl px-4 py-2 text-sm font-semibold text-primary flex justify-between">
-                  <span>🛵 {distanceKm} km</span>
-                  <span>Taxa: {formatPrice(deliveryFee)}</span>
+                <div className="bg-primary/10 rounded-xl px-4 py-3 text-sm space-y-1">
+                  <div className="flex justify-between font-semibold text-primary">
+                    <span>📍 Distância: {distanceKm} km</span>
+                    <span>Taxa: {formatPrice(deliveryFee)}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    ⏱ Tempo estimado: {deliverySettings.estimated_time_min}-{deliverySettings.estimated_time_max} minutos
+                  </p>
                 </div>
               )}
             </div>
