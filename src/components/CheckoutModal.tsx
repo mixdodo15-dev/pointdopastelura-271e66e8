@@ -685,13 +685,23 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
               )}
               {outOfRange && (
                 <div className="bg-destructive/10 text-destructive rounded-xl px-4 py-3 text-sm font-semibold">
-                  ⚠️ Endereço fora da área de entrega ({distanceKm} km). Raio máximo: {deliverySettings.max_radius_km} km.
+                  ⚠️ Desculpe, ainda não entregamos nessa região ({distanceKm} km). Raio máximo: {deliverySettings.max_radius_km} km.
+                </div>
+              )}
+              {!outOfRange && deliveryMode === 'delivery' && totalPrice < deliverySettings.min_order_value && (
+                <div className="bg-destructive/10 text-destructive rounded-xl px-4 py-3 text-sm font-semibold">
+                  🛒 Pedido mínimo para entrega: R$ {deliverySettings.min_order_value.toFixed(2).replace('.', ',')}
                 </div>
               )}
               {!outOfRange && distanceKm !== null && deliveryFee > 0 && (
-                <div className="bg-primary/10 rounded-xl px-4 py-2 text-sm font-semibold text-primary flex justify-between">
-                  <span>🛵 {distanceKm} km</span>
-                  <span>Taxa: {formatPrice(deliveryFee)}</span>
+                <div className="bg-primary/10 rounded-xl px-4 py-3 text-sm space-y-1">
+                  <div className="flex justify-between font-semibold text-primary">
+                    <span>📍 Distância: {distanceKm} km</span>
+                    <span>Taxa: {formatPrice(deliveryFee)}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    ⏱ Tempo estimado: {deliverySettings.estimated_time_min}-{deliverySettings.estimated_time_max} minutos
+                  </p>
                 </div>
               )}
             </div>
