@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 interface ViaCepResult {
   cep: string;
@@ -13,7 +13,7 @@ interface ViaCepResult {
 export const useViaCep = () => {
   const [loading, setLoading] = useState(false);
 
-  const fetchAddress = async (cep: string): Promise<ViaCepResult | null> => {
+  const fetchAddress = useCallback(async (cep: string): Promise<ViaCepResult | null> => {
     const clean = cep.replace(/\D/g, '');
     if (clean.length !== 8) return null;
 
@@ -28,10 +28,10 @@ export const useViaCep = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   /** Search addresses by street name + city using ViaCEP */
-  const searchByStreet = async (uf: string, city: string, street: string): Promise<ViaCepResult[]> => {
+  const searchByStreet = useCallback(async (uf: string, city: string, street: string): Promise<ViaCepResult[]> => {
     if (street.length < 3) return [];
     setLoading(true);
     try {
@@ -46,10 +46,10 @@ export const useViaCep = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   /** Try to geocode an address to get lat/lng using Nominatim (free, no API key) */
-  const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
+  const geocodeAddress = useCallback(async (address: string): Promise<{ lat: number; lng: number } | null> => {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=br`,
@@ -63,7 +63,7 @@ export const useViaCep = () => {
     } catch {
       return null;
     }
-  };
+  }, []);
 
   return { fetchAddress, searchByStreet, geocodeAddress, loading };
 };
