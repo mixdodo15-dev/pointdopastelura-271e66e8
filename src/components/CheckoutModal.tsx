@@ -365,6 +365,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     if (deliveryMode === 'delivery' && calculatingFee) { toast.error('Aguarde o cálculo da taxa de entrega.'); return; }
     if (deliveryMode === 'delivery' && distanceKm === null) { toast.error('Não foi possível calcular a taxa para este endereço.'); return; }
     if (deliveryMode === 'delivery' && outOfRange) { toast.error('Endereço fora da área de entrega.'); return; }
+    if (deliveryMode === 'delivery' && totalPrice < deliverySettings.min_order_value) { toast.error(`Pedido mínimo para entrega: R$ ${deliverySettings.min_order_value.toFixed(2).replace('.', ',')}`); return; }
     if (!payment) { toast.error('Selecione o método de pagamento.'); return; }
 
     setSending(true);
