@@ -28,7 +28,7 @@ export const useViaCep = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   /** Search addresses by street name + city using ViaCEP */
   const searchByStreet = async (uf: string, city: string, street: string): Promise<ViaCepResult[]> => {
