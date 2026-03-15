@@ -48,12 +48,12 @@ export const useDeliverySettings = () => {
           max_radius_km: Number(data.max_radius_km),
           fee_per_km: Number(data.fee_per_km),
           min_fee: Number(data.min_fee),
-          base_distance_km: Number((data as any).base_distance_km ?? 2),
-          base_fee: Number((data as any).base_fee ?? 5),
-          extra_km_fee: Number((data as any).extra_km_fee ?? 2),
-          min_order_value: Number((data as any).min_order_value ?? 20),
-          estimated_time_min: Number((data as any).estimated_time_min ?? 30),
-          estimated_time_max: Number((data as any).estimated_time_max ?? 50),
+          base_distance_km: Number(data.base_distance_km ?? 2),
+          base_fee: Number(data.base_fee ?? 5),
+          extra_km_fee: Number(data.extra_km_fee ?? 2),
+          min_order_value: Number(data.min_order_value ?? 20),
+          estimated_time_min: Number(data.estimated_time_min ?? 30),
+          estimated_time_max: Number(data.estimated_time_max ?? 50),
         });
       }
       setLoading(false);
