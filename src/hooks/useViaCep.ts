@@ -63,7 +63,7 @@ export const useViaCep = () => {
     } catch {
       return null;
     }
-  };
+  }, []);
 
   return { fetchAddress, searchByStreet, geocodeAddress, loading };
 };
