@@ -20,6 +20,7 @@ import AdminKitchen from "./pages/AdminKitchen";
 import AdminRelatorios from "./pages/AdminRelatorios";
 import AdminMarketing from "./pages/AdminMarketing";
 import Entregador from "./pages/Entregador";
+import AdminEntrega from "./pages/AdminEntrega";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
