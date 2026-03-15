@@ -13,7 +13,7 @@ interface ViaCepResult {
 export const useViaCep = () => {
   const [loading, setLoading] = useState(false);
 
-  const fetchAddress = async (cep: string): Promise<ViaCepResult | null> => {
+  const fetchAddress = useCallback(async (cep: string): Promise<ViaCepResult | null> => {
     const clean = cep.replace(/\D/g, '');
     if (clean.length !== 8) return null;
 
