@@ -49,7 +49,7 @@ export const useViaCep = () => {
   }, []);
 
   /** Try to geocode an address to get lat/lng using Nominatim (free, no API key) */
-  const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
+  const geocodeAddress = useCallback(async (address: string): Promise<{ lat: number; lng: number } | null> => {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=br`,
