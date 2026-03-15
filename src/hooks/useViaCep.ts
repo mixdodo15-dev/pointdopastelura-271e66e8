@@ -46,7 +46,7 @@ export const useViaCep = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   /** Try to geocode an address to get lat/lng using Nominatim (free, no API key) */
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
