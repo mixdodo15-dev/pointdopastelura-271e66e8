@@ -132,7 +132,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     if (dist > deliverySettings.max_radius_km) {
       setOutOfRange(true);
       setDeliveryFee(0);
-      toast.error(`Fora da área de entrega (${dist.toFixed(1)} km)`);
+      toast.error(`Desculpe, ainda não entregamos nessa região (${dist.toFixed(1)} km). Raio máximo: ${deliverySettings.max_radius_km} km.`);
     } else {
       setOutOfRange(false);
       const calculatedFee = Math.round(calcDeliveryFee(dist, deliverySettings) * 100) / 100;
