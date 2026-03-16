@@ -98,14 +98,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     setOutOfRange(false);
   }, []);
 
-  const formatAddressForGeocode = useCallback((address: SelectedDeliveryAddress) => {
-    const normalizedCity = address.city.replace('/', ', ');
-    const numberPart = address.number ? `, ${address.number}` : '';
-    const complementPart = address.complement ? `, ${address.complement}` : '';
-    const cepPart = address.cep ? `, CEP ${address.cep}` : '';
-
-    return `${address.street}${numberPart}${complementPart}, ${address.neighborhood}, ${normalizedCity}${cepPart}, Brasil`;
-  }, []);
+  // Format handling is now done inside geocodeAddress with fallbacks
 
   const recalculateDeliveryFee = useCallback(async (address: SelectedDeliveryAddress | null) => {
     resetDeliveryFee();
@@ -117,14 +110,21 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
 
     setCalculatingFee(true);
     const requestId = ++feeCalculationRequestRef.current;
-    const coords = await geocodeAddress(formatAddressForGeocode(address));
+    
+    const coords = await geocodeAddress({
+      street: address.street,
+      number: address.number,
+      neighborhood: address.neighborhood,
+      city: address.city,
+      cep: address.cep
+    });
 
     if (requestId !== feeCalculationRequestRef.current) return;
 
     if (!coords) {
       setCalculatingFee(false);
-      console.warn('[DeliveryFee] Geocoding failed for:', formatAddressForGeocode(address));
-      toast.error('Não foi possível localizar o endereço. Verifique os dados.');
+      console.warn('[DeliveryFee] Geocoding failed for all fallback attempts for:', address);
+      toast.error('Não foi possível localizar o endereço exato para cálculo do frete. Tente preencher com mais detalhes.');
       return;
     }
 
@@ -142,7 +142,7 @@ const CheckoutModal = ({ open, onClose }: CheckoutModalProps) => {
     }
 
     setCalculatingFee(false);
-  }, [deliveryMode, geocodeAddress, formatAddressForGeocode, deliverySettings, resetDeliveryFee]);
+  }, [deliveryMode, geocodeAddress, deliverySettings, resetDeliveryFee]);
 
   // Keep selected delivery address strictly from checkout selection/edition
   useEffect(() => {

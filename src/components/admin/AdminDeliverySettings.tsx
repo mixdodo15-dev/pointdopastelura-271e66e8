@@ -161,10 +161,11 @@ const AdminDeliverySettings = () => {
       return;
     }
     let fee: number;
-    if (dist <= settings.base_distance_km) {
+    const roundedDist = Math.ceil(dist);
+    if (roundedDist <= settings.base_distance_km) {
       fee = settings.base_fee;
     } else {
-      fee = settings.base_fee + ((dist - settings.base_distance_km) * settings.extra_km_fee);
+      fee = settings.base_fee + ((roundedDist - settings.base_distance_km) * settings.extra_km_fee);
     }
     setSimResult({
       fee: Math.round(fee * 100) / 100,
@@ -177,10 +178,11 @@ const AdminDeliverySettings = () => {
     const rows: { km: number; fee: number }[] = [];
     for (let km = 1; km <= settings.max_radius_km; km++) {
       let fee: number;
-      if (km <= settings.base_distance_km) {
+      const roundedKm = Math.ceil(km);
+      if (roundedKm <= settings.base_distance_km) {
         fee = settings.base_fee;
       } else {
-        fee = settings.base_fee + ((km - settings.base_distance_km) * settings.extra_km_fee);
+        fee = settings.base_fee + ((roundedKm - settings.base_distance_km) * settings.extra_km_fee);
       }
       rows.push({ km, fee: Math.round(fee * 100) / 100 });
     }
@@ -259,7 +261,7 @@ const AdminDeliverySettings = () => {
           </div>
           <div className="bg-secondary rounded-lg px-3 py-2 text-xs space-y-0.5">
             <p className="font-semibold">Fórmula:</p>
-            <p className="font-mono text-[11px]">taxa = {settings.base_fee} + ((km - {settings.base_distance_km}) × {settings.extra_km_fee})</p>
+            <p className="font-mono text-[11px]">taxa = {settings.base_fee} + ((arredonda_cima(km) - {settings.base_distance_km}) × {settings.extra_km_fee})</p>
           </div>
         </div>
 
