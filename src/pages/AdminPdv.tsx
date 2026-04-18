@@ -6,7 +6,7 @@ import {
   ShoppingCart, ClipboardList, ChefHat, Wallet, BarChart3,
   Settings, Moon, Sun, LogOut, Search, Store, ShoppingBag, Truck,
   CheckCircle, Printer, MessageCircle, Minus, Plus, Trash2, Image as ImageIcon,
-  TrendingUp, FileText, Package, Menu, X
+  TrendingUp, FileText, Package, Menu, X, Monitor
 } from 'lucide-react';
 
 const AdminPedidos = lazy(() => import('@/pages/AdminPedidos'));
@@ -16,6 +16,7 @@ const AdminRelatorios = lazy(() => import('@/pages/AdminRelatorios'));
 const FichaTecnica = lazy(() => import('@/components/pdv/FichaTecnica'));
 const Embalagens = lazy(() => import('@/components/pdv/Embalagens'));
 const PdvProductEditor = lazy(() => import('@/components/pdv/PdvProductEditor'));
+const PdvMonitor = lazy(() => import('@/components/pdv/PdvMonitor'));
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -218,6 +219,7 @@ const AdminPdv = () => {
 
   const navTabs = [
     { id: 'pdv', label: 'PDV', icon: <ShoppingCart className="h-4 w-4" /> },
+    { id: 'monitor', label: 'Monitor', icon: <Monitor className="h-4 w-4" /> },
     { id: 'editar-produtos', label: 'Produtos', icon: <Settings className="h-4 w-4" /> },
     { id: 'pedidos', label: 'Pedidos', icon: <ClipboardList className="h-4 w-4" /> },
     { id: 'cozinha', label: 'Cozinha', icon: <ChefHat className="h-4 w-4" /> },
@@ -537,6 +539,7 @@ const AdminPdv = () => {
               </div>
             }>
               {activeTab === 'editar-produtos' && <PdvProductEditor />}
+              {activeTab === 'monitor' && <PdvMonitor />}
               {activeTab === 'pedidos' && <AdminPedidos />}
               {activeTab === 'cozinha' && <AdminKitchen />}
               {activeTab === 'caixa' && <AdminCaixa />}
