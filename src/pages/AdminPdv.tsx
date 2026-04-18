@@ -308,46 +308,92 @@ const AdminPdv = () => {
         </div>
       )}
 
-      {/* Cart Items */}
-      <div className="flex-1 min-h-[80px]">
+      {/* Cart Items - área com scroll próprio para listar todos */}
+      <div className="flex-1 min-h-[200px] max-h-[45vh] overflow-y-auto pr-1 -mr-1 rounded-xl border border-border bg-secondary/30 p-2">
         {store.items.length === 0 ? (
           <div className="flex items-center justify-center h-full text-muted-foreground text-sm py-8">
             Clique em um produto para adicionar
           </div>
         ) : (
           <div className="space-y-2">
-            {store.items.map(item => {
+            {store.items.map((item, idx) => {
               const adicionaisTotal = item.adicionais?.reduce((s, a) => s + a.price, 0) || 0;
               const unitTotal = item.price + adicionaisTotal;
+              const lineTotal = unitTotal * item.quantity;
+              const match = item.name.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+              const baseName = match ? match[1].trim() : item.name;
+              const flavorsFromName = match ? match[2].split(',').map(s => s.trim()) : [];
+              const flavors = item.flavors && item.flavors.length > 0 ? item.flavors : flavorsFromName;
+
               return (
-                <div key={item.id} className="bg-background rounded-xl p-3 border border-border group">
-                  <div className="flex justify-between items-start gap-2 mb-1">
-                    <p className="text-xs font-bold text-foreground leading-tight flex-1">{item.name}</p>
+                <div key={item.id} className="bg-background rounded-xl p-3 border border-border group shadow-sm">
+                  <div className="flex justify-between items-start gap-2 mb-1.5">
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                      <span className="text-[10px] font-extrabold text-primary-foreground bg-primary rounded-md px-1.5 py-0.5 mt-0.5 shrink-0">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                      <p className="text-sm font-extrabold text-foreground leading-tight flex-1 break-words">
+                        {baseName}
+                      </p>
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 text-destructive/60 hover:text-destructive shrink-0 md:opacity-0 md:group-hover:opacity-100"
+                      className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10 shrink-0"
                       onClick={() => store.removeItem(item.id)}
+                      aria-label="Remover item"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  {item.adicionais && item.adicionais.length > 0 && (
-                    <p className="text-[10px] text-accent font-semibold mb-1">
-                      + {item.adicionais.map(a => a.name).join(', ')}
-                    </p>
+
+                  {(flavors.length > 0 || (item.adicionais && item.adicionais.length > 0)) && (
+                    <div className="ml-1 mb-2 pl-2 border-l-2 border-primary/40 space-y-0.5">
+                      {flavors.map((f, i) => (
+                        <p key={`f-${i}`} className="text-xs font-semibold text-foreground/80 leading-snug">
+                          - {f}
+                        </p>
+                      ))}
+                      {item.adicionais?.map((a, i) => (
+                        <p key={`a-${i}`} className="text-xs font-semibold text-accent leading-snug flex justify-between gap-2">
+                          <span>+ {a.name}</span>
+                          <span className="text-accent/80">{formatPrice(a.price)}</span>
+                        </p>
+                      ))}
+                    </div>
                   )}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-0 bg-card rounded-lg overflow-hidden border border-border">
-                      <button onClick={() => store.decreaseQty(item.id)} className="h-7 w-7 sm:h-6 sm:w-6 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all">
-                        <Minus className="h-3 w-3" />
+
+                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-dashed border-border">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide leading-none">Valor</span>
+                      <span className="text-sm font-extrabold text-primary leading-tight">
+                        {formatPrice(lineTotal)}
+                      </span>
+                      {item.quantity > 1 && (
+                        <span className="text-[10px] text-muted-foreground leading-none">
+                          {item.quantity}x {formatPrice(unitTotal)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-0 bg-card rounded-lg overflow-hidden border border-border shrink-0">
+                      <button
+                        onClick={() => store.decreaseQty(item.id)}
+                        className="h-9 w-9 flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-all"
+                        aria-label="Diminuir"
+                      >
+                        <Minus className="h-4 w-4" />
                       </button>
-                      <span className="text-xs font-extrabold w-7 sm:w-6 text-center">{item.quantity}</span>
-                      <button onClick={() => store.increaseQty(item.id)} className="h-7 w-7 sm:h-6 sm:w-6 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all">
-                        <Plus className="h-3 w-3" />
+                      <span className="text-sm font-extrabold w-9 text-center bg-card h-9 flex items-center justify-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => store.increaseQty(item.id)}
+                        className="h-9 w-9 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
+                        aria-label="Adicionar mais 1"
+                      >
+                        <Plus className="h-4 w-4" />
                       </button>
                     </div>
-                    <p className="text-sm font-extrabold text-primary">{formatPrice(unitTotal * item.quantity)}</p>
                   </div>
                 </div>
               );
