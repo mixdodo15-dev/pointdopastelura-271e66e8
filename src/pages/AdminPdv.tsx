@@ -6,7 +6,7 @@ import {
   ShoppingCart, ClipboardList, ChefHat, Wallet, BarChart3,
   Settings, Moon, Sun, LogOut, Search, Store, ShoppingBag, Truck,
   CheckCircle, Printer, MessageCircle, Minus, Plus, Trash2, Image as ImageIcon,
-  TrendingUp, FileText, Package, Menu, X
+  TrendingUp, FileText, Package, Menu, X, Monitor
 } from 'lucide-react';
 
 const AdminPedidos = lazy(() => import('@/pages/AdminPedidos'));
@@ -16,6 +16,7 @@ const AdminRelatorios = lazy(() => import('@/pages/AdminRelatorios'));
 const FichaTecnica = lazy(() => import('@/components/pdv/FichaTecnica'));
 const Embalagens = lazy(() => import('@/components/pdv/Embalagens'));
 const PdvProductEditor = lazy(() => import('@/components/pdv/PdvProductEditor'));
+const PdvMonitor = lazy(() => import('@/components/pdv/PdvMonitor'));
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
