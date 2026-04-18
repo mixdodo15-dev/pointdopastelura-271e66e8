@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { ChefHat, Package, CheckCircle2, Clock, Bell } from 'lucide-react';
+import { ChefHat, Package, CheckCircle2, Clock, Bell, Bike, PackageCheck } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface Order {
   id: string;
@@ -9,10 +17,31 @@ interface Order {
   customer_name: string;
   status: string;
   table_number: string | null;
+  order_source: string | null;
   created_at: string;
 }
 
-const STATUS_GROUPS = [
+type StatusKey = 'preparing' | 'ready' | 'pickup' | 'out_for_delivery' | 'delivered';
+
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: 'received', label: 'Recebido' },
+  { value: 'accepted', label: 'Aceito' },
+  { value: 'preparing', label: 'Em Preparo' },
+  { value: 'ready', label: 'Pronto' },
+  { value: 'pickup', label: 'Pronto para Retirar' },
+  { value: 'out_for_delivery', label: 'Saiu para Entrega' },
+  { value: 'delivered', label: 'Entregue' },
+  { value: 'cancelled', label: 'Cancelado' },
+];
+
+const STATUS_GROUPS: {
+  key: StatusKey;
+  title: string;
+  icon: typeof ChefHat;
+  statuses: string[];
+  bg: string;
+  text: string;
+}[] = [
   {
     key: 'preparing',
     title: 'Em Preparo',
@@ -23,15 +52,31 @@ const STATUS_GROUPS = [
   },
   {
     key: 'ready',
-    title: 'Prontos para Retirar',
+    title: 'Pronto',
+    icon: PackageCheck,
+    statuses: ['ready'],
+    bg: 'bg-amber-500',
+    text: 'text-black',
+  },
+  {
+    key: 'pickup',
+    title: 'Pronto p/ Retirar',
     icon: Package,
-    statuses: ['out_for_delivery'],
+    statuses: ['pickup'],
     bg: 'bg-[hsl(var(--pdv-accent))]',
     text: 'text-black',
   },
   {
+    key: 'out_for_delivery',
+    title: 'Saiu p/ Entrega',
+    icon: Bike,
+    statuses: ['out_for_delivery'],
+    bg: 'bg-blue-600',
+    text: 'text-white',
+  },
+  {
     key: 'delivered',
-    title: 'Entregues',
+    title: 'Entregue',
     icon: CheckCircle2,
     statuses: ['delivered'],
     bg: 'bg-emerald-600',
@@ -46,16 +91,25 @@ const PdvMonitor = () => {
   const [now, setNow] = useState(Date.now());
   const [lastReadyIds, setLastReadyIds] = useState<Set<string>>(new Set());
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
         .from('orders')
-        .select('id, order_number, customer_name, status, table_number, created_at')
-        .in('status', ['received', 'accepted', 'preparing', 'out_for_delivery', 'delivered'])
+        .select('id, order_number, customer_name, status, table_number, order_source, created_at')
+        .in('status', [
+          'received',
+          'accepted',
+          'preparing',
+          'ready',
+          'pickup',
+          'out_for_delivery',
+          'delivered',
+        ] as any)
         .order('created_at', { ascending: false })
-        .limit(60);
-      if (data) setOrders(data as Order[]);
+        .limit(80);
+      if (data) setOrders(data as unknown as Order[]);
     };
     load();
 
@@ -69,10 +123,10 @@ const PdvMonitor = () => {
     };
   }, []);
 
-  // Detect transitions to "ready" to highlight + beep
+  // Detect transitions to ready/pickup to highlight + beep
   useEffect(() => {
     const readyNow = new Set(
-      orders.filter((o) => o.status === 'out_for_delivery').map((o) => o.id),
+      orders.filter((o) => o.status === 'ready' || o.status === 'pickup').map((o) => o.id),
     );
     const newlyReady = [...readyNow].find((id) => !lastReadyIds.has(id));
     if (newlyReady && lastReadyIds.size > 0) {
@@ -109,9 +163,25 @@ const PdvMonitor = () => {
     return `${h}h${m > 0 ? ` ${m}min` : ''}`;
   };
 
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    setUpdatingId(orderId);
+    // Optimistic update
+    setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus as any })
+      .eq('id', orderId);
+    setUpdatingId(null);
+    if (error) {
+      toast.error('Erro ao atualizar status');
+    } else {
+      toast.success('Status atualizado');
+    }
+  };
+
   return (
     <div className="min-h-full bg-background p-4 sm:p-6">
-      <div className="max-w-[1600px] mx-auto">
+      <div className="max-w-[1800px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
           <div className="flex items-center gap-3">
@@ -139,7 +209,7 @@ const PdvMonitor = () => {
         </div>
 
         {/* Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
           {STATUS_GROUPS.map((group) => {
             const groupOrders = orders.filter((o) => group.statuses.includes(o.status));
             const Icon = group.icon;
@@ -148,21 +218,21 @@ const PdvMonitor = () => {
                 key={group.key}
                 className="bg-card rounded-2xl border border-border overflow-hidden flex flex-col"
               >
-                <div className={cn('px-4 py-3 flex items-center justify-between', group.bg)}>
+                <div className={cn('px-3 py-2.5 flex items-center justify-between', group.bg)}>
                   <div className={cn('flex items-center gap-2 font-extrabold', group.text)}>
-                    <Icon className="h-5 w-5" />
-                    <span className="text-base">{group.title}</span>
+                    <Icon className="h-4 w-4" />
+                    <span className="text-sm">{group.title}</span>
                   </div>
                   <span
                     className={cn(
-                      'h-7 min-w-7 px-2 rounded-full bg-white/20 flex items-center justify-center text-sm font-extrabold',
+                      'h-6 min-w-6 px-2 rounded-full bg-white/20 flex items-center justify-center text-xs font-extrabold',
                       group.text,
                     )}
                   >
                     {groupOrders.length}
                   </span>
                 </div>
-                <div className="p-3 space-y-2 min-h-[200px] max-h-[calc(100vh-260px)] overflow-y-auto">
+                <div className="p-2 space-y-2 min-h-[200px] max-h-[calc(100vh-260px)] overflow-y-auto">
                   {groupOrders.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                       <Icon className="h-10 w-10 opacity-20 mb-2" />
@@ -173,14 +243,14 @@ const PdvMonitor = () => {
                       <div
                         key={o.id}
                         className={cn(
-                          'rounded-xl border-2 p-3 transition-all',
+                          'rounded-xl border-2 p-2.5 transition-all',
                           highlightId === o.id
                             ? 'border-[hsl(var(--pdv-accent))] bg-[hsl(var(--pdv-accent))]/10 animate-pulse shadow-lg'
                             : 'border-border bg-background hover:border-primary/40',
                         )}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-lg font-extrabold text-primary">
+                          <span className="text-base font-extrabold text-primary">
                             {formatOrderNumber(o.order_number)}
                           </span>
                           <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
@@ -195,6 +265,29 @@ const PdvMonitor = () => {
                             Mesa {o.table_number}
                           </p>
                         )}
+                        {o.order_source && (
+                          <p className="text-[10px] uppercase font-bold text-muted-foreground mt-0.5">
+                            {o.order_source}
+                          </p>
+                        )}
+                        <div className="mt-2">
+                          <Select
+                            value={o.status}
+                            onValueChange={(v) => handleStatusChange(o.id, v)}
+                            disabled={updatingId === o.id}
+                          >
+                            <SelectTrigger className="h-8 text-xs font-bold">
+                              <SelectValue placeholder="Alterar status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {STATUS_OPTIONS.map((s) => (
+                                <SelectItem key={s.value} value={s.value} className="text-xs font-semibold">
+                                  {s.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     ))
                   )}
