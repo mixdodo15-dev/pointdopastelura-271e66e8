@@ -539,6 +539,7 @@ const AdminPdv = () => {
               </div>
             }>
               {activeTab === 'editar-produtos' && <PdvProductEditor />}
+              {activeTab === 'monitor' && <PdvMonitor />}
               {activeTab === 'pedidos' && <AdminPedidos />}
               {activeTab === 'cozinha' && <AdminKitchen />}
               {activeTab === 'caixa' && <AdminCaixa />}
