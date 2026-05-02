@@ -69,14 +69,16 @@ const MenuSection = ({ category }: MenuSectionProps) => {
     }
   };
 
-  const handleFlavorConfirm = (flavors: string[]) => {
+  const handleFlavorConfirm = (flavors: string[], extras: { name: string; price: number }[] = []) => {
     if (!flavorModal) return;
     const flavorText = flavors.join(', ');
+    const extrasText = extras.length > 0 ? ` + ${extras.map(e => e.name).join(', ')}` : '';
+    const extrasPrice = extras.reduce((s, e) => s + e.price, 0);
     const { discounted } = getDiscountedPrice(flavorModal.price, flavorModal.category);
     addItem({
-      id: flavorModal.id,
-      name: `${flavorModal.name} (${flavorText})`,
-      price: discounted,
+      id: `${flavorModal.id}-${extras.map(e => e.name).join(',')}`,
+      name: `${flavorModal.name} (${flavorText}${extrasText})`,
+      price: discounted + extrasPrice,
       flavors,
     });
     toast.success(`${flavorModal.name} adicionado!`);
