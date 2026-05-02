@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Package, Clock, ChefHat, Truck, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, Package, Clock, ChefHat, Truck, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
 interface Order {
@@ -41,6 +42,7 @@ const MeusPedidos = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   useEffect(() => {
@@ -118,6 +120,14 @@ const MeusPedidos = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    await fetchOrders(user);
+    setRefreshing(false);
+    toast({ title: 'Status atualizado', description: 'Seus pedidos foram recarregados.' });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -133,7 +143,17 @@ const MeusPedidos = () => {
         <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate('/')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }}>Meus Pedidos</h1>
+        <h1 className="text-lg font-extrabold flex-1" style={{ fontFamily: "'Poppins', sans-serif" }}>Meus Pedidos</h1>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-primary-foreground hover:bg-primary-foreground/10"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          aria-label="Atualizar status"
+        >
+          <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+        </Button>
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
