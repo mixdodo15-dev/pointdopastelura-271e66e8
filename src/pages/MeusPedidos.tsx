@@ -253,6 +253,19 @@ const MeusPedidos = () => {
             );
           })
         )}
+
+        {orders.length > 0 && (
+          <div className="pt-4 pb-2">
+            <Button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="w-full rounded-full h-12 font-bold gap-2"
+            >
+              <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Atualizando...' : 'Atualizar Status do Pedido'}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
