@@ -69,7 +69,7 @@ const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm, cu
         <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold">
-              {itemName} — R$ {price.toFixed(2).replace('.', ',')}
+              {itemName} — <span className="text-primary font-extrabold">R$ {price.toFixed(2).replace('.', ',')}</span>
             </DialogTitle>
             <p className="text-sm text-muted-foreground">
               Selecione {maxFlavors === 1 ? '1 sabor' : `até ${maxFlavors} sabores`} ({selected.length}/{maxFlavors})
@@ -113,22 +113,26 @@ const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm, cu
                       {active && <Check className="h-3 w-3" />}
                       {item.name}
                     </span>
-                    <span className="text-[10px] text-accent font-extrabold">+{formatPriceBR(item.price)}</span>
+                    <span className="text-[11px] text-primary font-extrabold">+{formatPriceBR(item.price)}</span>
                   </button>
                 );
               })}
             </div>
             {extras.length > 0 && (
-              <p className="text-xs text-muted-foreground mt-2 text-center">
+              <p className="text-xs font-bold text-primary mt-2 text-center">
                 Adicionais: +{formatPriceBR(extrasTotal)}
               </p>
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={handleClose}>Cancelar</Button>
-            <Button onClick={handleConfirm} disabled={selected.length === 0}>
-              Adicionar • {formatPriceBR(price + extrasTotal)}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={handleClose} className="rounded-full">Cancelar</Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={selected.length === 0}
+              className="rounded-full font-extrabold bg-primary hover:bg-[hsl(0,100%,30%)] text-primary-foreground shadow-lg shadow-primary/40 hover:scale-[1.03] active:scale-[0.97] transition-all animate-pulse"
+            >
+              🛒 Adicionar • {formatPriceBR(price + extrasTotal)}
             </Button>
           </DialogFooter>
         </DialogContent>
