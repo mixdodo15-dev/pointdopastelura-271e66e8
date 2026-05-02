@@ -11,12 +11,21 @@ interface FlavorModalProps {
   maxFlavors: number;
   itemName: string;
   price: number;
-  onConfirm: (flavors: string[]) => void;
+  onConfirm: (flavors: string[], extras?: { name: string; price: number }[]) => void;
   customFlavors?: string[];
 }
 
+const SWEET_EXTRAS = [
+  { name: 'Morango', price: 5 },
+  { name: 'Banana', price: 5 },
+  { name: 'Queijo', price: 5 },
+];
+
+const formatPriceBR = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
+
 const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm, customFlavors }: FlavorModalProps) => {
   const [selected, setSelected] = useState<string[]>([]);
+  const [extras, setExtras] = useState<{ name: string; price: number }[]>([]);
   const { flavors } = useFlavors();
 
   const toggle = (name: string) => {
@@ -27,22 +36,33 @@ const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm, cu
     });
   };
 
+  const toggleExtra = (item: { name: string; price: number }) => {
+    setExtras(prev =>
+      prev.find(e => e.name === item.name)
+        ? prev.filter(e => e.name !== item.name)
+        : [...prev, item]
+    );
+  };
+
   const handleConfirm = () => {
     if (selected.length > 0) {
-      onConfirm(selected);
+      onConfirm(selected, extras);
       setSelected([]);
+      setExtras([]);
     }
   };
 
   const handleClose = () => {
     setSelected([]);
+    setExtras([]);
     onClose();
   };
 
   const salgados = flavors.filter(f => f.type === 'salgado');
   const doces = flavors.filter(f => f.type === 'doce');
+  const extrasTotal = extras.reduce((s, e) => s + e.price, 0);
 
-  // If custom flavors provided, show simple list
+  // If custom flavors provided, show simple list (Pastel Doce Especial)
   if (customFlavors) {
     return (
       <Dialog open={open} onOpenChange={handleClose}>
