@@ -143,7 +143,17 @@ const MeusPedidos = () => {
         <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate('/')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }}>Meus Pedidos</h1>
+        <h1 className="text-lg font-extrabold flex-1" style={{ fontFamily: "'Poppins', sans-serif" }}>Meus Pedidos</h1>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-primary-foreground hover:bg-primary-foreground/10"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          aria-label="Atualizar status"
+        >
+          <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+        </Button>
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
