@@ -92,10 +92,43 @@ const FlavorModal = ({ open, onClose, maxFlavors, itemName, price, onConfirm, cu
               </button>
             ))}
           </div>
+
+          <div className="mt-2">
+            <h3 className="font-bold text-sm mb-2">➕ Adicionais (opcional)</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {SWEET_EXTRAS.map(item => {
+                const active = !!extras.find(e => e.name === item.name);
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => toggleExtra(item)}
+                    className={cn(
+                      "flex flex-col items-center gap-1 px-2 py-2 rounded-lg text-xs font-bold border-2 transition-all",
+                      active
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <span className="flex items-center gap-1">
+                      {active && <Check className="h-3 w-3" />}
+                      {item.name}
+                    </span>
+                    <span className="text-[10px] text-accent font-extrabold">+{formatPriceBR(item.price)}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {extras.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Adicionais: +{formatPriceBR(extrasTotal)}
+              </p>
+            )}
+          </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={handleClose}>Cancelar</Button>
             <Button onClick={handleConfirm} disabled={selected.length === 0}>
-              Adicionar ao carrinho
+              Adicionar • {formatPriceBR(price + extrasTotal)}
             </Button>
           </DialogFooter>
         </DialogContent>
