@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Package, Clock, ChefHat, Truck, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, Package, Clock, ChefHat, Truck, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
 interface Order {
