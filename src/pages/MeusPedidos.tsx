@@ -120,6 +120,14 @@ const MeusPedidos = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    await fetchOrders(user);
+    setRefreshing(false);
+    toast({ title: 'Status atualizado', description: 'Seus pedidos foram recarregados.' });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
