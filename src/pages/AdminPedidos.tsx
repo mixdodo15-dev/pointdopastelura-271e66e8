@@ -89,8 +89,48 @@ const AdminPedidos = () => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data) setOrders(data as Order[]);
+    if (!error && data) {
+      setOrders(data as Order[]);
+      const ids = Array.from(new Set((data as Order[]).map(o => o.entregador_id).filter(Boolean) as string[]));
+      if (ids.length) {
+        const { data: ents } = await supabase
+          .from('entregadores')
+          .select('id, nome, telefone, veiculo, placa')
+          .in('id', ids);
+        if (ents) {
+          const map: Record<string, EntregadorRef> = {};
+          (ents as EntregadorRef[]).forEach(e => { map[e.id] = e; });
+          setEntregadores(map);
+        }
+      }
+    }
     setLoading(false);
+  };
+
+  const markDelivered = async (order: Order) => {
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: 'delivered' as any, delivered_at: new Date().toISOString() })
+      .eq('id', order.id);
+    if (error) { toast.error('Erro ao finalizar entrega'); return; }
+    if (order.entregador_id) {
+      await supabase.from('entregadores').update({ status: 'disponivel' }).eq('id', order.entregador_id);
+    }
+    toast.success('Pedido entregue!');
+  };
+
+  const sendToWhatsApp = async (order: Order) => {
+    if (!order.entregador_id) return;
+    const ent = entregadores[order.entregador_id];
+    if (!ent) { toast.error('Entregador não encontrado'); return; }
+    let items = orderItems[order.id];
+    if (!items) {
+      const { data } = await supabase.from('order_items').select('*').eq('order_id', order.id);
+      items = (data as OrderItem[]) || [];
+      setOrderItems(prev => ({ ...prev, [order.id]: items! }));
+    }
+    const url = buildEntregadorWhatsAppLink(ent.telefone, order, items);
+    window.open(url, '_blank');
   };
 
   // Realtime
