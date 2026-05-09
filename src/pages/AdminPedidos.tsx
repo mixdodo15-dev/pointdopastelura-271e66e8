@@ -358,7 +358,40 @@ const AdminPedidos = () => {
             );
           })
         )}
-      </div>
+                    </div>
+
+                    {/* Entrega: atribuição / WhatsApp / finalizar */}
+                    {order.status !== 'delivered' && order.status !== 'cancelled' && (
+                      <div className="rounded-xl border border-border p-3 space-y-2 bg-secondary/40">
+                        {order.entregador_id && entregadores[order.entregador_id] ? (
+                          <p className="text-xs font-semibold text-foreground flex items-center gap-1">
+                            <Bike className="h-4 w-4 text-primary" />
+                            Entregador: <span className="font-bold">{entregadores[order.entregador_id].nome}</span>
+                            <span className="text-muted-foreground">• {entregadores[order.entregador_id].veiculo}</span>
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">Nenhum entregador atribuído</p>
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" variant="outline" className="flex-1 min-w-[140px]"
+                            onClick={() => setAssignFor({ id: order.id, number: order.order_number })}>
+                            <Bike className="h-4 w-4 mr-1" />
+                            {order.entregador_id ? 'Trocar Entregador' : 'Atribuir Entregador'}
+                          </Button>
+                          {order.entregador_id && (
+                            <Button size="sm" className="flex-1 min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white"
+                              onClick={() => sendToWhatsApp(order)}>
+                              <MessageCircle className="h-4 w-4 mr-1" /> Enviar WhatsApp
+                            </Button>
+                          )}
+                          {order.entregador_id && (
+                            <Button size="sm" className="flex-1 min-w-[140px]" onClick={() => markDelivered(order)}>
+                              <PackageCheck className="h-4 w-4 mr-1" /> Marcar Entregue
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
       {/* Delete single order dialog */}
       <AlertDialog open={!!deleteOrderId} onOpenChange={() => setDeleteOrderId(null)}>
