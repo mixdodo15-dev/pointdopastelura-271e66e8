@@ -443,6 +443,16 @@ const AdminPedidos = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {assignFor && (
+        <AtribuirEntregadorModal
+          open={!!assignFor}
+          orderId={assignFor.id}
+          orderNumber={assignFor.number}
+          onClose={() => setAssignFor(null)}
+          onAssigned={fetchOrders}
+        />
+      )}
     </div>
   );
 };
