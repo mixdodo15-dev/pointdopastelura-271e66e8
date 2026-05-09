@@ -343,28 +343,12 @@ const AdminPedidos = () => {
                         </button>
                       ))}
                     </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="w-full mt-2"
-                      onClick={() => setDeleteOrderId(order.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Excluir Pedido
-                    </Button>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-                    </div>
 
                     {/* Entrega: atribuição / WhatsApp / finalizar */}
                     {order.status !== 'delivered' && order.status !== 'cancelled' && (
                       <div className="rounded-xl border border-border p-3 space-y-2 bg-secondary/40">
                         {order.entregador_id && entregadores[order.entregador_id] ? (
-                          <p className="text-xs font-semibold text-foreground flex items-center gap-1">
+                          <p className="text-xs font-semibold text-foreground flex items-center gap-1 flex-wrap">
                             <Bike className="h-4 w-4 text-primary" />
                             Entregador: <span className="font-bold">{entregadores[order.entregador_id].nome}</span>
                             <span className="text-muted-foreground">• {entregadores[order.entregador_id].veiculo}</span>
@@ -392,6 +376,23 @@ const AdminPedidos = () => {
                         </div>
                       </div>
                     )}
+
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full mt-2"
+                      onClick={() => setDeleteOrderId(order.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Excluir Pedido
+                    </Button>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
 
       {/* Delete single order dialog */}
       <AlertDialog open={!!deleteOrderId} onOpenChange={() => setDeleteOrderId(null)}>
