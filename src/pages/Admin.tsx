@@ -337,6 +337,9 @@ const Admin = () => {
           <Button variant="outline" className="rounded-full" onClick={() => navigate('/admin/marketing')}>
             🎁 Marketing
           </Button>
+          <Button variant="outline" className="rounded-full" onClick={() => navigate('/admin/entregadores')}>
+            <Bike className="h-4 w-4 mr-1" /> Gestão Entregadores
+          </Button>
         </div>
 
         {/* Products Tab */}
