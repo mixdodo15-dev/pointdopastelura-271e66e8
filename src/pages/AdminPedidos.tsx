@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, CheckCircle2, ChefHat, Truck, XCircle, DollarSign, Clock, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, ChefHat, Truck, XCircle, DollarSign, Clock, Trash2, AlertTriangle, Bike, MessageCircle, PackageCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -14,6 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import AtribuirEntregadorModal from '@/components/admin/AtribuirEntregadorModal';
+import { buildEntregadorWhatsAppLink } from '@/lib/whatsappEntregador';
 
 interface Order {
   id: string;
@@ -26,6 +28,16 @@ interface Order {
   total_price: number;
   status: string;
   created_at: string;
+  entregador_id: string | null;
+  order_source?: string | null;
+}
+
+interface EntregadorRef {
+  id: string;
+  nome: string;
+  telefone: string;
+  veiculo: string;
+  placa: string | null;
 }
 
 interface OrderItem {
@@ -57,6 +69,8 @@ const AdminPedidos = () => {
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [entregadores, setEntregadores] = useState<Record<string, EntregadorRef>>({});
+  const [assignFor, setAssignFor] = useState<{ id: string; number: number | null } | null>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
