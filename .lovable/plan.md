@@ -1,55 +1,78 @@
+## Módulo de Gestão de Entregadores
 
-# Point Do Pastel - Cardápio Digital
+### 1. Banco de Dados (Supabase)
+Criar tabela `entregadores` e adicionar relação com `orders`:
 
-## Visão Geral
-Site responsivo de cardápio digital para a **Point Do Pastel**, com cores vermelho (#f42e40) e branco, visual moderno e apetitoso, otimizado para mobile.
+```sql
+CREATE TYPE entregador_status AS ENUM ('disponivel', 'em_entrega', 'inativo');
 
-## Layout Geral
-- **Header**: Logo/nome "Point Do Pastel" com identidade visual em vermelho e preto
-- **Navegação por abas**: Categorias do cardápio (Monte Seu Pastel, Especiais, Doces, Bebidas, Adicionais)
-- **Carrinho flutuante**: Ícone fixo no canto inferior com contador de itens e valor total
-- **Design mobile-first**: Cards de produtos com visual apetitoso e botões de ação claros
+CREATE TABLE public.entregadores (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome TEXT NOT NULL,
+  telefone TEXT NOT NULL,
+  veiculo TEXT NOT NULL,
+  placa TEXT,
+  status entregador_status NOT NULL DEFAULT 'disponivel',
+  active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
-## Seções do Cardápio
+ALTER TABLE public.orders
+  ADD COLUMN entregador_id UUID REFERENCES public.entregadores(id),
+  ADD COLUMN delivered_at TIMESTAMPTZ;
+```
 
-### 1. Monte Seu Pastel (22cm)
-- Cards com opções de 1 a 5 sabores (R$12 a R$28)
-- Ao selecionar, abre um modal para o cliente **clicar e escolher os sabores** da lista
-- Sabores organizados em duas colunas: **Salgados** e **Doces**, com ícones visuais
-- Salgados: Carne, Frango, Pizza, Bacon, Queijo, Calabresa, Mussarela, Catupiry, Cheddar, Azeitona, Palmito, Milho, Jiló, Brócolis
-- Doces: Goiabada, Coco ralado, Banana com canela, Doce de leite
+RLS: apenas admins podem gerenciar/visualizar entregadores.
 
-### 2. Pastéis Especiais
-- Cards premium com foto placeholder, nome, descrição detalhada e preço em destaque
-- 7 opções: Costela (R$22), Frango Apimentado (R$17), Mexicano (R$20), Doritos (R$14), Costela Peperoni (R$25), Peperoni (R$20), Pastel de Vento (R$8)
+### 2. Nova Página: `/admin/entregadores`
+- Header com botão voltar
+- Botão "Novo Entregador" → abre modal com form (nome, telefone, veículo, placa) com validação Zod
+- Dashboard em grid de cards mostrando todos entregadores com badge de status colorido (verde=disponível, amarelo=em entrega, cinza=inativo)
+- Ações por card: Editar, Ativar/Inativar, Excluir
+- Contadores no topo: Disponíveis / Em entrega / Inativos
 
-### 3. Pastéis Doces
-- Visual doce e atrativo com cores quentes
-- Chocolate ao leite (R$12), Nutella com Ninho (R$15), Nutella com Morango/Banana e Ninho com Morango/Banana (R$20 cada), Especial com sabores de chocolate em barra (R$20)
+Adicionar card "Entregadores" na home do `/admin`.
 
-### 4. Bebidas
-- Organizadas por subcategorias: Água, Sucos, Refrigerantes lata, Refrigerantes 1L
-- Layout limpo com preços claros
+### 3. Atribuição de Entrega (em `/admin/pedidos`)
+Para pedidos com `order_source='delivery'` e status pendente/preparo:
+- Botão **"Atribuir Entregador"** → modal lista entregadores `disponivel`
+- Ao confirmar: atualiza `orders.entregador_id`, `orders.status='out_for_delivery'`, `entregadores.status='em_entrega'`
+- Mostrar entregador atribuído no card do pedido
 
-### 5. Adicionais
-- Grid organizado com 12 opções de adicionais (R$2,99 a R$7,00)
-- Botão rápido de adicionar ao carrinho
+### 4. Envio para WhatsApp
+Botão **"Enviar para Entregador"** (visível quando há entregador atribuído):
+- Gera link `https://wa.me/55<telefone>?text=...`
+- Mensagem formatada:
+  ```
+  🛵 NOVO PEDIDO PARA ENTREGA
+  Pedido: Point-XXXX
+  Cliente: Nome (telefone)
+  📍 Endereço: rua...
+  🗺️ Maps: https://www.google.com/maps/search/?api=1&query=<endereço encoded>
+  📦 Itens: ...
+  💰 Total: R$ XX,XX
+  💳 Pagamento: ...
+  ```
 
-## Carrinho de Compras
-- Painel lateral (ou modal no mobile) com lista de itens
-- Botões de + e - para quantidade de cada item
-- Valor total atualizado em tempo real
-- Botão "Finalizar Pedido"
+### 5. Finalizar Entrega
+Botão **"Marcar como Entregue"**:
+- `orders.status='delivered'`, `delivered_at=now()`
+- `entregadores.status='disponivel'`
 
-## Finalização do Pedido
-- Popup/modal com formulário:
-  - Nome completo (obrigatório)
-  - Endereço completo (obrigatório)
-  - Método de pagamento (Pix, Dinheiro, Cartão)
-  - Observações (opcional)
-- Validação dos campos obrigatórios
+### 6. Design
+- Reutilizar componentes Shadcn (Card, Dialog, Button, Badge, Input)
+- Cores semânticas existentes (vermelho primary, etc.)
+- Mobile-first, grid responsivo
 
-## Envio via WhatsApp
-- Após preencher o formulário, botão "Enviar Pedido via WhatsApp"
-- Gera mensagem formatada com todos os itens, quantidades, valores, dados do cliente e observações
-- Redireciona para wa.me/5534984050892 com a mensagem pré-preenchida
+### Arquivos
+- Migration Supabase (tabela + RLS + coluna em orders)
+- `src/pages/AdminEntregadores.tsx` (nova rota)
+- `src/components/admin/EntregadorFormModal.tsx`
+- `src/components/admin/AtribuirEntregadorModal.tsx`
+- Editar `src/pages/AdminPedidos.tsx` (botões atribuir/whatsapp/entregue)
+- Editar `src/pages/Admin.tsx` (card de acesso)
+- Editar `src/App.tsx` (rota `/admin/entregadores`)
+- `src/lib/whatsappEntregador.ts` (helper de mensagem)
+
+Confirma para eu seguir?
