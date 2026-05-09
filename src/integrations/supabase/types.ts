@@ -332,6 +332,42 @@ export type Database = {
         }
         Relationships: []
       }
+      entregadores: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          nome: string
+          placa: string | null
+          status: Database["public"]["Enums"]["entregador_status"]
+          telefone: string
+          updated_at: string
+          veiculo: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+          placa?: string | null
+          status?: Database["public"]["Enums"]["entregador_status"]
+          telefone: string
+          updated_at?: string
+          veiculo: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+          placa?: string | null
+          status?: Database["public"]["Enums"]["entregador_status"]
+          telefone?: string
+          updated_at?: string
+          veiculo?: string
+        }
+        Relationships: []
+      }
       flavors: {
         Row: {
           active: boolean
@@ -548,9 +584,11 @@ export type Database = {
           created_at: string
           customer_name: string
           customer_phone: string
+          delivered_at: string | null
           delivery_address: string
           delivery_fee: number
           driver_id: string | null
+          entregador_id: string | null
           id: string
           notes: string | null
           order_number: number
@@ -566,9 +604,11 @@ export type Database = {
           created_at?: string
           customer_name: string
           customer_phone: string
+          delivered_at?: string | null
           delivery_address: string
           delivery_fee?: number
           driver_id?: string | null
+          entregador_id?: string | null
           id?: string
           notes?: string | null
           order_number?: number
@@ -584,9 +624,11 @@ export type Database = {
           created_at?: string
           customer_name?: string
           customer_phone?: string
+          delivered_at?: string | null
           delivery_address?: string
           delivery_fee?: number
           driver_id?: string | null
+          entregador_id?: string | null
           id?: string
           notes?: string | null
           order_number?: number
@@ -598,7 +640,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_entregador_id_fkey"
+            columns: ["entregador_id"]
+            isOneToOne: false
+            referencedRelation: "entregadores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -715,6 +765,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "driver"
+      entregador_status: "disponivel" | "em_entrega" | "inativo"
       order_status:
         | "received"
         | "accepted"
@@ -852,6 +903,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user", "driver"],
+      entregador_status: ["disponivel", "em_entrega", "inativo"],
       order_status: [
         "received",
         "accepted",

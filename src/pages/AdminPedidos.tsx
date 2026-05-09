@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, CheckCircle2, ChefHat, Truck, XCircle, DollarSign, Clock, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, ChefHat, Truck, XCircle, DollarSign, Clock, Trash2, AlertTriangle, Bike, MessageCircle, PackageCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -14,6 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import AtribuirEntregadorModal from '@/components/admin/AtribuirEntregadorModal';
+import { buildEntregadorWhatsAppLink } from '@/lib/whatsappEntregador';
 
 interface Order {
   id: string;
@@ -26,6 +28,16 @@ interface Order {
   total_price: number;
   status: string;
   created_at: string;
+  entregador_id: string | null;
+  order_source?: string | null;
+}
+
+interface EntregadorRef {
+  id: string;
+  nome: string;
+  telefone: string;
+  veiculo: string;
+  placa: string | null;
 }
 
 interface OrderItem {
@@ -57,6 +69,8 @@ const AdminPedidos = () => {
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [entregadores, setEntregadores] = useState<Record<string, EntregadorRef>>({});
+  const [assignFor, setAssignFor] = useState<{ id: string; number: number | null } | null>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -75,8 +89,48 @@ const AdminPedidos = () => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data) setOrders(data as Order[]);
+    if (!error && data) {
+      setOrders(data as Order[]);
+      const ids = Array.from(new Set((data as Order[]).map(o => o.entregador_id).filter(Boolean) as string[]));
+      if (ids.length) {
+        const { data: ents } = await supabase
+          .from('entregadores')
+          .select('id, nome, telefone, veiculo, placa')
+          .in('id', ids);
+        if (ents) {
+          const map: Record<string, EntregadorRef> = {};
+          (ents as EntregadorRef[]).forEach(e => { map[e.id] = e; });
+          setEntregadores(map);
+        }
+      }
+    }
     setLoading(false);
+  };
+
+  const markDelivered = async (order: Order) => {
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: 'delivered' as any, delivered_at: new Date().toISOString() })
+      .eq('id', order.id);
+    if (error) { toast.error('Erro ao finalizar entrega'); return; }
+    if (order.entregador_id) {
+      await supabase.from('entregadores').update({ status: 'disponivel' }).eq('id', order.entregador_id);
+    }
+    toast.success('Pedido entregue!');
+  };
+
+  const sendToWhatsApp = async (order: Order) => {
+    if (!order.entregador_id) return;
+    const ent = entregadores[order.entregador_id];
+    if (!ent) { toast.error('Entregador não encontrado'); return; }
+    let items = orderItems[order.id];
+    if (!items) {
+      const { data } = await supabase.from('order_items').select('*').eq('order_id', order.id);
+      items = (data as OrderItem[]) || [];
+      setOrderItems(prev => ({ ...prev, [order.id]: items! }));
+    }
+    const url = buildEntregadorWhatsAppLink(ent.telefone, order, items);
+    window.open(url, '_blank');
   };
 
   // Realtime
@@ -289,6 +343,40 @@ const AdminPedidos = () => {
                         </button>
                       ))}
                     </div>
+
+                    {/* Entrega: atribuição / WhatsApp / finalizar */}
+                    {order.status !== 'delivered' && order.status !== 'cancelled' && (
+                      <div className="rounded-xl border border-border p-3 space-y-2 bg-secondary/40">
+                        {order.entregador_id && entregadores[order.entregador_id] ? (
+                          <p className="text-xs font-semibold text-foreground flex items-center gap-1 flex-wrap">
+                            <Bike className="h-4 w-4 text-primary" />
+                            Entregador: <span className="font-bold">{entregadores[order.entregador_id].nome}</span>
+                            <span className="text-muted-foreground">• {entregadores[order.entregador_id].veiculo}</span>
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">Nenhum entregador atribuído</p>
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" variant="outline" className="flex-1 min-w-[140px]"
+                            onClick={() => setAssignFor({ id: order.id, number: order.order_number })}>
+                            <Bike className="h-4 w-4 mr-1" />
+                            {order.entregador_id ? 'Trocar Entregador' : 'Atribuir Entregador'}
+                          </Button>
+                          {order.entregador_id && (
+                            <Button size="sm" className="flex-1 min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white"
+                              onClick={() => sendToWhatsApp(order)}>
+                              <MessageCircle className="h-4 w-4 mr-1" /> Enviar WhatsApp
+                            </Button>
+                          )}
+                          {order.entregador_id && (
+                            <Button size="sm" className="flex-1 min-w-[140px]" onClick={() => markDelivered(order)}>
+                              <PackageCheck className="h-4 w-4 mr-1" /> Marcar Entregue
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     <Button
                       variant="destructive"
                       size="sm"
@@ -355,6 +443,16 @@ const AdminPedidos = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {assignFor && (
+        <AtribuirEntregadorModal
+          open={!!assignFor}
+          orderId={assignFor.id}
+          orderNumber={assignFor.number}
+          onClose={() => setAssignFor(null)}
+          onAssigned={fetchOrders}
+        />
+      )}
     </div>
   );
 };

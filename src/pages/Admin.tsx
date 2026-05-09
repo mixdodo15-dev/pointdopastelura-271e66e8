@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin, Monitor, ChefHat, UtensilsCrossed, Wallet, BarChart3, ClipboardList } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin, Monitor, ChefHat, UtensilsCrossed, Wallet, BarChart3, ClipboardList, Bike } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -336,6 +336,9 @@ const Admin = () => {
           </Button>
           <Button variant="outline" className="rounded-full" onClick={() => navigate('/admin/marketing')}>
             🎁 Marketing
+          </Button>
+          <Button variant="outline" className="rounded-full" onClick={() => navigate('/admin/entregadores')}>
+            <Bike className="h-4 w-4 mr-1" /> Gestão Entregadores
           </Button>
         </div>
 
