@@ -22,6 +22,7 @@ import AdminMarketing from "./pages/AdminMarketing";
 import Entregador from "./pages/Entregador";
 import AdminEntrega from "./pages/AdminEntrega";
 import AdminEntregadores from "./pages/AdminEntregadores";
+import AdminMonitorPedidos from "./pages/AdminMonitorPedidos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/admin/marketing" element={<AdminMarketing />} />
             <Route path="/admin/entrega" element={<AdminEntrega />} />
             <Route path="/admin/entregadores" element={<AdminEntregadores />} />
+            <Route path="/admin/monitor-pedidos" element={<AdminMonitorPedidos />} />
             <Route path="/entregador" element={<Entregador />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
