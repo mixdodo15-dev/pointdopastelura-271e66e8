@@ -22,6 +22,7 @@ import AdminMarketing from "./pages/AdminMarketing";
 import Entregador from "./pages/Entregador";
 import AdminEntrega from "./pages/AdminEntrega";
 import AdminEntregadores from "./pages/AdminEntregadores";
+import AdminMonitorPedidos from "./pages/AdminMonitorPedidos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
