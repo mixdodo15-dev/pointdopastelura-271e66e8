@@ -4,6 +4,11 @@ import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Plus, Flame, ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { getRequiredCheeseOptions } from '@/lib/cheeseSelection';
+import type { MenuItem } from '@/data/menu';
 
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
@@ -12,6 +17,8 @@ const TopDaSemana = () => {
   const { products, loading } = useProducts();
   const { addItem } = useCart();
   const [current, setCurrent] = useState(0);
+  const [cheeseProduct, setCheeseProduct] = useState<{ item: MenuItem; options: string[] } | null>(null);
+  const [selectedCheese, setSelectedCheese] = useState('');
   const trackRef = useRef<HTMLDivElement>(null);
   const touchStart = useRef(0);
   const touchDelta = useRef(0);
@@ -52,9 +59,33 @@ const TopDaSemana = () => {
 
   if (loading || topProducts.length === 0) return null;
 
-  const handleAdd = (item: typeof topProducts[0]) => {
+  const handleAdd = (item: MenuItem) => {
+    const cheeseOptions = getRequiredCheeseOptions(item);
+    if (cheeseOptions.length > 0) {
+      setSelectedCheese('');
+      setCheeseProduct({ item, options: cheeseOptions });
+      return;
+    }
     addItem({ id: item.id, name: item.name, price: item.price });
     toast.success(`${item.name} adicionado!`);
+  };
+
+  const confirmCheeseSelection = () => {
+    if (!cheeseProduct || !selectedCheese) return;
+    const { item } = cheeseProduct;
+    addItem({
+      id: `${item.id}-${selectedCheese}`,
+      name: `${item.name} (${selectedCheese})`,
+      price: item.price,
+    });
+    toast.success(`${item.name} adicionado!`);
+    setCheeseProduct(null);
+    setSelectedCheese('');
+  };
+
+  const closeCheeseSelection = () => {
+    setCheeseProduct(null);
+    setSelectedCheese('');
   };
 
   return (
@@ -161,6 +192,41 @@ const TopDaSemana = () => {
           ))}
         </div>
       )}
+
+      <Dialog
+        open={!!cheeseProduct}
+        onOpenChange={(open) => {
+          if (!open) closeCheeseSelection();
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Escolha o tipo de queijo</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              {cheeseProduct?.item.name} — selecione uma opção obrigatória antes de adicionar ao carrinho.
+            </p>
+          </DialogHeader>
+          {cheeseProduct && (
+            <RadioGroup value={selectedCheese} onValueChange={setSelectedCheese} className="space-y-2">
+              {cheeseProduct.options.map((option) => {
+                const optionId = `featured-cheese-${cheeseProduct.item.id}-${option}`;
+                return (
+                  <div key={option} className="flex items-center gap-2 rounded-lg border border-border p-3">
+                    <RadioGroupItem id={optionId} value={option} />
+                    <Label htmlFor={optionId} className="flex-1 cursor-pointer">{option}</Label>
+                  </div>
+                );
+              })}
+            </RadioGroup>
+          )}
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={closeCheeseSelection}>Cancelar</Button>
+            <Button type="button" onClick={confirmCheeseSelection} disabled={!selectedCheese}>
+              <ShoppingCart className="mr-2 h-4 w-4" /> Adicionar ao carrinho
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

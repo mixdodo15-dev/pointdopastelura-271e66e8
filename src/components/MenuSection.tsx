@@ -11,6 +11,7 @@ import AnimatedCard from './AnimatedCard';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { getRequiredCheeseOptions } from '@/lib/cheeseSelection';
 
 interface MenuSectionProps {
   category: string;
@@ -321,8 +322,6 @@ const ItemCard = ({ item, onAdd, getDiscountedPrice }: { item: MenuItem; onAdd: 
   </div>
 );
 
-// Cheese selection for specific especiais - match by name pattern
-const CHEESE_NAMES = ['Frango Apimentado', 'Mexicano', 'Doritos', 'Costela Peperoni'];
 const NO_EXTRAS_NAMES = ['Pastel de Vento'];
 
 const EspecialCard = ({
@@ -339,7 +338,8 @@ const EspecialCard = ({
 }) => {
   const [cheese, setCheese] = useState<string>('');
   const [adicionaisOpen, setAdicionaisOpen] = useState(false);
-  const needsCheese = CHEESE_NAMES.some(n => item.name.toLowerCase().includes(n.toLowerCase()));
+  const cheeseOptions = getRequiredCheeseOptions(item);
+  const needsCheese = cheeseOptions.length > 0;
   const allowExtras = !NO_EXTRAS_NAMES.some(n => item.name.toLowerCase().includes(n.toLowerCase()));
 
   const handleAddToCart = (extras: { name: string; price: number }[] = []) => {
@@ -386,9 +386,9 @@ const EspecialCard = ({
 
         {needsCheese && (
           <div className="mt-3 p-3 bg-secondary rounded-lg">
-            <p className="text-xs font-bold text-muted-foreground mb-2">Escolha o queijo:</p>
+            <p className="text-xs font-bold text-muted-foreground mb-2">Escolha o queijo (obrigatório):</p>
             <RadioGroup value={cheese} onValueChange={setCheese} className="flex gap-3 flex-wrap">
-              {['Catupiry', 'Cheddar', 'Queijo'].map(q => (
+              {cheeseOptions.map(q => (
                 <div key={q} className="flex items-center gap-1.5">
                   <RadioGroupItem value={q} id={`${item.id}-${q}`} />
                   <Label htmlFor={`${item.id}-${q}`} className="text-sm cursor-pointer">{q}</Label>
@@ -399,8 +399,8 @@ const EspecialCard = ({
         )}
 
         <div className="flex items-center gap-2 mt-3">
-          <Button size="sm" className="rounded-full flex-1" onClick={() => handleAddToCart()}>
-            <Plus className="h-4 w-4 mr-1" /> Adicionar
+          <Button size="sm" className="rounded-full flex-1" onClick={() => handleAddToCart()} disabled={needsCheese && !cheese}>
+            <Plus className="h-4 w-4 mr-1" /> {needsCheese && !cheese ? 'Escolha o queijo' : 'Adicionar'}
           </Button>
           {allowExtras && (
             <Button
@@ -408,6 +408,7 @@ const EspecialCard = ({
               variant="outline"
               className="rounded-full"
               onClick={() => setAdicionaisOpen(true)}
+              disabled={needsCheese && !cheese}
             >
               <Plus className="h-4 w-4 mr-1" /> Adicional
             </Button>
@@ -461,8 +462,6 @@ const DoceCard = ({
   );
 };
 
-const BATATA_CHEESE_NAMES = ['Batata c/ Bacon e Cheddar'];
-
 const BatataCard = ({
   item,
   addItem,
@@ -473,7 +472,8 @@ const BatataCard = ({
   getDiscountedPrice: GetDiscountedPrice;
 }) => {
   const [cheese, setCheese] = useState<string>('');
-  const needsCheese = BATATA_CHEESE_NAMES.some(n => item.name.toLowerCase().includes(n.toLowerCase()));
+  const cheeseOptions = getRequiredCheeseOptions(item);
+  const needsCheese = cheeseOptions.length > 0;
 
   const handleAdd = () => {
     if (needsCheese && !cheese) {
@@ -506,9 +506,9 @@ const BatataCard = ({
 
         {needsCheese && (
           <div className="mt-3 p-3 bg-secondary rounded-lg">
-            <p className="text-xs font-bold text-muted-foreground mb-2">Escolha a cobertura:</p>
+            <p className="text-xs font-bold text-muted-foreground mb-2">Escolha a cobertura (obrigatória):</p>
             <RadioGroup value={cheese} onValueChange={setCheese} className="flex gap-3 flex-wrap">
-              {['Cheddar', 'Catupiry'].map(q => (
+              {cheeseOptions.map(q => (
                 <div key={q} className="flex items-center gap-1.5">
                   <RadioGroupItem value={q} id={`${item.id}-${q}`} />
                   <Label htmlFor={`${item.id}-${q}`} className="text-sm cursor-pointer">{q}</Label>
@@ -518,8 +518,8 @@ const BatataCard = ({
           </div>
         )}
 
-        <Button size="sm" className="rounded-full w-full mt-3" onClick={handleAdd}>
-          <Plus className="h-4 w-4 mr-1" /> Adicionar
+        <Button size="sm" className="rounded-full w-full mt-3" onClick={handleAdd} disabled={needsCheese && !cheese}>
+          <Plus className="h-4 w-4 mr-1" /> {needsCheese && !cheese ? 'Escolha a cobertura' : 'Adicionar'}
         </Button>
       </div>
     </div>
