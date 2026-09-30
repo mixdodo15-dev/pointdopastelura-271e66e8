@@ -1,20 +1,32 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   ArrowLeft,
-  Package,
-  CheckCircle2,
-  ChefHat,
-  Truck,
-  XCircle,
-  DollarSign,
-  Clock,
   Bell,
   BellOff,
-  RefreshCw,
+  Bike,
+  CalendarDays,
+  CheckCircle2,
+  ChefHat,
+  Clock3,
+  DollarSign,
   Globe,
+  Package,
+  PackageCheck,
+  RefreshCw,
+  Truck,
+  XCircle,
+  type LucideIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -31,6 +43,7 @@ interface Order {
   status: string;
   created_at: string;
   order_source: string | null;
+  table_number: string | null;
 }
 
 interface OrderItem {
@@ -40,110 +53,240 @@ interface OrderItem {
   unit_price: number;
 }
 
-const STATUS_OPTIONS = [
-  { value: 'received', label: 'Novo', icon: Package, color: 'bg-blue-100 text-blue-700' },
+interface StatusOption {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+interface StatusGroup {
+  key: string;
+  title: string;
+  icon: LucideIcon;
+  statuses: string[];
+  bg: string;
+  text: string;
+}
+
+const STATUS_OPTIONS: StatusOption[] = [
+  { value: 'received', label: 'Recebido', icon: Bell, color: 'bg-blue-100 text-blue-700' },
   { value: 'accepted', label: 'Aceito', icon: CheckCircle2, color: 'bg-emerald-100 text-emerald-700' },
-  { value: 'preparing', label: 'Em Preparo', icon: ChefHat, color: 'bg-orange-100 text-orange-700' },
-  { value: 'out_for_delivery', label: 'Saiu p/ Entrega', icon: Truck, color: 'bg-purple-100 text-purple-700' },
-  { value: 'delivered', label: 'Pronto', icon: CheckCircle2, color: 'bg-green-100 text-green-700' },
+  { value: 'preparing', label: 'Em preparo', icon: ChefHat, color: 'bg-orange-100 text-orange-700' },
+  { value: 'ready', label: 'Pronto', icon: PackageCheck, color: 'bg-amber-100 text-amber-800' },
+  { value: 'out_for_delivery', label: 'Saiu pra entrega', icon: Truck, color: 'bg-purple-100 text-purple-700' },
+  { value: 'pickup', label: 'Pronto para retirar', icon: Package, color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'delivered', label: 'Entregue', icon: CheckCircle2, color: 'bg-green-100 text-green-700' },
   { value: 'cancelled', label: 'Cancelado', icon: XCircle, color: 'bg-red-100 text-red-700' },
 ];
 
-const formatPrice = (price: number) => `R$ ${Number(price).toFixed(2).replace('.', ',')}`;
-const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const STATUS_GROUPS: StatusGroup[] = [
+  {
+    key: 'received',
+    title: 'Recebido',
+    icon: Bell,
+    statuses: ['received'],
+    bg: 'bg-blue-600',
+    text: 'text-white',
+  },
+  {
+    key: 'accepted',
+    title: 'Aceito',
+    icon: CheckCircle2,
+    statuses: ['accepted'],
+    bg: 'bg-emerald-600',
+    text: 'text-white',
+  },
+  {
+    key: 'preparing',
+    title: 'Em preparo',
+    icon: ChefHat,
+    statuses: ['preparing'],
+    bg: 'bg-orange-500',
+    text: 'text-white',
+  },
+  {
+    key: 'ready',
+    title: 'Pronto',
+    icon: PackageCheck,
+    statuses: ['ready'],
+    bg: 'bg-amber-400',
+    text: 'text-black',
+  },
+  {
+    key: 'out_for_delivery',
+    title: 'Saiu pra entrega',
+    icon: Bike,
+    statuses: ['out_for_delivery'],
+    bg: 'bg-blue-600',
+    text: 'text-white',
+  },
+  {
+    key: 'pickup',
+    title: 'Pronto para retirar',
+    icon: Package,
+    statuses: ['pickup'],
+    bg: 'bg-[hsl(var(--pdv-accent))]',
+    text: 'text-black',
+  },
+  {
+    key: 'closed',
+    title: 'Finalizados',
+    icon: CheckCircle2,
+    statuses: ['delivered', 'cancelled'],
+    bg: 'bg-slate-600',
+    text: 'text-white',
+  },
+];
 
-const formatOrderNumber = (n: number | null) => `Point-${String(n || 0).padStart(4, '0')}`;
+const getDateInputValue = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getDateBounds = (dateValue: string) => {
+  const [year, month, day] = dateValue.split('-').map(Number);
+  const start = new Date(year, month - 1, day);
+  const end = new Date(year, month - 1, day + 1);
+  return { start, end };
+};
+
+const formatSelectedDate = (dateValue: string) => {
+  const [year, month, day] = dateValue.split('-').map(Number);
+  return new Date(year, month - 1, day, 12).toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
+const formatPrice = (price: number) => `R$ ${Number(price).toFixed(2).replace('.', ',')}`;
+const formatOrderNumber = (number: number | null) => `Point-${String(number || 0).padStart(4, '0')}`;
+const formatOrderTime = (createdAt: string) =>
+  new Date(createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
 const AdminMonitorPedidos = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
+  const [selectedDate, setSelectedDate] = useState(() => getDateInputValue(new Date()));
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>('active');
+  const [filter, setFilter] = useState('all');
   const [now, setNow] = useState(Date.now());
-  const [lastSeenIds, setLastSeenIds] = useState<Set<string>>(new Set());
   const [hasNewOrders, setHasNewOrders] = useState(false);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const lastSeenIdsRef = useRef<Set<string>>(new Set());
+  const lastSeenDateRef = useRef<string | null>(null);
+
+  const todayValue = getDateInputValue(new Date());
+  const isToday = selectedDate === todayValue;
+
+  const fetchOrders = useCallback(async () => {
+    setRefreshing(true);
+    const { start, end } = getDateBounds(selectedDate);
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .gte('created_at', start.toISOString())
+      .lt('created_at', end.toISOString())
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast.error('Não foi possível carregar os pedidos dessa data');
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
+    const incoming = (data || []) as Order[];
+    const siteOrders = incoming.filter((order) => order.order_source === 'app' || order.order_source === 'delivery');
+    const currentIds = new Set(siteOrders.map((order) => order.id));
+
+    if (lastSeenDateRef.current === selectedDate && isToday && lastSeenIdsRef.current.size > 0) {
+      const freshIds = [...currentIds].filter((id) => !lastSeenIdsRef.current.has(id));
+      if (freshIds.length > 0) {
+        setHasNewOrders(true);
+        try {
+          const AudioContextConstructor = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+          if (AudioContextConstructor) {
+            const context = new AudioContextConstructor();
+            const oscillator = context.createOscillator();
+            const gain = context.createGain();
+            oscillator.connect(gain);
+            gain.connect(context.destination);
+            oscillator.frequency.value = 880;
+            gain.gain.setValueAtTime(0.2, context.currentTime);
+            oscillator.start();
+            oscillator.stop(context.currentTime + 0.3);
+            oscillator.onended = () => void context.close();
+          }
+        } catch {
+          // Audio notifications can be unavailable until the user interacts with the page.
+        }
+      }
+    } else if (lastSeenDateRef.current !== selectedDate) {
+      setHasNewOrders(false);
+    }
+
+    lastSeenDateRef.current = selectedDate;
+    lastSeenIdsRef.current = currentIds;
+    setOrders(incoming);
+    setLoading(false);
+    setRefreshing(false);
+  }, [isToday, selectedDate]);
 
   useEffect(() => {
+    let active = true;
     const checkAdmin = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+      if (!active) return;
       if (!user) {
         navigate('/login');
+        setAuthChecked(true);
         return;
       }
-      const { data } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
-      if (!data) {
+      const { data, error } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+      if (!active) return;
+      if (error || !data) {
         navigate('/');
-        return;
+      } else {
+        setAuthorized(true);
       }
-      fetchOrders();
+      setAuthChecked(true);
     };
-    checkAdmin();
+    void checkAdmin();
+    return () => {
+      active = false;
+    };
   }, [navigate]);
 
-  const fetchOrders = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!error && data) {
-      const incoming = data as Order[];
-      setOrders(incoming);
-
-      // Detect new site orders (app/delivery source) since last fetch
-      const siteOrders = incoming.filter(
-        (o) => o.order_source === 'app' || o.order_source === 'delivery',
-      );
-      const currentSiteIds = new Set(siteOrders.map((o) => o.id));
-      if (lastSeenIds.size > 0) {
-        const fresh = [...currentSiteIds].filter((id) => !lastSeenIds.has(id));
-        if (fresh.length > 0) {
-          setHasNewOrders(true);
-          try {
-            const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.frequency.value = 880;
-            gain.gain.setValueAtTime(0.2, ctx.currentTime);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.3);
-          } catch {
-            // noop
-          }
-        }
-      }
-      setLastSeenIds(currentSiteIds);
-    }
-    setLoading(false);
-  }, [lastSeenIds]);
-
-  // Realtime subscription
   useEffect(() => {
+    if (!authorized) return;
+    void fetchOrders();
+
     const channel = supabase
-      .channel('admin-monitor-pedidos')
+      .channel(`admin-monitor-pedidos-${selectedDate}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-        fetchOrders();
+        void fetchOrders();
       })
       .subscribe();
+    const interval = setInterval(() => void fetchOrders(), 30000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(interval);
     };
-  }, [fetchOrders]);
+  }, [authorized, fetchOrders, selectedDate]);
 
-  // Auto-refresh every 30s as a safety net
-  useEffect(() => {
-    const interval = setInterval(() => fetchOrders(), 30000);
-    return () => clearInterval(interval);
-  }, [fetchOrders]);
-
-  // Clock tick
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 30000);
     return () => clearInterval(interval);
@@ -151,324 +294,366 @@ const AdminMonitorPedidos = () => {
 
   const fetchItems = async (orderId: string) => {
     if (orderItems[orderId]) return;
-    const { data } = await supabase.from('order_items').select('*').eq('order_id', orderId);
-    if (data) setOrderItems((prev) => ({ ...prev, [orderId]: data as OrderItem[] }));
+    const { data, error } = await supabase.from('order_items').select('*').eq('order_id', orderId);
+    if (error) {
+      toast.error('Não foi possível carregar os itens do pedido');
+      return;
+    }
+    setOrderItems((previous) => ({ ...previous, [orderId]: (data || []) as OrderItem[] }));
   };
 
   const updateStatus = async (orderId: string, newStatus: string) => {
-    const { error } = await supabase.from('orders').update({ status: newStatus as any }).eq('id', orderId);
+    const previousOrders = orders;
+    setUpdatingId(orderId);
+    setOrders((previous) => previous.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order)));
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus as Database['public']['Enums']['order_status'] })
+      .eq('id', orderId);
+    setUpdatingId(null);
     if (error) {
+      setOrders(previousOrders);
       toast.error('Erro ao atualizar status');
-    } else {
-      toast.success('Status atualizado!');
-      fetchOrders();
+      return;
     }
+    toast.success('Status atualizado!');
   };
 
   const toggleOrder = (orderId: string) => {
     if (expandedOrder === orderId) {
       setExpandedOrder(null);
-    } else {
-      setExpandedOrder(orderId);
-      fetchItems(orderId);
+      return;
     }
+    setExpandedOrder(orderId);
+    void fetchItems(orderId);
   };
 
   const dismissNewOrders = () => setHasNewOrders(false);
+  const changeSelectedDate = (date: string) => {
+    setExpandedOrder(null);
+    setOrders([]);
+    setLoading(true);
+    setSelectedDate(date);
+  };
 
-  // Site orders (arrive from website) — the Monitor focus
-  const siteOrders = orders.filter(
-    (o) => o.order_source === 'app' || o.order_source === 'delivery',
-  );
-  const activeSiteOrders = siteOrders.filter(
-    (o) => !['delivered', 'cancelled'].includes(o.status),
-  );
-
-  // Filtered orders list
-  const filteredOrders = orders.filter((o) => {
-    if (filter === 'active') return !['delivered', 'cancelled'].includes(o.status);
-    if (filter === 'site') return o.order_source === 'app' || o.order_source === 'delivery';
-    if (filter === 'delivered') return o.status === 'delivered';
-    if (filter === 'cancelled') return o.status === 'cancelled';
+  const filteredOrders = orders.filter((order) => {
+    if (filter === 'active') return !['delivered', 'cancelled'].includes(order.status);
+    if (filter === 'site') return order.order_source === 'app' || order.order_source === 'delivery';
+    if (filter === 'delivered') return order.status === 'delivered';
+    if (filter === 'cancelled') return order.status === 'cancelled';
     return true;
   });
 
-  // Today's revenue
-  const today = new Date().toDateString();
-  const todayRevenue = orders
-    .filter((o) => new Date(o.created_at).toDateString() === today && o.status !== 'cancelled')
-    .reduce((sum, o) => sum + Number(o.total_price), 0);
-  const todayCount = orders.filter((o) => new Date(o.created_at).toDateString() === today).length;
+  const siteActiveOrders = orders.filter(
+    (order) =>
+      (order.order_source === 'app' || order.order_source === 'delivery') &&
+      !['delivered', 'cancelled'].includes(order.status),
+  );
+  const dateRevenue = orders
+    .filter((order) => order.status !== 'cancelled')
+    .reduce((sum, order) => sum + Number(order.total_price), 0);
 
   const getElapsed = (createdAt: string) => {
-    const minutes = Math.floor((now - new Date(createdAt).getTime()) / 60000);
+    if (!isToday) return formatOrderTime(createdAt);
+    const minutes = Math.max(0, Math.floor((now - new Date(createdAt).getTime()) / 60000));
     if (minutes < 1) return 'agora';
     if (minutes < 60) return `${minutes} min`;
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${h}h${m > 0 ? ` ${m}min` : ''}`;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}min` : ''}`;
   };
 
-  if (loading) {
+  if (!authChecked || (authorized && loading)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Carregando...</p>
+        <p className="text-muted-foreground">Carregando pedidos...</p>
       </div>
     );
   }
+  if (!authorized) return null;
 
   return (
     <div className="min-h-screen bg-[hsl(0,0%,96%)]">
-      {/* Header */}
-      <div className="bg-foreground text-background px-4 py-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-40 bg-foreground text-background px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3 min-w-0">
           <Button
             variant="ghost"
             size="icon"
-            className="text-background hover:bg-background/10"
+            className="shrink-0 text-background hover:bg-background/10"
             onClick={() => navigate('/admin')}
+            aria-label="Voltar ao painel administrativo"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
+          <div className="min-w-0">
             <h1 className="text-lg font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              Pedidos & Monitor
+              Pedidos &amp; Monitor
             </h1>
-            <p className="text-xs opacity-80">Pedidos do site em tempo real</p>
+            <p className="text-xs opacity-80">Acompanhamento dos pedidos por etapa e data</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-background hover:bg-background/10 text-xs"
-            onClick={() => fetchOrders()}
-          >
-            <RefreshCw className="h-4 w-4 mr-1" />
-            Atualizar
-          </Button>
-        </div>
-      </div>
-
-      {/* MONITOR — status de pedidos do site */}
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        <button
-          onClick={dismissNewOrders}
-          className={cn(
-            'w-full rounded-2xl p-5 shadow-sm border transition-all text-left',
-            activeSiteOrders.length > 0
-              ? hasNewOrders
-                ? 'bg-red-600 text-white border-red-700 animate-pulse'
-                : 'bg-emerald-600 text-white border-emerald-700'
-              : 'bg-card text-foreground border-border',
-          )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="shrink-0 text-background hover:bg-background/10 text-xs"
+          onClick={() => void fetchOrders()}
+          disabled={refreshing}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {activeSiteOrders.length > 0 ? (
-                <Bell className="h-8 w-8" />
-              ) : (
-                <BellOff className="h-8 w-8 opacity-60" />
+          <RefreshCw className={cn('h-4 w-4 mr-1', refreshing && 'animate-spin')} />
+          Atualizar
+        </Button>
+      </header>
+
+      <main className="max-w-[1800px] mx-auto px-4 py-4 sm:px-6 sm:py-6">
+        <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <label htmlFor="orders-date" className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
+              <CalendarDays className="h-4 w-4 text-primary" /> Data dos pedidos
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                id="orders-date"
+                type="date"
+                value={selectedDate}
+                max={todayValue}
+                onChange={(event) => changeSelectedDate(event.target.value)}
+                className="h-10 rounded-xl border border-input bg-background px-3 text-sm font-semibold text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              {!isToday && (
+                <Button type="button" variant="outline" size="sm" onClick={() => changeSelectedDate(todayValue)}>
+                  Ir para hoje
+                </Button>
               )}
-              <div>
-                <p className="text-xl font-extrabold">
-                  {activeSiteOrders.length > 0
-                    ? `${activeSiteOrders.length} pedido(s) do site ativo(s)`
-                    : 'Nenhum pedido do site no momento'}
-                </p>
-                <p className="text-xs opacity-80">
-                  {hasNewOrders
-                    ? '🔔 Novo pedido chegou! Clique para ver'
-                    : activeSiteOrders.length > 0
-                      ? 'Acompanhando em tempo real'
-                      : 'Aguardando novos pedidos do site...'}
-                </p>
-              </div>
             </div>
-            <Globe className="h-6 w-6 opacity-60" />
+            <p className="mt-2 text-xs capitalize text-muted-foreground">Exibindo pedidos de {formatSelectedDate(selectedDate)}</p>
           </div>
-        </button>
+          <div className="grid grid-cols-2 gap-3 sm:min-w-[360px]">
+            <div className="rounded-xl border border-border bg-background p-3">
+              <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                <DollarSign className="h-4 w-4" /> Faturamento do dia
+              </div>
+              <p className="text-lg font-extrabold text-primary">{formatPrice(dateRevenue)}</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background p-3">
+              <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                <Clock3 className="h-4 w-4" /> Pedidos do dia
+              </div>
+              <p className="text-lg font-extrabold text-foreground">{orders.length}</p>
+            </div>
+          </div>
+        </section>
 
-        {/* Quick monitor cards for active site orders */}
-        {activeSiteOrders.length > 0 && (
-          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {activeSiteOrders.slice(0, 6).map((o) => {
-              const statusConfig = STATUS_OPTIONS.find((s) => s.value === o.status) || STATUS_OPTIONS[0];
-              const StatusIcon = statusConfig.icon;
-              return (
-                <div
-                  key={o.id}
-                  className="bg-card rounded-xl border border-border p-2.5 shadow-sm"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-extrabold text-primary">
-                      {formatOrderNumber(o.order_number)}
-                    </span>
-                    <span className="text-[10px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
-                      {getElapsed(o.created_at)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className={cn('h-6 w-6 rounded-full flex items-center justify-center', statusConfig.color)}>
-                      <StatusIcon className="h-3.5 w-3.5" />
-                    </div>
-                    <p className="text-xs font-bold text-foreground line-clamp-1">{o.customer_name}</p>
-                  </div>
-                  <p className="text-xs font-extrabold text-primary mt-1">{formatPrice(o.total_price)}</p>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Stats */}
-      <div className="max-w-2xl mx-auto px-4 grid grid-cols-2 gap-3 pb-2">
-        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold mb-1">
-            <DollarSign className="h-4 w-4" /> Faturamento Hoje
-          </div>
-          <p className="text-xl font-extrabold text-primary">{formatPrice(todayRevenue)}</p>
-        </div>
-        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold mb-1">
-            <Clock className="h-4 w-4" /> Pedidos Hoje
-          </div>
-          <p className="text-xl font-extrabold text-foreground">{todayCount}</p>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="max-w-2xl mx-auto px-4 flex gap-2 overflow-x-auto pb-2">
-        {[
-          { key: 'active', label: 'Ativos' },
-          { key: 'site', label: 'Do Site' },
-          { key: 'all', label: 'Todos' },
-          { key: 'delivered', label: 'Entregues' },
-          { key: 'cancelled', label: 'Cancelados' },
-        ].map((f) => (
+        {isToday && (
           <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
+            type="button"
+            onClick={dismissNewOrders}
             className={cn(
-              'px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all',
-              filter === f.key
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-card text-muted-foreground border border-border',
+              'mt-4 flex w-full items-center justify-between rounded-2xl border p-4 text-left shadow-sm transition-colors',
+              hasNewOrders
+                ? 'animate-pulse border-red-700 bg-red-600 text-white'
+                : siteActiveOrders.length > 0
+                  ? 'border-emerald-700 bg-emerald-600 text-white'
+                  : 'border-border bg-card text-foreground',
             )}
           >
-            {f.label}
+            <span className="flex items-center gap-3">
+              {siteActiveOrders.length > 0 ? <Bell className="h-7 w-7 shrink-0" /> : <BellOff className="h-7 w-7 shrink-0 opacity-60" />}
+              <span>
+                <span className="block text-base font-extrabold">
+                  {siteActiveOrders.length > 0
+                    ? `${siteActiveOrders.length} pedido(s) do site em andamento`
+                    : 'Nenhum pedido do site em andamento'}
+                </span>
+                <span className="block text-xs opacity-80">
+                  {hasNewOrders ? 'Novo pedido recebido — clique para dispensar o aviso' : 'Atualizado em tempo real'}
+                </span>
+              </span>
+            </span>
+            <Globe className="h-5 w-5 shrink-0 opacity-60" />
           </button>
-        ))}
-      </div>
+        )}
 
-      {/* Orders list */}
-      <div className="max-w-2xl mx-auto px-4 py-4 space-y-3">
-        {filteredOrders.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">Nenhum pedido encontrado</p>
-        ) : (
-          filteredOrders.map((order) => {
-            const statusConfig = STATUS_OPTIONS.find((s) => s.value === order.status) || STATUS_OPTIONS[0];
-            const StatusIcon = statusConfig.icon;
-            const isExpanded = expandedOrder === order.id;
-            const isSite = order.order_source === 'app' || order.order_source === 'delivery';
+        <div className="mt-5 flex gap-2 overflow-x-auto pb-2" aria-label="Filtrar pedidos">
+          {[
+            { key: 'all', label: 'Todos' },
+            { key: 'active', label: 'Em andamento' },
+            { key: 'site', label: 'Do site' },
+            { key: 'delivered', label: 'Entregues' },
+            { key: 'cancelled', label: 'Cancelados' },
+          ].map((option) => (
+            <button
+              key={option.key}
+              type="button"
+              onClick={() => setFilter(option.key)}
+              className={cn(
+                'rounded-full px-4 py-2 text-xs font-bold whitespace-nowrap transition-colors',
+                filter === option.key
+                  ? 'bg-primary text-primary-foreground'
+                  : 'border border-border bg-card text-muted-foreground hover:border-primary/50',
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
 
-            return (
-              <div key={order.id} className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-                <button onClick={() => toggleOrder(order.id)} className="w-full text-left p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={cn('h-10 w-10 rounded-full flex items-center justify-center', statusConfig.color)}>
-                      <StatusIcon className="h-5 w-5" />
+        <section className="mt-2" aria-label="Monitor de pedidos por status">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-extrabold text-foreground">Monitor de pedidos</h2>
+              <p className="text-xs text-muted-foreground">
+                {filteredOrders.length} pedido(s) nesta data{isToday ? ' · em tempo real' : ''}
+              </p>
+            </div>
+            {isToday && (
+              <div className="hidden items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 sm:flex">
+                <Clock3 className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-foreground">
+                  {new Date(now).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {filteredOrders.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card px-4 py-14 text-center">
+              <Package className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
+              <p className="font-bold text-foreground">Nenhum pedido encontrado</p>
+              <p className="mt-1 text-sm text-muted-foreground">Selecione outra data para consultar pedidos anteriores.</p>
+            </div>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto pb-4">
+              {STATUS_GROUPS.map((group) => {
+                const groupOrders = filteredOrders.filter((order) => group.statuses.includes(order.status));
+                const GroupIcon = group.icon;
+                return (
+                  <section
+                    key={group.key}
+                    aria-label={`${group.title}: ${groupOrders.length} pedido(s)`}
+                    className="flex w-[min(84vw,320px)] shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm xl:min-w-[235px] xl:flex-1"
+                  >
+                    <div className={cn('flex items-center justify-between px-3 py-3', group.bg)}>
+                      <div className={cn('flex items-center gap-2 font-extrabold', group.text)}>
+                        <GroupIcon className="h-4 w-4" />
+                        <h3 className="text-sm">{group.title}</h3>
+                      </div>
+                      <span className={cn('flex h-6 min-w-6 items-center justify-center rounded-full bg-white/20 px-2 text-xs font-extrabold', group.text)}>
+                        {groupOrders.length}
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-bold text-sm text-foreground">
-                            {formatOrderNumber(order.order_number)}
-                            {isSite && (
-                              <span className="ml-1.5 text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold align-middle">
-                                SITE
-                              </span>
-                            )}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {order.customer_name} • {formatDate(order.created_at)}
-                          </p>
-                        </div>
-                        <span className="text-primary font-extrabold text-sm">{formatPrice(order.total_price)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </button>
 
-                {isExpanded && (
-                  <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground text-xs">Telefone</span>
-                        <p className="font-medium">{order.customer_phone}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground text-xs">Pagamento</span>
-                        <p className="font-medium">{order.payment_method}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-muted-foreground text-xs">Endereço</span>
-                        <p className="font-medium">{order.delivery_address}</p>
-                      </div>
-                      {order.notes && (
-                        <div className="col-span-2">
-                          <span className="text-muted-foreground text-xs">Obs</span>
-                          <p className="font-medium">{order.notes}</p>
+                    <div className="max-h-[calc(100vh-360px)] min-h-36 space-y-2 overflow-y-auto p-2">
+                      {groupOrders.length === 0 ? (
+                        <div className="flex min-h-32 flex-col items-center justify-center text-muted-foreground">
+                          <GroupIcon className="mb-2 h-9 w-9 opacity-20" />
+                          <p className="text-xs font-bold">Nenhum pedido</p>
                         </div>
+                      ) : (
+                        groupOrders.map((order) => {
+                          const statusOption = STATUS_OPTIONS.find((option) => option.value === order.status) || STATUS_OPTIONS[0];
+                          const StatusIcon = statusOption.icon;
+                          const isExpanded = expandedOrder === order.id;
+                          const isSiteOrder = order.order_source === 'app' || order.order_source === 'delivery';
+
+                          return (
+                            <article key={order.id} className="rounded-xl border-2 border-border bg-background transition-colors hover:border-primary/40">
+                              <button type="button" onClick={() => toggleOrder(order.id)} className="w-full p-3 text-left">
+                                <div className="mb-1 flex items-center justify-between gap-2">
+                                  <span className="text-sm font-extrabold text-primary">{formatOrderNumber(order.order_number)}</span>
+                                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                                    {getElapsed(order.created_at)}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="min-w-0 truncate text-sm font-bold text-foreground">{order.customer_name || 'Cliente'}</p>
+                                  <span className={cn('inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold', statusOption.color)}>
+                                    <StatusIcon className="h-3 w-3" /> {statusOption.label}
+                                  </span>
+                                </div>
+                                <div className="mt-1 flex items-center justify-between gap-2">
+                                  <p className="truncate text-[10px] font-semibold uppercase text-muted-foreground">
+                                    {isSiteOrder ? 'Pedido do site' : order.table_number ? `Mesa ${order.table_number}` : order.order_source || 'Pedido'}
+                                  </p>
+                                  <span className="text-xs font-extrabold text-primary">{formatPrice(order.total_price)}</span>
+                                </div>
+                              </button>
+
+                              <div className="px-3 pb-3">
+                                <Select
+                                  value={order.status}
+                                  onValueChange={(status) => void updateStatus(order.id, status)}
+                                  disabled={updatingId === order.id}
+                                >
+                                  <SelectTrigger className="h-8 text-xs font-bold">
+                                    <SelectValue placeholder="Alterar status" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {STATUS_OPTIONS.map((option) => (
+                                      <SelectItem key={option.value} value={option.value} className="text-xs font-semibold">
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {isExpanded && (
+                                <div className="space-y-3 border-t border-border px-3 pb-3 pt-3 text-sm">
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                      <span className="text-xs text-muted-foreground">Horário</span>
+                                      <p className="font-medium">{formatOrderTime(order.created_at)}</p>
+                                    </div>
+                                    <div>
+                                      <span className="text-xs text-muted-foreground">Telefone</span>
+                                      <p className="font-medium">{order.customer_phone || '—'}</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                      <span className="text-xs text-muted-foreground">Pagamento</span>
+                                      <p className="font-medium">{order.payment_method || '—'}</p>
+                                    </div>
+                                    {order.delivery_address && (
+                                      <div className="col-span-2">
+                                        <span className="text-xs text-muted-foreground">Endereço</span>
+                                        <p className="font-medium">{order.delivery_address}</p>
+                                      </div>
+                                    )}
+                                    {order.notes && (
+                                      <div className="col-span-2">
+                                        <span className="text-xs text-muted-foreground">Observação</span>
+                                        <p className="font-medium">{order.notes}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {orderItems[order.id] && (
+                                    <div className="space-y-1 rounded-xl bg-secondary p-3">
+                                      {orderItems[order.id].length === 0 ? (
+                                        <p className="text-xs text-muted-foreground">Nenhum item detalhado.</p>
+                                      ) : (
+                                        orderItems[order.id].map((item) => (
+                                          <div key={item.id} className="flex justify-between gap-2 text-xs">
+                                            <span>{item.quantity}x {item.product_name}</span>
+                                            <span className="font-semibold">{formatPrice(item.unit_price * item.quantity)}</span>
+                                          </div>
+                                        ))
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </article>
+                          );
+                        })
                       )}
                     </div>
-
-                    {orderItems[order.id] && (
-                      <div className="bg-secondary rounded-xl p-3 space-y-1">
-                        {orderItems[order.id].map((item) => (
-                          <div key={item.id} className="flex justify-between text-sm">
-                            <span>
-                              {item.quantity}x {item.product_name}
-                            </span>
-                            <span className="font-semibold">{formatPrice(item.unit_price * item.quantity)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap gap-2">
-                      {STATUS_OPTIONS.map((s) => (
-                        <button
-                          key={s.value}
-                          onClick={() => updateStatus(order.id, s.value)}
-                          disabled={order.status === s.value}
-                          className={cn(
-                            'px-3 py-1.5 rounded-full text-xs font-bold transition-all',
-                            order.status === s.value
-                              ? `${s.color} ring-2 ring-offset-1 ring-current`
-                              : 'bg-secondary text-muted-foreground hover:bg-secondary/80',
-                          )}
-                        >
-                          {s.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Footer button */}
-      <div className="max-w-2xl mx-auto px-4 pb-8">
-        <Button className="w-full" onClick={() => fetchOrders()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Atualizar Status dos Pedidos
-        </Button>
-      </div>
+                  </section>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 };
