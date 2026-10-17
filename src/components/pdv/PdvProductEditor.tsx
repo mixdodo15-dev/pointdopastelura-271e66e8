@@ -244,6 +244,7 @@ const ProductEditModal = ({
   const [uploading, setUploading] = useState(false);
   const [isTopWeek, setIsTopWeek] = useState(false);
   const [availableOn, setAvailableOn] = useState('both');
+  const [optionGroups, setOptionGroups] = useState<OptionGroup[]>([]);
 
   useEffect(() => {
     if (product) {
@@ -257,14 +258,27 @@ const ProductEditModal = ({
       setImageUrl(product.image_url || '');
       setIsTopWeek(product.is_top_week || false);
       setAvailableOn(product.available_on || 'both');
+      setOptionGroups(parseOptionsConfig(product.options_config));
     } else {
       setName(''); setDescription(''); setPrice('');
       setCategory(defaultCategory);
       setSubcategory(''); setMaxFlavors(''); setSortOrder('0'); setImageUrl('');
       setIsTopWeek(false);
       setAvailableOn('pdv');
+      setOptionGroups([]);
     }
   }, [product, defaultCategory, open]);
+
+  const addGroup = () => setOptionGroups(prev => [...prev, { name: '', required: true, min: 1, max: 1, choices: [] }]);
+  const updateGroup = (i: number, patch: Partial<OptionGroup>) =>
+    setOptionGroups(prev => prev.map((g, idx) => idx === i ? { ...g, ...patch } : g));
+  const removeGroup = (i: number) => setOptionGroups(prev => prev.filter((_, idx) => idx !== i));
+  const addChoice = (gi: number) =>
+    updateGroup(gi, { choices: [...optionGroups[gi].choices, { name: '', price: 0 }] });
+  const updateChoice = (gi: number, ci: number, patch: Partial<{ name: string; price: number }>) =>
+    updateGroup(gi, { choices: optionGroups[gi].choices.map((c, idx) => idx === ci ? { ...c, ...patch } : c) });
+  const removeChoice = (gi: number, ci: number) =>
+    updateGroup(gi, { choices: optionGroups[gi].choices.filter((_, idx) => idx !== ci) });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
