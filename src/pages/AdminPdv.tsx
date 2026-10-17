@@ -26,6 +26,8 @@ import { printOrder } from '@/utils/printOrder';
 import PdvFlavorModal from '@/components/pdv/PdvFlavorModal';
 import PdvAdicionaisModal from '@/components/pdv/PdvAdicionaisModal';
 import PdvChocolateModal from '@/components/pdv/PdvChocolateModal';
+import PdvOptionsModal from '@/components/pdv/PdvOptionsModal';
+import { parseOptionsConfig, type OptionGroup } from '@/lib/productOptions';
 
 interface Product {
   id: string;
@@ -36,6 +38,7 @@ interface Product {
   active: boolean;
   max_flavors: number | null;
   description: string | null;
+  options_config?: unknown;
 }
 
 interface Category {
