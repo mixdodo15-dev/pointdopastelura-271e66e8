@@ -1,0 +1,2 @@
+ALTER TABLE public.products ADD COLUMN options_config jsonb;
+COMMENT ON COLUMN public.products.options_config IS 'Grupos de opcionais do produto: [{name, required, min, max, choices:[{name, price}]}]';

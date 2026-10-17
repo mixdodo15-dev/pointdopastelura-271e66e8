@@ -26,6 +26,8 @@ import { printOrder } from '@/utils/printOrder';
 import PdvFlavorModal from '@/components/pdv/PdvFlavorModal';
 import PdvAdicionaisModal from '@/components/pdv/PdvAdicionaisModal';
 import PdvChocolateModal from '@/components/pdv/PdvChocolateModal';
+import PdvOptionsModal from '@/components/pdv/PdvOptionsModal';
+import { parseOptionsConfig, type OptionGroup } from '@/lib/productOptions';
 
 interface Product {
   id: string;
@@ -36,6 +38,7 @@ interface Product {
   active: boolean;
   max_flavors: number | null;
   description: string | null;
+  options_config?: unknown;
 }
 
 interface Category {
@@ -69,6 +72,7 @@ const AdminPdv = () => {
   const [flavorModal, setFlavorModal] = useState<{ open: boolean; product: Product | null }>({ open: false, product: null });
   const [adicionaisModal, setAdicionaisModal] = useState<{ open: boolean; product: Product | null }>({ open: false, product: null });
   const [chocolateModal, setChocolateModal] = useState<{ open: boolean; product: Product | null }>({ open: false, product: null });
+  const [optionsModal, setOptionsModal] = useState<{ open: boolean; product: Product | null; groups: OptionGroup[] }>({ open: false, product: null, groups: [] });
 
   useEffect(() => {
     const check = async () => {
@@ -85,7 +89,7 @@ const AdminPdv = () => {
     if (loading) return;
     const loadData = async () => {
       const [prodRes, catRes] = await Promise.all([
-        supabase.from('products').select('id, name, price, category, image_url, active, max_flavors, description').eq('active', true).order('sort_order'),
+        supabase.from('products').select('id, name, price, category, image_url, active, max_flavors, description, options_config').eq('active', true).order('sort_order'),
         supabase.from('categories').select('id, slug, label, icon').eq('active', true).order('sort_order'),
       ]);
       if (prodRes.data) setProducts(prodRes.data);
@@ -100,6 +104,11 @@ const AdminPdv = () => {
   }, [darkMode]);
 
   const handleAddProduct = useCallback((p: Product) => {
+    const groups = parseOptionsConfig(p.options_config);
+    if (groups.length > 0) {
+      setOptionsModal({ open: true, product: p, groups });
+      return;
+    }
     if (p.category === 'monte' && p.max_flavors && p.max_flavors > 0) {
       setFlavorModal({ open: true, product: p });
       return;
@@ -128,6 +137,20 @@ const AdminPdv = () => {
     const extras = adicionais.length > 0 ? ` + ${adicionais.map(a => a.name).join(', ')}` : '';
     store.addItem({ id: p.id, name: `${p.name}${extras}`, price: p.price, imageUrl: p.image_url || undefined, adicionais });
     setAdicionaisModal({ open: false, product: null });
+  };
+
+  const handleOptionsConfirm = (selected: { group: string; name: string; price: number }[]) => {
+    const p = optionsModal.product;
+    if (!p) return;
+    const label = selected.map(s => `${s.group}: ${s.name}`).join(' | ');
+    store.addItem({
+      id: p.id,
+      name: `${p.name} (${label})`,
+      price: p.price,
+      imageUrl: p.image_url || undefined,
+      adicionais: selected.filter(s => s.price > 0).map(s => ({ name: `${s.group}: ${s.name}`, price: s.price })),
+    });
+    setOptionsModal({ open: false, product: null, groups: [] });
   };
 
   const handleChocolateConfirm = (flavor: string) => {
@@ -750,6 +773,16 @@ const AdminPdv = () => {
           itemName={chocolateModal.product.name}
           price={chocolateModal.product.price}
           onConfirm={handleChocolateConfirm}
+        />
+      )}
+      {optionsModal.product && (
+        <PdvOptionsModal
+          open={optionsModal.open}
+          onClose={() => setOptionsModal({ open: false, product: null, groups: [] })}
+          itemName={optionsModal.product.name}
+          price={optionsModal.product.price}
+          groups={optionsModal.groups}
+          onConfirm={handleOptionsConfirm}
         />
       )}
     </div>
