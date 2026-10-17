@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Search, Upload, X, Package, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Upload, X, Package, Image as ImageIcon, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { parseOptionsConfig, type OptionGroup } from '@/lib/productOptions';
 
 interface Product {
   id: string;
@@ -23,6 +24,7 @@ interface Product {
   sort_order: number;
   is_top_week: boolean;
   available_on: string;
+  options_config?: unknown;
 }
 
 interface Category {
