@@ -310,6 +310,17 @@ const ProductEditModal = ({
       image_url: imageUrl || null,
       is_top_week: isTopWeek,
       available_on: availableOn,
+      options_config: optionGroups.length > 0
+        ? optionGroups
+            .filter(g => g.name.trim() && g.choices.some(c => c.name.trim()))
+            .map(g => ({
+              ...g,
+              name: g.name.trim(),
+              min: Math.max(0, Math.min(g.min, g.max)),
+              max: Math.max(1, g.max),
+              choices: g.choices.filter(c => c.name.trim()),
+            }))
+        : null,
     };
     if (product) {
       const { error } = await supabase.from('products').update(data).eq('id', product.id);
@@ -417,6 +428,91 @@ const ProductEditModal = ({
               <option value="pdv">🖥️ Somente PDV</option>
               <option value="site">🌐 Somente Site</option>
             </select>
+          </div>
+
+          {/* Opcionais */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-semibold flex items-center gap-1.5">
+                  <ListChecks className="h-4 w-4 text-primary" /> Opcionais
+                </Label>
+                <p className="text-xs text-muted-foreground">Ex: Molho (Vermelho ou Rosé), Queijo (Catupiry ou Cheddar)</p>
+              </div>
+              <Button type="button" variant="outline" size="sm" className="rounded-xl font-bold" onClick={addGroup}>
+                <Plus className="h-3.5 w-3.5 mr-1" /> Grupo
+              </Button>
+            </div>
+
+            {optionGroups.map((group, gi) => (
+              <div key={gi} className="rounded-xl border border-border bg-card p-3 space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={group.name}
+                    onChange={e => updateGroup(gi, { name: e.target.value })}
+                    placeholder="Nome do grupo (ex: Molho)"
+                    className="h-9 rounded-xl bg-secondary border-0 text-sm font-bold flex-1"
+                  />
+                  <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => removeGroup(gi)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">Mín. escolhas</Label>
+                    <Input
+                      type="number" min={0} value={group.min}
+                      onChange={e => updateGroup(gi, { min: parseInt(e.target.value) || 0, required: (parseInt(e.target.value) || 0) > 0 })}
+                      className="h-9 rounded-xl bg-secondary border-0 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">Máx. escolhas</Label>
+                    <Input
+                      type="number" min={1} value={group.max}
+                      onChange={e => updateGroup(gi, { max: Math.max(1, parseInt(e.target.value) || 1) })}
+                      className="h-9 rounded-xl bg-secondary border-0 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">Obrigatório</Label>
+                    <div className="h-9 flex items-center">
+                      <Switch
+                        checked={group.required}
+                        onCheckedChange={v => updateGroup(gi, { required: v, min: v ? Math.max(1, group.min) : 0 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  {group.choices.map((choice, ci) => (
+                    <div key={ci} className="flex items-center gap-2">
+                      <Input
+                        value={choice.name}
+                        onChange={e => updateChoice(gi, ci, { name: e.target.value })}
+                        placeholder="Opção (ex: Vermelho)"
+                        className="h-9 rounded-xl bg-secondary border-0 text-sm flex-1"
+                      />
+                      <Input
+                        type="number" step="0.01" min={0} value={choice.price}
+                        onChange={e => updateChoice(gi, ci, { price: parseFloat(e.target.value) || 0 })}
+                        placeholder="0,00"
+                        title="Preço (0 = grátis)"
+                        className="h-9 rounded-xl bg-secondary border-0 text-sm w-24"
+                      />
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => removeChoice(gi, ci)}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="rounded-xl font-bold w-full" onClick={() => addChoice(gi)}>
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Adicionar opção
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Sort Order */}
