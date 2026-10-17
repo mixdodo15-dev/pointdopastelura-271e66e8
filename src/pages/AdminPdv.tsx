@@ -775,6 +775,16 @@ const AdminPdv = () => {
           onConfirm={handleChocolateConfirm}
         />
       )}
+      {optionsModal.product && (
+        <PdvOptionsModal
+          open={optionsModal.open}
+          onClose={() => setOptionsModal({ open: false, product: null, groups: [] })}
+          itemName={optionsModal.product.name}
+          price={optionsModal.product.price}
+          groups={optionsModal.groups}
+          onConfirm={handleOptionsConfirm}
+        />
+      )}
     </div>
   );
 };
