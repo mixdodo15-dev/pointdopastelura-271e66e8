@@ -662,6 +662,7 @@ export type Database = {
           is_top_week: boolean
           max_flavors: number | null
           name: string
+          options_config: Json | null
           prep_time: number | null
           price: number
           sort_order: number
@@ -679,6 +680,7 @@ export type Database = {
           is_top_week?: boolean
           max_flavors?: number | null
           name: string
+          options_config?: Json | null
           prep_time?: number | null
           price: number
           sort_order?: number
@@ -696,6 +698,7 @@ export type Database = {
           is_top_week?: boolean
           max_flavors?: number | null
           name?: string
+          options_config?: Json | null
           prep_time?: number | null
           price?: number
           sort_order?: number
