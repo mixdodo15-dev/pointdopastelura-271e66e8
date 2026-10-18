@@ -12,6 +12,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { getRequiredCheeseOptions } from '@/lib/cheeseSelection';
+import ProductOptionsModal from './ProductOptionsModal';
+import { buildOptionCartItem } from '@/lib/productOptions';
 
 interface MenuSectionProps {
   category: string;
@@ -53,10 +55,10 @@ const PriceTagLg = ({ original, discounted, hasDiscount }: { original: number; d
   );
 };
 
-const MenuSection = ({ category }: MenuSectionProps) => {
+const StandardMenuSection = ({ category }: MenuSectionProps) => {
   const { products, loading } = useProducts();
   const { activeHH, getDiscountedPrice } = useHappyHour();
-  const items = products.filter(i => i.category === category);
+  const items = products.filter(i => i.category === category && !i.optionsConfig?.length);
   const { addItem } = useCart();
   const [flavorModal, setFlavorModal] = useState<MenuItem | null>(null);
 
@@ -170,7 +172,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
           <FlavorModal
             open={!!flavorModal}
             onClose={() => setFlavorModal(null)}
-            maxFlavors={flavorModal.maxFlavors!}
+            maxFlavors={flavorModal.maxFlavors ?? 1}
             itemName={flavorModal.name}
             price={flavorModal.price}
             onConfirm={handleFlavorConfirm}
@@ -208,7 +210,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
           <FlavorModal
             open={!!flavorModal}
             onClose={() => setFlavorModal(null)}
-            maxFlavors={flavorModal.maxFlavors!}
+            maxFlavors={flavorModal.maxFlavors ?? 1}
             itemName={flavorModal.name}
             price={flavorModal.price}
             onConfirm={handleFlavorConfirm}
@@ -524,6 +526,29 @@ const BatataCard = ({
       </div>
     </div>
   );
+};
+
+const MenuSection = ({ category }: MenuSectionProps) => {
+  const { products } = useProducts();
+  const { addItem } = useCart();
+  const { getDiscountedPrice } = useHappyHour();
+  const [selected, setSelected] = useState<MenuItem | null>(null);
+  const configured = products.filter(p => p.category === category && p.optionsConfig?.length);
+  return <>
+    {configured.length > 0 && <div className="grid gap-3 mb-4">{configured.map(item => <div key={item.id} className="bg-card border border-border rounded-lg p-3">
+      <div className="flex items-center gap-3">
+        {item.imageUrl && <img src={item.imageUrl} alt={item.name} className="w-20 h-20 rounded-lg object-cover shrink-0" />}
+        <div className="min-w-0 flex-1"><h3 className="font-bold break-words">{item.name}</h3>{item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}<PriceTag {...getDiscountedPrice(item.price, item.category)} /></div>
+      </div>
+      <Button className="w-full mt-3 font-bold" onClick={() => setSelected(item)}><ShoppingCart className="h-4 w-4 mr-2" /> PEDIR AGORA</Button>
+    </div>)}</div>}
+    <StandardMenuSection category={category} />
+    {selected && <ProductOptionsModal key={selected.id} name={selected.name} price={getDiscountedPrice(selected.price, selected.category).discounted} groups={selected.optionsConfig ?? []} onClose={() => setSelected(null)} onConfirm={choices => {
+      addItem(buildOptionCartItem({ ...selected, price: getDiscountedPrice(selected.price, selected.category).discounted }, choices));
+      toast.success(`${selected.name} adicionado!`);
+      setSelected(null);
+    }} />}
+  </>;
 };
 
 export default MenuSection;

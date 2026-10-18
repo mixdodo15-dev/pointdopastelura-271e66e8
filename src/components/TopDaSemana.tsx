@@ -9,6 +9,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { getRequiredCheeseOptions } from '@/lib/cheeseSelection';
 import type { MenuItem } from '@/data/menu';
+import ProductOptionsModal from './ProductOptionsModal';
+import { buildOptionCartItem } from '@/lib/productOptions';
 
 const formatPrice = (price: number) =>
   `R$ ${price.toFixed(2).replace('.', ',')}`;
@@ -19,6 +21,7 @@ const TopDaSemana = () => {
   const [current, setCurrent] = useState(0);
   const [cheeseProduct, setCheeseProduct] = useState<{ item: MenuItem; options: string[] } | null>(null);
   const [selectedCheese, setSelectedCheese] = useState('');
+  const [optionsProduct, setOptionsProduct] = useState<MenuItem | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const touchStart = useRef(0);
   const touchDelta = useRef(0);
@@ -60,6 +63,7 @@ const TopDaSemana = () => {
   if (loading || topProducts.length === 0) return null;
 
   const handleAdd = (item: MenuItem) => {
+    if (item.optionsConfig?.length) { setOptionsProduct(item); return; }
     const cheeseOptions = getRequiredCheeseOptions(item);
     if (cheeseOptions.length > 0) {
       setSelectedCheese('');
@@ -193,6 +197,11 @@ const TopDaSemana = () => {
         </div>
       )}
 
+      {optionsProduct && <ProductOptionsModal key={optionsProduct.id} name={optionsProduct.name} price={optionsProduct.price} groups={optionsProduct.optionsConfig ?? []} onClose={() => setOptionsProduct(null)} onConfirm={selected => {
+        addItem(buildOptionCartItem(optionsProduct, selected));
+        toast.success(`${optionsProduct.name} adicionado!`);
+        setOptionsProduct(null);
+      }} />}
       <Dialog
         open={!!cheeseProduct}
         onOpenChange={(open) => {

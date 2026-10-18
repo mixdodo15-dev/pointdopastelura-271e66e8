@@ -1,3 +1,5 @@
+import type { OptionGroup } from '@/lib/productOptions';
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -8,6 +10,7 @@ export interface MenuItem {
   maxFlavors?: number;
   imageUrl?: string;
   isTopWeek?: boolean;
+  optionsConfig?: OptionGroup[];
 }
 
 export interface FlavorOption {
