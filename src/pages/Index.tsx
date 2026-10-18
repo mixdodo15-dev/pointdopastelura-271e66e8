@@ -43,7 +43,8 @@ const Index = () => {
     setActiveCategory(slug);
     const el = sectionRefs.current[slug];
     if (el) {
-      const offset = 60;
+      const bar = document.querySelector('.sticky.top-0') as HTMLElement | null;
+      const offset = (bar?.offsetHeight ?? 60) + 12;
       const top = el.getBoundingClientRect().top + window.scrollY - offset;
       window.scrollTo({ top, behavior: 'smooth' });
       setTimeout(() => { isScrollingTo.current = false; }, 800);
