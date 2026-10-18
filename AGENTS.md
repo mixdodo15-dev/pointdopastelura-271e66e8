@@ -1,0 +1,2 @@
+# Architecture rules
+- Product option configuration uses the existing products.options_config field and shared productOptions helpers; admin editing and site selection use focused components without changing PDV flows.

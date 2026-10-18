@@ -1,0 +1,3 @@
+- [ ] Adicionar opcionais ao cadastro Admin → Produtos.
+- [ ] Exibir escolhas e preços no carrinho do site, sem alterar o PDV.
+- [ ] Testar cadastro e escolha de opcionais.
