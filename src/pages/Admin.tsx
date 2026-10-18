@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, LogOut, ArrowLeft, Package, IceCream, Droplets, Upload, X, Image, LayoutGrid, Truck, Users, MapPin, Monitor, ChefHat, UtensilsCrossed, Wallet, BarChart3, ClipboardList, Bike, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import ProductOptionsEditor from '@/components/admin/ProductOptionsEditor';
+import { parseOptionsConfig, validateOptionGroups, type OptionGroup } from '@/lib/productOptions';
 
 const LazyAdminPdv = lazy(() => import('./AdminPdv'));
 const LazyAdminKitchen = lazy(() => import('./AdminKitchen'));
@@ -32,6 +34,7 @@ interface Product {
   active: boolean;
   sort_order: number;
   is_top_week: boolean;
+  options_config?: unknown;
 }
 
 interface Flavor {
@@ -642,6 +645,7 @@ const ProductModal = ({
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [isTopWeek, setIsTopWeek] = useState(false);
+  const [optionGroups, setOptionGroups] = useState<OptionGroup[]>([]);
   useEffect(() => {
     if (product) {
       setName(product.name);
@@ -653,11 +657,13 @@ const ProductModal = ({
       setSortOrder(String(product.sort_order));
       setImageUrl(product.image_url || '');
       setIsTopWeek(product.is_top_week || false);
+      setOptionGroups(parseOptionsConfig(product.options_config));
     } else {
       setName(''); setDescription(''); setPrice('');
       setCategory(defaultCategory);
       setSubcategory(''); setMaxFlavors(''); setSortOrder('0'); setImageUrl('');
       setIsTopWeek(false);
+      setOptionGroups([]);
     }
   }, [product, defaultCategory, open]);
 
@@ -679,6 +685,7 @@ const ProductModal = ({
 
   const handleSave = async () => {
     if (!name.trim() || !price) { toast.error('Preencha nome e preço'); return; }
+    if (!validateOptionGroups(optionGroups)) { toast.error('Revise os opcionais: nomes únicos, valores válidos e limites dentro da quantidade de opções.'); return; }
     setSaving(true);
     const data = {
       name: name.trim(),
@@ -690,6 +697,8 @@ const ProductModal = ({
       sort_order: parseInt(sortOrder) || 0,
       image_url: imageUrl || null,
       is_top_week: isTopWeek,
+      options_config: optionGroups.map(g => ({ ...g, name: g.name.trim(), choices: g.choices.map(c => ({ ...c, name: c.name.trim() })) })),
+      ...(!product ? { available_on: 'site' } : {}),
     };
     if (product) {
       const { error } = await supabase.from('products').update(data).eq('id', product.id);
@@ -777,6 +786,7 @@ const ProductModal = ({
             <Label className="text-sm font-semibold">Ordem</Label>
             <Input type="number" value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="0" className="h-11 rounded-xl bg-secondary border-0" />
           </div>
+          <ProductOptionsEditor groups={optionGroups} onChange={setOptionGroups} />
         </div>
 
         <div className="px-6 pb-6 flex gap-3">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { MenuItem } from '@/data/menu';
+import { parseOptionsConfig } from '@/lib/productOptions';
 
 export const useProducts = () => {
   const [products, setProducts] = useState<MenuItem[]>([]);
@@ -27,6 +28,7 @@ export const useProducts = () => {
             maxFlavors: p.max_flavors || undefined,
             imageUrl: p.image_url || undefined,
             isTopWeek: p.is_top_week || false,
+            optionsConfig: parseOptionsConfig(p.options_config),
           }))
         );
       }
