@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { CartProvider } from '@/contexts/CartContext';
+import Header from '@/components/Header';
+import BottomNav from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +16,7 @@ const MinhaConta = () => {
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({ display_name: '', phone: '', email: '' });
   const [address, setAddress] = useState({ id: '', street: '', number: '', neighborhood: '', complement: '', city: '' });
+  const [cartSheetOpen, setCartSheetOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -98,7 +102,8 @@ const MinhaConta = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background px-4 py-8">
+    <CartProvider>
+    <div className="min-h-screen bg-background px-4 py-8 pb-28">
       <div className="max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 text-sm">
@@ -181,7 +186,11 @@ const MinhaConta = () => {
           {saving ? 'Salvando...' : 'Salvar alterações'}
         </Button>
       </div>
+
+      <Header cartOpen={cartSheetOpen} setCartOpen={setCartSheetOpen} />
+      <BottomNav onCartOpen={() => setCartSheetOpen(true)} />
     </div>
+    </CartProvider>
   );
 };
 

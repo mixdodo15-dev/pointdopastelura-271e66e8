@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { CartProvider } from '@/contexts/CartContext';
+import Header from '@/components/Header';
+import BottomNav from '@/components/BottomNav';
 import { ArrowLeft, Package, Clock, ChefHat, Truck, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -44,6 +47,7 @@ const MeusPedidos = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [cartSheetOpen, setCartSheetOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -137,7 +141,8 @@ const MeusPedidos = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(0,0%,96%)]">
+    <CartProvider>
+    <div className="min-h-screen bg-[hsl(0,0%,96%)] pb-28">
       {/* Header */}
       <div className="bg-primary text-primary-foreground px-4 py-4 flex items-center gap-3 sticky top-0 z-40">
         <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate('/')}>
@@ -267,7 +272,11 @@ const MeusPedidos = () => {
           </div>
         )}
       </div>
+
+      <Header cartOpen={cartSheetOpen} setCartOpen={setCartSheetOpen} />
+      <BottomNav onCartOpen={() => setCartSheetOpen(true)} />
     </div>
+    </CartProvider>
   );
 };
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { BadgePercent, ClipboardList, Home, ShoppingBag, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCart } from '@/contexts/CartContext';
@@ -18,10 +18,18 @@ interface BottomNavProps {
   onCartOpen: () => void;
 }
 
+const routeToTab = (pathname: string): TabId => {
+  if (pathname === '/meus-pedidos') return 'pedidos';
+  if (pathname === '/minha-conta') return 'perfil';
+  return 'inicio';
+};
+
 const BottomNav = ({ onCartOpen }: BottomNavProps) => {
-  const [active, setActive] = useState<TabId>('inicio');
+  const location = useLocation();
+  const [active, setActive] = useState<TabId>(() => routeToTab(location.pathname));
   const { totalItems } = useCart();
   const navigate = useNavigate();
+  const isHome = location.pathname === '/';
 
   const scrollToPromotions = () => {
     const section = document.getElementById('promocoes');
@@ -39,7 +47,11 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
 
     switch (id) {
       case 'inicio':
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (!isHome) {
+          navigate('/');
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         break;
       case 'pedidos':
         navigate('/meus-pedidos');
@@ -48,7 +60,12 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
         onCartOpen();
         break;
       case 'promocoes':
-        scrollToPromotions();
+        if (!isHome) {
+          navigate('/');
+          setTimeout(scrollToPromotions, 400);
+        } else {
+          scrollToPromotions();
+        }
         break;
       case 'perfil':
         navigate('/minha-conta');

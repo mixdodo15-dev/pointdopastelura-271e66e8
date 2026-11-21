@@ -1,4 +1,4 @@
-import { ShoppingCart, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -70,6 +70,11 @@ const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }
     setCartOpen(false);
   };
 
+  const handleBackToPedidos = () => {
+    setCartOpen(false);
+    navigate('/meus-pedidos');
+  };
+
   return (
     <>
       <Sheet open={cartOpen} onOpenChange={handleCartClose}>
@@ -80,9 +85,19 @@ const Header = ({ cartOpen: externalCartOpen, setCartOpen: externalSetCartOpen }
               {/* Header do carrinho */}
               <div className="px-5 pt-5 pb-4 border-b border-white/10">
                 <SheetHeader>
-                  <SheetTitle className="flex items-center gap-2 text-white text-lg font-extrabold">
-                    <ShoppingBag className="h-5 w-5" /> Seu Carrinho
-                  </SheetTitle>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleBackToPedidos}
+                      aria-label="Voltar para pedidos"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </button>
+                    <SheetTitle className="flex items-center gap-2 text-white text-lg font-extrabold">
+                      <ShoppingBag className="h-5 w-5" /> Seu Carrinho
+                    </SheetTitle>
+                  </div>
                 </SheetHeader>
                 {totalItems > 0 && (
                   <p className="text-white/50 text-sm mt-1">{totalItems} {totalItems === 1 ? 'item' : 'itens'}</p>
