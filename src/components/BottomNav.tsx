@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BadgePercent, ClipboardList, Home, ShoppingBag, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
@@ -30,11 +30,22 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
   const { totalItems } = useCart();
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
+  const promotionsTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const scrollToPromotions = () => {
+  useEffect(() => () => clearTimeout(promotionsTimer.current), []);
+
+  // A seção Top da Semana só existe depois que os produtos carregam,
+  // então esperamos ela aparecer antes de rolar até ela.
+  const scrollToPromotions = (attempt = 0) => {
     const section = document.getElementById('promocoes');
     if (section) {
       section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    if (attempt < 40) {
+      clearTimeout(promotionsTimer.current);
+      promotionsTimer.current = setTimeout(() => scrollToPromotions(attempt + 1), 150);
       return;
     }
 
@@ -60,12 +71,9 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
         onCartOpen();
         break;
       case 'promocoes':
-        if (!isHome) {
-          navigate('/');
-          setTimeout(scrollToPromotions, 400);
-        } else {
-          scrollToPromotions();
-        }
+        clearTimeout(promotionsTimer.current);
+        if (!isHome) navigate('/');
+        scrollToPromotions();
         break;
       case 'perfil':
         navigate('/minha-conta');
