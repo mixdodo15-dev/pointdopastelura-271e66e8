@@ -93,7 +93,7 @@ const TopDaSemana = () => {
   };
 
   return (
-    <section className="w-full py-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(0,100%,30%) 0%, hsl(0,0%,8%) 100%)' }}>
+    <section id="promocoes" aria-label="Promoções e produtos mais pedidos da semana" className="w-full scroll-mt-4 py-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(0,100%,30%) 0%, hsl(0,0%,8%) 100%)' }}>
       {/* Header */}
       <div className="text-center mb-6 px-4">
         <div className="flex items-center justify-center gap-2 mb-1">

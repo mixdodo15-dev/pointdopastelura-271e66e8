@@ -23,6 +23,11 @@ export default {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        "bottom-nav": {
+          DEFAULT: "hsl(var(--bottom-nav))",
+          foreground: "hsl(var(--bottom-nav-foreground))",
+          active: "hsl(var(--bottom-nav-active))",
+        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",

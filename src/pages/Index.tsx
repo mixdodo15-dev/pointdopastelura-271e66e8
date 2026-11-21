@@ -89,7 +89,7 @@ const Index = () => {
 
         <CategoryTabs activeCategory={activeCategory} onCategoryChange={handleCategoryChange} categories={categories} />
 
-        <main className="max-w-3xl mx-auto px-4 py-6 space-y-10">
+        <main id="cardapio" className="max-w-3xl mx-auto scroll-mt-20 px-4 py-6 space-y-10">
           {categories.map((cat, idx) => (
             <AnimatedCard
               key={cat.slug}
