@@ -34,7 +34,7 @@ const Footer = () => {
 
           <div className="flex items-center gap-2 justify-center text-background/70">
             <MapPin className="h-5 w-5 shrink-0" />
-            <span>Rua Professora Edthi França, 72 - Parque São Geraldo</span>
+            <span>Rua Professora Edith França, 68 - Parque São Geraldo, Uberaba - MG</span>
           </div>
         </div>
 

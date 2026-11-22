@@ -28,6 +28,10 @@ export default {
           foreground: "hsl(var(--bottom-nav-foreground))",
           active: "hsl(var(--bottom-nav-active))",
         },
+        whatsapp: {
+          DEFAULT: "hsl(var(--whatsapp))",
+          foreground: "hsl(var(--whatsapp-foreground))",
+        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",

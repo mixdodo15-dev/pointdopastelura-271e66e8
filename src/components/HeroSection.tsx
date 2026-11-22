@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
-import { ShoppingBag, Clock, Bike } from 'lucide-react';
+import { ShoppingBag, Clock, Bike, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import heroBg from '@/assets/hero-pastel.jpg';
@@ -8,6 +8,7 @@ import logoImg from '@/assets/logo-point.jpg';
 import { useRestaurantStatus } from '@/hooks/useRestaurantStatus';
 import { supabase } from '@/integrations/supabase/client';
 import ThemeToggle from './ThemeToggle';
+import StoreInfoDialog from './StoreInfoDialog';
 
 const HeroSection = () => {
   const { isOpen, label, subtitle } = useRestaurantStatus();
@@ -40,7 +41,17 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(0,0%,0%,0.4)] via-[hsl(0,0%,0%,0.2)] to-[hsl(0,0%,0%,0.7)]" />
 
         {/* Top icons */}
-        <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-10 sm:gap-3">
+          <StoreInfoDialog />
+          <a
+            href="https://wa.me/5534984050892"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Pedir pelo WhatsApp"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-whatsapp text-whatsapp-foreground shadow-md transition-transform hover:scale-110 active:scale-95"
+          >
+            <MessageCircle className="h-4 w-4" />
+          </a>
           <ThemeToggle />
           <button
             onClick={() => navigate(isLoggedIn ? '/minha-conta' : '/cliente-login')}
