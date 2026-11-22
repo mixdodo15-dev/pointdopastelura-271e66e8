@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BadgePercent, ClipboardList, Home, ShoppingBag, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,6 +18,9 @@ interface BottomNavProps {
   onCartOpen: () => void;
 }
 
+// Fica fora do componente: ao trocar de página o menu é recriado e a rolagem precisa continuar.
+const promotionsTimer: { current?: ReturnType<typeof setTimeout> } = {};
+
 const routeToTab = (pathname: string): TabId => {
   if (pathname === '/meus-pedidos') return 'pedidos';
   if (pathname === '/minha-conta') return 'perfil';
@@ -30,16 +33,22 @@ const BottomNav = ({ onCartOpen }: BottomNavProps) => {
   const { totalItems } = useCart();
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
-  const promotionsTimer = useRef<ReturnType<typeof setTimeout>>();
-
-  useEffect(() => () => clearTimeout(promotionsTimer.current), []);
 
   // A seção Top da Semana só existe depois que os produtos carregam,
   // então esperamos ela aparecer antes de rolar até ela.
   const scrollToPromotions = (attempt = 0) => {
     const section = document.getElementById('promocoes');
     if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      section.scrollIntoView({ behavior: attempt === 0 ? 'smooth' : 'auto', block: 'start' });
+      // Ao chegar de outra aba, a página ainda está montando; reposiciona até estabilizar.
+      if (attempt > 0 && attempt < 40) {
+        clearTimeout(promotionsTimer.current);
+        promotionsTimer.current = setTimeout(() => {
+          const top = document.getElementById('promocoes')?.getBoundingClientRect().top ?? 0;
+          if (Math.abs(top) > 40) scrollToPromotions(attempt + 1);
+          else if (attempt < 8) scrollToPromotions(attempt + 1);
+        }, 250);
+      }
       return;
     }
 
