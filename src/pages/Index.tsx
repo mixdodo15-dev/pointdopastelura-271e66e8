@@ -16,10 +16,12 @@ import TopDaSemana from '@/components/TopDaSemana';
 import AuthBanner from '@/components/AuthBanner';
 import { Button } from '@/components/ui/button';
 import { SearchX } from 'lucide-react';
+import { useMenuCompact } from '@/hooks/useMenuCompact';
 
 const Index = () => {
   const { categories, loading } = useCategories();
   const { products } = useProducts();
+  const compact = useMenuCompact();
   const [activeCategory, setActiveCategory] = useState('');
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrollingTo = useRef(false);
@@ -167,7 +169,7 @@ const Index = () => {
                   id={`section-${cat.slug}`}
                 >
                   <SectionTitle icon={cat.icon} label={cat.label} />
-                  <MenuSection category={cat.slug} searchTerm={activeTerm} />
+                  <MenuSection category={cat.slug} searchTerm={activeTerm} compact={compact} />
                 </div>
               </AnimatedCard>
             ))
