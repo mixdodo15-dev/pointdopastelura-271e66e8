@@ -14,9 +14,12 @@ import { toast } from 'sonner';
 import { getRequiredCheeseOptions } from '@/lib/cheeseSelection';
 import ProductOptionsModal from './ProductOptionsModal';
 import { buildOptionCartItem } from '@/lib/productOptions';
+import { matchesSearch } from '@/lib/menuSearch';
 
 interface MenuSectionProps {
   category: string;
+  /** Quando preenchido, mostra só os produtos que casam com a busca. */
+  searchTerm?: string;
 }
 
 const CARD_CLASS = "bg-card rounded-xl p-5 shadow-sm border-2 border-transparent hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer";
@@ -55,10 +58,10 @@ const PriceTagLg = ({ original, discounted, hasDiscount }: { original: number; d
   );
 };
 
-const StandardMenuSection = ({ category }: MenuSectionProps) => {
+const StandardMenuSection = ({ category, searchTerm }: MenuSectionProps) => {
   const { products, loading } = useProducts();
   const { activeHH, getDiscountedPrice } = useHappyHour();
-  const items = products.filter(i => i.category === category && !i.optionsConfig?.length);
+  const items = products.filter(i => i.category === category && !i.optionsConfig?.length && matchesSearch(i, searchTerm ?? ''));
   const { addItem } = useCart();
   const [flavorModal, setFlavorModal] = useState<MenuItem | null>(null);
 
@@ -528,12 +531,12 @@ const BatataCard = ({
   );
 };
 
-const MenuSection = ({ category }: MenuSectionProps) => {
+const MenuSection = ({ category, searchTerm }: MenuSectionProps) => {
   const { products } = useProducts();
   const { addItem } = useCart();
   const { getDiscountedPrice } = useHappyHour();
   const [selected, setSelected] = useState<MenuItem | null>(null);
-  const configured = products.filter(p => p.category === category && p.optionsConfig?.length);
+  const configured = products.filter(p => p.category === category && p.optionsConfig?.length && matchesSearch(p, searchTerm ?? ''));
   return <>
     {configured.length > 0 && <div className="grid gap-3 mb-4">{configured.map(item => <div key={item.id} className="bg-card border border-border rounded-lg p-3">
       <div className="flex items-center gap-3">
@@ -542,7 +545,7 @@ const MenuSection = ({ category }: MenuSectionProps) => {
       </div>
       <Button className="w-full mt-3 font-bold" onClick={() => setSelected(item)}><ShoppingCart className="h-4 w-4 mr-2" /> PEDIR AGORA</Button>
     </div>)}</div>}
-    <StandardMenuSection category={category} />
+    <StandardMenuSection category={category} searchTerm={searchTerm} />
     {selected && <ProductOptionsModal key={selected.id} name={selected.name} price={getDiscountedPrice(selected.price, selected.category).discounted} groups={selected.optionsConfig ?? []} onClose={() => setSelected(null)} onConfirm={choices => {
       addItem(buildOptionCartItem({ ...selected, price: getDiscountedPrice(selected.price, selected.category).discounted }, choices));
       toast.success(`${selected.name} adicionado!`);

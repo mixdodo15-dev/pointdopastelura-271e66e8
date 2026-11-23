@@ -7,9 +7,11 @@ interface CategoryTabsProps {
   activeCategory: string;
   onCategoryChange: (slug: string) => void;
   categories?: Category[];
+  /** Conteúdo extra fixado junto com a barra (ex.: busca do cardápio). */
+  children?: React.ReactNode;
 }
 
-const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCategories }: CategoryTabsProps) => {
+const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCategories, children }: CategoryTabsProps) => {
   const { categories: dbCategories } = useCategories();
   const categories = propCategories || dbCategories;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,6 +26,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
 
   return (
     <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm">
+      {children}
       <div
         ref={containerRef}
         className="relative flex overflow-x-auto gap-2 px-4 py-3 max-w-3xl mx-auto"
