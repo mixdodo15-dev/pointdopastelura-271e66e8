@@ -15,14 +15,11 @@ import { getRequiredCheeseOptions } from '@/lib/cheeseSelection';
 import ProductOptionsModal from './ProductOptionsModal';
 import { buildOptionCartItem } from '@/lib/productOptions';
 import { matchesSearch } from '@/lib/menuSearch';
-import { cn } from '@/lib/utils';
 
 interface MenuSectionProps {
   category: string;
   /** Quando preenchido, mostra só os produtos que casam com a busca. */
   searchTerm?: string;
-  /** Cards menores depois que o usuário rola o cardápio. */
-  compact?: boolean;
 }
 
 const CARD_CLASS = "bg-card rounded-xl p-5 shadow-sm border-2 border-transparent hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer";
@@ -61,7 +58,7 @@ const PriceTagLg = ({ original, discounted, hasDiscount }: { original: number; d
   );
 };
 
-const StandardMenuSection = ({ category, searchTerm, compact = false }: MenuSectionProps) => {
+const StandardMenuSection = ({ category, searchTerm }: MenuSectionProps) => {
   const { products, loading } = useProducts();
   const { activeHH, getDiscountedPrice } = useHappyHour();
   const items = products.filter(i => i.category === category && !i.optionsConfig?.length && matchesSearch(i, searchTerm ?? ''));
@@ -108,14 +105,14 @@ const StandardMenuSection = ({ category, searchTerm, compact = false }: MenuSect
     });
 
     return (
-      <div className={compact ? 'space-y-3' : 'space-y-6'}>
+      <div className="space-y-6">
         {Object.entries(grouped).map(([sub, subItems]) => (
           <div key={sub || '_none'}>
-            {sub && <h3 className={cn('font-bold text-muted-foreground uppercase tracking-wider px-1 transition-all duration-300', compact ? 'text-[11px] mb-1.5' : 'text-sm mb-3')}>{sub}</h3>}
-            <div className={cn('grid', compact ? 'gap-1.5' : 'gap-3')}>
+            {sub && <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3 px-1">{sub}</h3>}
+            <div className="grid gap-3">
               {subItems.map((item, idx) => (
                 <AnimatedCard key={item.id} index={idx}>
-                  <ItemCard item={item} onAdd={handleAdd} getDiscountedPrice={getDiscountedPrice} compact={compact} />
+                  <ItemCard item={item} onAdd={handleAdd} getDiscountedPrice={getDiscountedPrice} />
                 </AnimatedCard>
               ))}
             </div>
@@ -129,45 +126,43 @@ const StandardMenuSection = ({ category, searchTerm, compact = false }: MenuSect
   if (category === 'monte') {
     return (
       <>
-        <div className={cn('grid', compact ? 'gap-2' : 'gap-4')}>
+        <div className="grid gap-4">
           {items.map((item, idx) => (
             <AnimatedCard key={item.id} index={idx}>
-              <div className={cn('bg-card rounded-[14px] shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-border/50 hover:border-primary', !compact && 'hover:scale-[1.03]')}>
-                <div className={cn('flex items-center transition-all duration-300', compact ? 'gap-2 p-2' : 'gap-3 p-3')}>
+              <div className="bg-card rounded-[14px] shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-300 overflow-hidden border-2 border-border/50 hover:border-primary">
+                <div className="flex items-center gap-3 p-3">
                   {/* Product image */}
                   {item.imageUrl && (
                     <img
                       src={item.imageUrl}
                       alt={item.name}
-                      className={cn('rounded-xl object-cover shrink-0 transition-all duration-300', compact ? 'w-12 h-12' : 'w-20 h-20 sm:w-24 sm:h-24')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0"
                     />
                   )}
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <h3
-                      className={cn('font-bold text-foreground leading-tight transition-all duration-300', compact ? 'text-xs' : 'text-base sm:text-lg')}
+                      className="font-bold text-base sm:text-lg text-foreground leading-tight"
                       style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
                       {item.name}
                     </h3>
                     {item.description && (
-                      <p className={cn('text-muted-foreground mt-0.5 line-clamp-2', compact ? 'text-[10px]' : 'text-xs')}>{item.description}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
                     )}
                     <div className="mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                      {compact
-                        ? <PriceTagSmall {...getDiscountedPrice(item.price, item.category)} />
-                        : <PriceTag {...getDiscountedPrice(item.price, item.category)} />}
+                      <PriceTag {...getDiscountedPrice(item.price, item.category)} />
                     </div>
                   </div>
                 </div>
                 {/* Button below */}
-                <div className={compact ? 'px-2 pb-2' : 'px-3 pb-3'}>
+                <div className="px-3 pb-3">
                   <button
                     onClick={() => handleAdd(item)}
-                    className={cn('w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground font-bold rounded-full transition-all duration-200 shadow-sm', compact ? 'text-[11px] py-1.5' : 'text-xs py-2.5')}
+                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground text-xs font-bold py-2.5 rounded-full transition-all duration-200 shadow-sm"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
-                    <ShoppingCart className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
+                    <ShoppingCart className="h-3.5 w-3.5" />
                     PEDIR AGORA
                   </button>
                 </div>
@@ -193,10 +188,10 @@ const StandardMenuSection = ({ category, searchTerm, compact = false }: MenuSect
   // Especiais
   if (category === 'especiais') {
     return (
-      <div className={cn('grid', compact ? 'gap-2' : 'gap-4')}>
+      <div className="grid gap-4">
         {items.map((item, idx) => (
           <AnimatedCard key={item.id} index={idx}>
-            <EspecialCard item={item} onAdd={handleAdd} addItem={addItem} allProducts={products} getDiscountedPrice={getDiscountedPrice} compact={compact} />
+            <EspecialCard item={item} onAdd={handleAdd} addItem={addItem} allProducts={products} getDiscountedPrice={getDiscountedPrice} />
           </AnimatedCard>
         ))}
       </div>
@@ -207,10 +202,10 @@ const StandardMenuSection = ({ category, searchTerm, compact = false }: MenuSect
   if (category === 'doces') {
     return (
       <>
-        <div className={cn('grid', compact ? 'gap-2' : 'gap-3')}>
+        <div className="grid gap-3">
           {items.map((item, idx) => (
             <AnimatedCard key={item.id} index={idx}>
-              <DoceCard item={item} onAdd={handleAdd} addItem={addItem} getDiscountedPrice={getDiscountedPrice} compact={compact} />
+              <DoceCard item={item} onAdd={handleAdd} addItem={addItem} getDiscountedPrice={getDiscountedPrice} />
             </AnimatedCard>
           ))}
         </div>
@@ -268,35 +263,33 @@ const StandardMenuSection = ({ category, searchTerm, compact = false }: MenuSect
 
   // Default - layout padrão com imagem, descrição e preço
   return (
-    <div className={cn('grid', compact ? 'gap-2' : 'gap-3')}>
+    <div className="grid gap-3">
       {items.map((item, idx) => (
         <AnimatedCard key={item.id} index={idx}>
           <div className="bg-card rounded-[14px] shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-border/50">
-            <div className={cn('flex items-center transition-all duration-300', compact ? 'gap-2 p-2' : 'gap-3 p-3')}>
+            <div className="flex items-center gap-3 p-3">
               {item.imageUrl && (
-                <img src={item.imageUrl} alt={item.name} className={cn('rounded-xl object-cover shrink-0 transition-all duration-300', compact ? 'w-12 h-12' : 'w-20 h-20 sm:w-24 sm:h-24')} />
+                <img src={item.imageUrl} alt={item.name} className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shrink-0" />
               )}
               <div className="flex-1 min-w-0">
-                <h3 className={cn('font-bold text-foreground leading-tight transition-all duration-300', compact ? 'text-xs' : 'text-sm')} style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <h3 className="font-bold text-sm text-foreground leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   {item.name}
                 </h3>
                 {item.description && (
-                  <p className={cn('text-muted-foreground mt-0.5 line-clamp-2', compact ? 'text-[10px]' : 'text-xs')}>{item.description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
                 )}
                 <div className="mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  {compact
-                    ? <PriceTagSmall {...getDiscountedPrice(item.price, item.category)} />
-                    : <PriceTag {...getDiscountedPrice(item.price, item.category)} />}
+                  <PriceTag {...getDiscountedPrice(item.price, item.category)} />
                 </div>
               </div>
             </div>
-            <div className={compact ? 'px-2 pb-2' : 'px-3 pb-3'}>
+            <div className="px-3 pb-3">
               <button
                 onClick={() => handleAdd(item)}
-                className={cn('w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground font-bold rounded-full transition-all duration-200 shadow-sm', compact ? 'text-[11px] py-1.5' : 'text-xs py-2.5')}
+                className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-[hsl(0,100%,30%)] active:scale-[0.97] text-primary-foreground text-xs font-bold py-2.5 rounded-full transition-all duration-200 shadow-sm"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                <ShoppingCart className={compact ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
+                <ShoppingCart className="h-3.5 w-3.5" />
                 PEDIR AGORA
               </button>
             </div>
@@ -307,20 +300,19 @@ const StandardMenuSection = ({ category, searchTerm, compact = false }: MenuSect
   );
 };
 
-const ProductImage = ({ src, alt, size = 'md' }: { src?: string; alt: string; size?: 'sm' | 'md' | 'lg' }) => {
+const ProductImage = ({ src, alt, small }: { src?: string; alt: string; small?: boolean }) => {
   if (!src) return null;
-  const box = size === 'lg' ? 'h-32 w-32' : size === 'sm' ? 'h-10 w-10' : 'h-16 w-16';
   return (
-    <img src={src} alt={alt} className={cn(box, 'rounded-lg object-cover shrink-0 transition-all duration-300')} />
+    <img src={src} alt={alt} className={small ? "h-16 w-16 rounded-lg object-cover shrink-0" : "h-32 w-32 rounded-lg object-cover shrink-0"} />
   );
 };
 
 type GetDiscountedPrice = (price: number, category?: string) => { original: number; discounted: number; hasDiscount: boolean };
 
-const ItemCard = ({ item, onAdd, getDiscountedPrice, compact = false }: { item: MenuItem; onAdd: (item: MenuItem) => void; getDiscountedPrice: GetDiscountedPrice; compact?: boolean }) => (
-  <div className={cn(CARD_CLASS, 'flex items-center justify-between px-3', compact ? 'py-1' : 'py-2')}>
+const ItemCard = ({ item, onAdd, getDiscountedPrice }: { item: MenuItem; onAdd: (item: MenuItem) => void; getDiscountedPrice: GetDiscountedPrice }) => (
+  <div className={CARD_CLASS + " flex items-center justify-between py-2 px-3"}>
     <div className="flex items-center gap-2 flex-1 min-w-0">
-      <ProductImage src={item.imageUrl} alt={item.name} size={compact ? 'sm' : 'md'} />
+      <ProductImage src={item.imageUrl} alt={item.name} small />
       <div className="min-w-0">
         <h3 className="font-bold text-xs text-foreground">{item.name}</h3>
         {item.description && <p className="text-[10px] text-muted-foreground">{item.description}</p>}
@@ -328,7 +320,7 @@ const ItemCard = ({ item, onAdd, getDiscountedPrice, compact = false }: { item: 
     </div>
     <div className="flex items-center gap-2 shrink-0">
       <PriceTagSmall {...getDiscountedPrice(item.price, item.category)} />
-      <Button size="icon" className={cn('rounded-full', compact ? 'h-6 w-6' : 'h-7 w-7')} onClick={() => onAdd(item)}>
+      <Button size="icon" className="rounded-full h-7 w-7" onClick={() => onAdd(item)}>
         <Plus className="h-3 w-3" />
       </Button>
     </div>
@@ -342,14 +334,12 @@ const EspecialCard = ({
   addItem,
   allProducts,
   getDiscountedPrice,
-  compact = false,
 }: {
   item: MenuItem;
   onAdd: (item: MenuItem) => void;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
   allProducts: MenuItem[];
   getDiscountedPrice: GetDiscountedPrice;
-  compact?: boolean;
 }) => {
   const [cheese, setCheese] = useState<string>('');
   const [adicionaisOpen, setAdicionaisOpen] = useState(false);
@@ -382,26 +372,26 @@ const EspecialCard = ({
 
   return (
     <>
-      <div className={cn('bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg transition-all duration-300 cursor-pointer', compact ? 'p-2.5' : 'p-5 hover:scale-[1.02]')}>
+      <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
         <div className="flex items-start gap-3">
-          <ProductImage src={item.imageUrl} alt={item.name} size={compact ? 'sm' : 'lg'} />
+          <ProductImage src={item.imageUrl} alt={item.name} />
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-accent fill-accent" />
-                <h3 className={cn('font-bold text-foreground', compact && 'text-sm')}>{item.name}</h3>
+                <h3 className="font-bold text-foreground">{item.name}</h3>
               </div>
-              {compact ? <PriceTagSmall {...getDiscountedPrice(item.price, item.category)} /> : <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />}
+              <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />
             </div>
             {item.description && (
-              <p className={cn('text-muted-foreground mt-1', compact ? 'text-[11px] line-clamp-1' : 'text-sm')}>{item.description}</p>
+              <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
             )}
           </div>
         </div>
 
         {needsCheese && (
-          <div className={cn('bg-secondary rounded-lg', compact ? 'mt-2 p-2' : 'mt-3 p-3')}>
-            <p className={cn('font-bold text-muted-foreground', compact ? 'text-[10px] mb-1' : 'text-xs mb-2')}>Escolha o queijo (obrigatório):</p>
+          <div className="mt-3 p-3 bg-secondary rounded-lg">
+            <p className="text-xs font-bold text-muted-foreground mb-2">Escolha o queijo (obrigatório):</p>
             <RadioGroup value={cheese} onValueChange={setCheese} className="flex gap-3 flex-wrap">
               {cheeseOptions.map(q => (
                 <div key={q} className="flex items-center gap-1.5">
@@ -413,15 +403,15 @@ const EspecialCard = ({
           </div>
         )}
 
-        <div className={cn('flex items-center gap-2', compact ? 'mt-2' : 'mt-3')}>
-          <Button size="sm" className={cn('rounded-full flex-1', compact && 'h-7 text-xs')} onClick={() => handleAddToCart()} disabled={needsCheese && !cheese}>
+        <div className="flex items-center gap-2 mt-3">
+          <Button size="sm" className="rounded-full flex-1" onClick={() => handleAddToCart()} disabled={needsCheese && !cheese}>
             <Plus className="h-4 w-4 mr-1" /> {needsCheese && !cheese ? 'Escolha o queijo' : 'Adicionar'}
           </Button>
           {allowExtras && (
             <Button
               size="sm"
               variant="outline"
-              className={cn('rounded-full', compact && 'h-7 text-xs')}
+              className="rounded-full"
               onClick={() => setAdicionaisOpen(true)}
               disabled={needsCheese && !cheese}
             >
@@ -448,31 +438,29 @@ const DoceCard = ({
   item,
   onAdd,
   getDiscountedPrice,
-  compact = false,
 }: {
   item: MenuItem;
   onAdd: (item: MenuItem) => void;
   addItem: (item: Omit<import('@/contexts/CartContext').CartItem, 'quantity'>) => void;
   getDiscountedPrice: GetDiscountedPrice;
-  compact?: boolean;
 }) => {
   const hasMaxFlavors = !!item.maxFlavors;
 
   return (
-    <div className={cn('bg-card rounded-xl shadow-sm border-2 border-border hover:border-primary hover:shadow-lg transition-all duration-300 cursor-pointer', compact ? 'p-2.5' : 'p-5 hover:scale-[1.02]')}>
+    <div className="bg-card rounded-xl p-5 shadow-sm border-2 border-border hover:border-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer">
       <div className="flex items-start gap-3">
-        <ProductImage src={item.imageUrl} alt={item.name} size={compact ? 'sm' : 'lg'} />
+        <ProductImage src={item.imageUrl} alt={item.name} />
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <h3 className={cn('font-bold text-foreground', compact && 'text-sm')}>🍫 {item.name}</h3>
-            {compact ? <PriceTagSmall {...getDiscountedPrice(item.price, item.category)} /> : <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />}
+            <h3 className="font-bold text-foreground">🍫 {item.name}</h3>
+            <PriceTagLg {...getDiscountedPrice(item.price, item.category)} />
           </div>
           {item.description && (
-            <p className={cn('text-primary font-semibold mt-1', compact ? 'text-[10px] line-clamp-1' : 'text-xs')}>{item.description}</p>
+            <p className="text-xs text-primary font-semibold mt-1">{item.description}</p>
           )}
         </div>
       </div>
-      <Button size="sm" className={cn('rounded-full w-full', compact ? 'mt-2 h-7 text-xs' : 'mt-3')} onClick={() => onAdd(item)}>
+      <Button size="sm" className="rounded-full w-full mt-3" onClick={() => onAdd(item)}>
         <Plus className="h-4 w-4 mr-1" /> {hasMaxFlavors ? 'Escolher sabor' : 'Adicionar'}
       </Button>
     </div>
@@ -543,21 +531,21 @@ const BatataCard = ({
   );
 };
 
-const MenuSection = ({ category, searchTerm, compact = false }: MenuSectionProps) => {
+const MenuSection = ({ category, searchTerm }: MenuSectionProps) => {
   const { products } = useProducts();
   const { addItem } = useCart();
   const { getDiscountedPrice } = useHappyHour();
   const [selected, setSelected] = useState<MenuItem | null>(null);
   const configured = products.filter(p => p.category === category && p.optionsConfig?.length && matchesSearch(p, searchTerm ?? ''));
   return <>
-    {configured.length > 0 && <div className={cn('grid mb-4', compact ? 'gap-2' : 'gap-3')}>{configured.map(item => <div key={item.id} className={cn('bg-card border border-border rounded-lg transition-all duration-300', compact ? 'p-2' : 'p-3')}>
-      <div className={cn('flex items-center', compact ? 'gap-2' : 'gap-3')}>
-        {item.imageUrl && <img src={item.imageUrl} alt={item.name} className={cn('rounded-lg object-cover shrink-0 transition-all duration-300', compact ? 'w-12 h-12' : 'w-20 h-20')} />}
-        <div className="min-w-0 flex-1"><h3 className={cn('font-bold break-words', compact && 'text-sm')}>{item.name}</h3>{item.description && <p className={cn('text-muted-foreground mt-1', compact ? 'text-[10px] line-clamp-1' : 'text-xs')}>{item.description}</p>}{compact ? <PriceTagSmall {...getDiscountedPrice(item.price, item.category)} /> : <PriceTag {...getDiscountedPrice(item.price, item.category)} />}</div>
+    {configured.length > 0 && <div className="grid gap-3 mb-4">{configured.map(item => <div key={item.id} className="bg-card border border-border rounded-lg p-3">
+      <div className="flex items-center gap-3">
+        {item.imageUrl && <img src={item.imageUrl} alt={item.name} className="w-20 h-20 rounded-lg object-cover shrink-0" />}
+        <div className="min-w-0 flex-1"><h3 className="font-bold break-words">{item.name}</h3>{item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}<PriceTag {...getDiscountedPrice(item.price, item.category)} /></div>
       </div>
-      <Button className={cn('w-full font-bold', compact ? 'mt-2 h-8 text-xs' : 'mt-3')} onClick={() => setSelected(item)}><ShoppingCart className="h-4 w-4 mr-2" /> PEDIR AGORA</Button>
+      <Button className="w-full mt-3 font-bold" onClick={() => setSelected(item)}><ShoppingCart className="h-4 w-4 mr-2" /> PEDIR AGORA</Button>
     </div>)}</div>}
-    <StandardMenuSection category={category} searchTerm={searchTerm} compact={compact} />
+    <StandardMenuSection category={category} searchTerm={searchTerm} />
     {selected && <ProductOptionsModal key={selected.id} name={selected.name} price={getDiscountedPrice(selected.price, selected.category).discounted} groups={selected.optionsConfig ?? []} onClose={() => setSelected(null)} onConfirm={choices => {
       addItem(buildOptionCartItem({ ...selected, price: getDiscountedPrice(selected.price, selected.category).discounted }, choices));
       toast.success(`${selected.name} adicionado!`);
