@@ -9,9 +9,11 @@ interface CategoryTabsProps {
   categories?: Category[];
   /** Conteúdo extra fixado junto com a barra (ex.: busca do cardápio). */
   children?: React.ReactNode;
+  /** Reduz a barra durante a rolagem; no desktop as classes sm: mantêm o tamanho original. */
+  compact?: boolean;
 }
 
-const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCategories, children }: CategoryTabsProps) => {
+const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCategories, children, compact = false }: CategoryTabsProps) => {
   const { categories: dbCategories } = useCategories();
   const categories = propCategories || dbCategories;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -29,7 +31,10 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
       {children}
       <div
         ref={containerRef}
-        className="relative flex overflow-x-auto gap-2 px-4 py-3 max-w-3xl mx-auto"
+        className={cn(
+          "relative mx-auto flex max-w-3xl overflow-x-auto transition-all duration-300",
+          compact ? "gap-1.5 px-3 py-1.5 sm:gap-2 sm:px-4 sm:py-3" : "gap-2 px-4 py-3"
+        )}
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {categories.map((cat, idx) => {
@@ -44,19 +49,26 @@ const CategoryTabs = ({ activeCategory, onCategoryChange, categories: propCatego
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                "relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 shrink-0",
+                "relative flex shrink-0 items-center whitespace-nowrap font-bold transition-all duration-300",
+                compact
+                  ? "flex-row gap-1.5 rounded-full px-3 py-1.5 text-[10px] sm:flex-col sm:gap-1 sm:rounded-2xl sm:px-3 sm:py-2 sm:text-xs"
+                  : "flex-col gap-1 rounded-2xl px-3 py-2 text-xs",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(var(--primary)/0.4)] scale-105"
-                  : "bg-card text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm hover:shadow-md"
+                  ? cn(
+                      "bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(var(--primary)/0.4)]",
+                      compact ? "scale-100 sm:scale-105" : "scale-105"
+                    )
+                  : "bg-card text-muted-foreground shadow-sm hover:bg-secondary hover:text-foreground hover:shadow-md"
               )}
             >
               <span className={cn(
-                "text-lg transition-transform duration-300",
-                isActive && "animate-bounce"
+                "transition-all duration-300",
+                compact ? "text-sm sm:text-lg" : "text-lg",
+                isActive && !compact && "animate-bounce"
               )}>
                 {cat.icon}
               </span>
-              <span className="leading-tight text-[11px]">{cat.label}</span>
+              <span className={cn("leading-tight", compact ? "text-[10px] sm:text-[11px]" : "text-[11px]")}>{cat.label}</span>
               {isActive && (
                 <motion.div
                   layoutId="activeTabDot"

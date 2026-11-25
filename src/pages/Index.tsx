@@ -24,6 +24,7 @@ const Index = () => {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isScrollingTo = useRef(false);
   const [cartSheetOpen, setCartSheetOpen] = useState(false);
+  const [compactMenu, setCompactMenu] = useState(false);
 
   // Busca do cardápio
   const [searchInput, setSearchInput] = useState('');
@@ -92,6 +93,7 @@ const Index = () => {
 
   useEffect(() => {
     const handleScroll = () => {
+      setCompactMenu(window.scrollY > 100);
       if (isScrollingTo.current) return;
       let current = categories[0]?.slug || '';
       for (const cat of categories) {
@@ -130,6 +132,7 @@ const Index = () => {
           activeCategory={activeCategory}
           onCategoryChange={handleCategoryChange}
           categories={visibleCategories}
+          compact={compactMenu}
         >
           <MenuSearch
             value={searchInput}
@@ -138,6 +141,7 @@ const Index = () => {
             onClear={clearSearch}
             activeTerm={activeTerm}
             resultCount={searching ? matchCount : null}
+            compact={compactMenu}
           />
         </CategoryTabs>
 

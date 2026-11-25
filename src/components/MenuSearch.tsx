@@ -11,11 +11,13 @@ interface MenuSearchProps {
   activeTerm: string;
   /** Quantidade de produtos encontrados, ou null quando não há busca ativa. */
   resultCount: number | null;
+  /** Versão menor para a rolagem no mobile. */
+  compact?: boolean;
 }
 
-const MenuSearch = ({ value, onChange, onSearch, onClear, activeTerm, resultCount }: MenuSearchProps) => {
+const MenuSearch = ({ value, onChange, onSearch, onClear, activeTerm, resultCount, compact = false }: MenuSearchProps) => {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-2 pt-3">
+    <div className={`mx-auto w-full max-w-3xl transition-all duration-300 ${compact ? 'px-3 pb-1.5 pt-2 sm:px-4 sm:pb-2 sm:pt-3' : 'px-4 pb-2 pt-3'}`}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -23,14 +25,14 @@ const MenuSearch = ({ value, onChange, onSearch, onClear, activeTerm, resultCoun
         }}
         className="flex items-center gap-2"
       >
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border-2 border-border bg-card px-3 py-1.5 shadow-sm focus-within:border-primary">
+        <div className={`flex min-w-0 flex-1 items-center gap-2 rounded-full border-2 border-border bg-card px-3 shadow-sm transition-all duration-300 focus-within:border-primary ${compact ? 'py-1 sm:py-1.5' : 'py-1.5'}`}>
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
           <Input
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Buscar no cardápio..."
             aria-label="Buscar produto no cardápio"
-            className="h-8 border-0 bg-transparent px-0 text-sm shadow-none focus-visible:ring-0"
+            className={`border-0 bg-transparent px-0 shadow-none transition-all duration-300 focus-visible:ring-0 ${compact ? 'h-7 text-xs sm:h-8 sm:text-sm' : 'h-8 text-sm'}`}
           />
           {(value || activeTerm) && (
             <button
@@ -45,7 +47,7 @@ const MenuSearch = ({ value, onChange, onSearch, onClear, activeTerm, resultCoun
         </div>
         <Button
           type="submit"
-          className="h-11 shrink-0 rounded-full bg-primary px-4 text-xs font-extrabold uppercase tracking-wide text-primary-foreground shadow-md shadow-primary/30 transition-transform hover:scale-105 active:scale-95"
+          className={`shrink-0 rounded-full bg-primary font-extrabold uppercase tracking-wide text-primary-foreground shadow-md shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95 ${compact ? 'h-9 px-3 text-[10px] sm:h-11 sm:px-4 sm:text-xs' : 'h-11 px-4 text-xs'}`}
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
           <Search className="mr-1.5 h-4 w-4" />
