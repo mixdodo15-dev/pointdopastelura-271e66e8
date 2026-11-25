@@ -5,6 +5,7 @@ import BottomNav from '@/components/BottomNav';
 import CategoryTabs from '@/components/CategoryTabs';
 import MenuSection from '@/components/MenuSection';
 import MenuSearch from '@/components/MenuSearch';
+import AiRecommender from '@/components/AiRecommender';
 import Footer from '@/components/Footer';
 import { CartProvider } from '@/contexts/CartContext';
 import { useCategories } from '@/hooks/useCategories';
@@ -86,6 +87,19 @@ const Index = () => {
     }
   };
 
+  const pickRecommendation = (name: string) => {
+    setSearchInput(name);
+    setActiveTerm(name);
+    setTimeout(() => {
+      const el = document.getElementById('cardapio');
+      if (el) {
+        const bar = document.querySelector('.sticky.top-0') as HTMLElement | null;
+        const top = el.getBoundingClientRect().top + window.scrollY - ((bar?.offsetHeight ?? 60) + 12);
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    }, 150);
+  };
+
   const clearSearch = () => {
     setSearchInput('');
     setActiveTerm('');
@@ -125,6 +139,10 @@ const Index = () => {
         <HeroSection />
         <AuthBanner />
         <Header cartOpen={cartSheetOpen} setCartOpen={setCartSheetOpen} />
+
+        <div className="px-4">
+          <AiRecommender products={searchable} onPick={pickRecommendation} />
+        </div>
 
         <TopDaSemana />
 
